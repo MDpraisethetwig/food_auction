@@ -1,0 +1,17 @@
+{
+  "name": "food-auction",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "db": "npm run db -w apps/server",
+    "migrate": "npm run migrate -w apps/server",
+    "seed": "npm run seed -w apps/server",
+    "server": "npm run dev -w apps/server",
+    "web": "npm run dev -w apps/web",
+    "mobile": "npm run start -w apps/mobile",
+    "test": "npm test -w apps/server"
+  }
+}

@@ -1,0 +1,44 @@
+{
+  "expo": {
+    "name": "LastCall",
+    "slug": "lastcall",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "ios": {
+      "supportsTablet": true
+    },
+    "android": {
+      "adaptiveIcon": {
+        "backgroundColor": "#E6F4FE",
+        "foregroundImage": "./assets/android-icon-foreground.png",
+        "backgroundImage": "./assets/android-icon-background.png",
+        "monochromeImage": "./assets/android-icon-monochrome.png"
+      },
+      "predictiveBackGestureEnabled": false
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "plugins": [
+      "expo-router",
+      "expo-secure-store",
+      "expo-status-bar",
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "LastCall uses the camera to scan pickup codes and photograph food."
+        }
+      ],
+      [
+        "expo-image-picker",
+        {
+          "cameraPermission": "LastCall uses the camera to photograph food for listings.",
+          "photosPermission": "LastCall uses your photos for food listings."
+        }
+      ]
+    ],
+    "scheme": "lastcall"
+  }
+}
