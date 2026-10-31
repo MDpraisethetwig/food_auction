@@ -1,0 +1,12 @@
+/* s00 Opening question: the photo first, the audience guesses, then the weight lands. */
+#s00 .bleed { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; object-fit: cover; object-position: 50% 42%; }
+#s00.is-active .bleed { animation: s00-push 24s linear both; }
+#s00 .scrim { position: absolute; inset: 0; background: linear-gradient(to top, rgb(16 22 27 / .94) 8%, rgb(16 22 27 / .45) 46%, rgb(16 22 27 / .05) 72%); }
+#s00 h1 { position: absolute; left: var(--pad); bottom: 96px; width: 1180px; font-size: 112px; }
+#s00 .answer { position: absolute; right: var(--pad); bottom: 96px; font-size: 76px; line-height: 1.05; text-align: right; color: var(--amber); --n: 5; counter-reset: x var(--n); }
+#s00 .answer::before { content: "About"; display: block; font-size: 40px; color: #fff; }
+#s00 .answer::after { content: counter(x) " tonnes"; font-size: 132px; }
+#s00 .answer.on { animation: s00-count 1s var(--out) both; }
+@keyframes s00-push { from { scale: 1; } to { scale: 1.09; } }
+@keyframes s00-count { from { --n: 0; } }
+@media print { #s00 * { animation: none !important; } }

@@ -1,0 +1,1635 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Full4Less Pitch</title>
+<link rel="icon" href="assets/f4l-icon.svg">
+<style>
+/* Full4Less deck: shared engine styles. Slide-specific CSS lives in slides/NN.css. */
+@font-face { font-family: "Display"; src: url(assets/fonts/display.woff2) format("woff2"); font-weight: 200 800; font-display: block; }
+@font-face { font-family: "Body"; src: url(assets/fonts/body.woff2) format("woff2"); font-weight: 400 700; font-display: block; }
+
+/* Registered so these can be animated smoothly */
+@property --n     { syntax: "<integer>"; inherits: true; initial-value: 0; }
+@property --pct   { syntax: "<number>";  inherits: true; initial-value: 0; }
+@property --angle { syntax: "<angle>";   inherits: true; initial-value: 0deg; }
+
+:root {
+  --ink: #1B242B;
+  --ink-2: #232F38;
+  --ink-3: #2E3B45;
+  --line: rgb(255 255 255 / .14);
+  --fog: #A9B6BE;
+  --paper: #F6F9F4;
+  --green: #72C14A;
+  --leaf: #C4EDA0;
+  --amber: #F5B841;
+  --red: #F0705A;
+
+  /* linear() approximations of springs */
+  --spring: linear(0, .009, .035 2.1%, .141 4.4%, .723 12.9%, .938 16.7%, 1.017, 1.077 20.4%, 1.121, 1.149 24.3%, 1.159, 1.163 27%, 1.154, 1.129 32.8%, 1.051 39.6%, 1.017 43.1%, .991, .977 51%, .974 53.8%, .975 57.1%, .997 69.8%, 1.003 76.9%, 1);
+  --bounce: linear(0, .25 8%, .9 20%, 1.08 28%, 1.02 40%, .99 52%, 1);
+  --out: cubic-bezier(.16, 1, .3, 1);
+  --inout: cubic-bezier(.65, 0, .35, 1);
+
+  --beat-d: .7s;
+  --pad: 96px;
+}
+
+* { box-sizing: border-box; margin: 0; }
+html, body { height: 100%; background: #10161B; color: #fff; overflow: hidden; font-family: "Body", system-ui, sans-serif; -webkit-font-smoothing: antialiased; }
+
+/* 1920x1080 stage, scaled to fit by deck.js */
+#stage { position: fixed; left: 50%; top: 50%; width: 1920px; height: 1080px; transform-origin: 0 0; transform: scale(var(--scale, 1)) translate(-50%, -50%); background: var(--ink); overflow: hidden; contain: layout paint; }
+
+.slide { position: absolute; inset: 0; padding: 88px var(--pad) 96px; display: none; font-size: 30px; line-height: 1.35; view-transition-name: slide; }
+.slide.is-active { display: block; }
+.slide.light { background: var(--paper); color: var(--ink); }
+
+h1, h2, h3, .display { font-family: "Display", "Body", sans-serif; font-weight: 700; letter-spacing: -.02em; line-height: 1.05; text-wrap: balance; }
+h2 { font-size: 84px; }
+h3 { font-size: 40px; line-height: 1.15; }
+p { text-wrap: pretty; }
+.kicker { font-weight: 600; font-size: 24px; letter-spacing: .14em; text-transform: uppercase; color: var(--green); }
+.muted { color: var(--fog); }
+.light .muted { color: #55636C; }
+.green { color: var(--green); }
+.amber { color: var(--amber); }
+.note-small { font-size: 22px; color: var(--fog); }
+.light .note-small { color: #55636C; }
+
+.card { background: var(--ink-2); border: 1px solid var(--line); border-radius: 32px; padding: 36px 40px; corner-shape: squircle; }
+.light .card { background: #fff; border-color: rgb(27 36 43 / .1); box-shadow: 0 12px 40px rgb(27 36 43 / .08); }
+
+/* Monochrome brand marks. Use <img class="logo" src="assets/logos/x.svg" alt="X"> */
+.logo { height: 56px; width: auto; filter: brightness(0) invert(1); }
+.light .logo { filter: brightness(0) saturate(100%) invert(12%) sepia(10%) saturate(1200%) hue-rotate(165deg); }
+
+/* The ambient plate: lives in the stage and glides between slides.
+   Each slide positions it with data-plate="x y size" (px, centre of the ring). */
+#plate { position: absolute; left: 0; top: 0; width: 100px; height: 100px; transform: translate(var(--px, 1500px), var(--py, 540px)) translate(-50%, -50%) scale(var(--ps, 8)); transition: transform 1s var(--out), opacity .6s; view-transition-name: plate; pointer-events: none; opacity: var(--po, .5); }
+#plate svg { width: 100%; height: 100%; overflow: visible; }
+#plate .fan rect { transform-box: fill-box; transform-origin: center; animation: drift 18s var(--inout) infinite alternate; animation-delay: calc(var(--i) * -3s); }
+@keyframes drift { to { rotate: 10deg; } }
+
+/* Beats: anything with data-beat="n" appears on the nth click.
+   data-beat="0" appears on arrival. --i staggers siblings. */
+[data-beat] { opacity: 0; translate: 0 28px; transition: opacity var(--beat-d) var(--out), translate var(--beat-d) var(--spring), scale var(--beat-d) var(--spring); transition-delay: calc(var(--i, 0) * 90ms); }
+@supports (width: calc(sibling-index() * 1px)) {
+  [data-stagger] > * { --i: sibling-index(); }
+}
+[data-beat].on { opacity: 1; translate: 0 0; }
+
+/* Word-by-word title reveal: wrap words in <span class="w"> via data-split on the element */
+[data-split] .w { display: inline-block; opacity: 0; translate: 0 .5em; rotate: 4deg; }
+.is-active [data-split] .w { animation: word .9s var(--spring) forwards; animation-delay: calc(var(--w) * 70ms + .15s); }
+@keyframes word { to { opacity: 1; translate: 0 0; rotate: 0deg; } }
+
+/* Progress */
+#progress { position: absolute; left: var(--pad); right: var(--pad); bottom: 40px; display: flex; align-items: center; gap: 18px; font-size: 20px; color: var(--fog); z-index: 5; pointer-events: none; }
+#progress img { height: 36px; border-radius: 9px; }
+#progress .track { flex: 1; height: 3px; background: var(--line); border-radius: 3px; overflow: hidden; }
+#progress .fill { height: 100%; background: var(--green); width: 100%; transform-origin: left; transform: scaleX(var(--prog, 0)); transition: transform .8s var(--out); }
+#stage[data-tone="light"] #progress { color: #55636C; }
+#stage[data-tone="light"] #progress .track { background: rgb(27 36 43 / .14); }
+#stage[data-tone="bare"] #progress { opacity: 0; }
+
+/* Speaker notes: press N */
+.notes { display: none; }
+#notes { position: fixed; left: 24px; right: 24px; bottom: 24px; max-height: 40vh; overflow: auto; padding: 20px 24px; border-radius: 16px; background: rgb(0 0 0 / .85); color: #fff; font-size: 18px; line-height: 1.45; z-index: 20; white-space: pre-line; display: none; transition: opacity .25s, display .25s allow-discrete; opacity: 0; }
+#notes.open { display: block; opacity: 1; }
+@starting-style { #notes.open { opacity: 0; } }
+
+/* Slide change. Direction comes from the view transition type set in deck.js */
+::view-transition-group(*) { animation-duration: .85s; animation-timing-function: var(--out); }
+::view-transition-old(slide), ::view-transition-new(slide) { animation-duration: .85s; animation-timing-function: var(--out); mix-blend-mode: normal; }
+html:active-view-transition-type(forward) { &::view-transition-old(slide) { animation-name: out-left; } &::view-transition-new(slide) { animation-name: in-right; } }
+html:active-view-transition-type(back) { &::view-transition-old(slide) { animation-name: out-right; } &::view-transition-new(slide) { animation-name: in-left; } }
+@keyframes out-left  { to   { translate: -6% 0; opacity: 0; scale: .96; filter: blur(8px); } }
+@keyframes out-right { to   { translate: 6% 0;  opacity: 0; scale: .96; filter: blur(8px); } }
+@keyframes in-right  { from { translate: 8% 0;  opacity: 0; scale: 1.02; } }
+@keyframes in-left   { from { translate: -8% 0; opacity: 0; scale: 1.02; } }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after, ::view-transition-group(*), ::view-transition-old(*), ::view-transition-new(*) { animation-duration: .01ms !important; animation-delay: 0ms !important; transition-duration: .01ms !important; transition-delay: 0ms !important; }
+}
+
+/* Print to PDF gives a backup deck with every beat visible */
+@page { size: 1920px 1080px; margin: 0; }
+@media print {
+  html, body { overflow: visible; height: auto; background: none; }
+  #stage { position: static; transform: none; height: auto; overflow: visible; contain: none; background: none; }
+  #plate, #progress, #notes { display: none; }
+  .slide { display: block; position: relative; width: 1920px; height: 1080px; break-after: page; overflow: hidden; background: var(--ink); print-color-adjust: exact; -webkit-print-color-adjust: exact; }
+  .slide.light { background: var(--paper); }
+  [data-beat], [data-split] .w { opacity: 1 !important; translate: 0 0 !important; rotate: 0deg !important; animation: none !important; transition: none !important; }
+}
+
+/* s00 Opening question: the photo first, the audience guesses, then the weight lands. */
+#s00 .bleed { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; object-fit: cover; object-position: 50% 42%; }
+#s00.is-active .bleed { animation: s00-push 24s linear both; }
+#s00 .scrim { position: absolute; inset: 0; background: linear-gradient(to top, rgb(16 22 27 / .94) 8%, rgb(16 22 27 / .45) 46%, rgb(16 22 27 / .05) 72%); }
+#s00 h1 { position: absolute; left: var(--pad); bottom: 96px; width: 1180px; font-size: 112px; }
+#s00 .answer { position: absolute; right: var(--pad); bottom: 96px; font-size: 76px; line-height: 1.05; text-align: right; color: var(--amber); --n: 5; counter-reset: x var(--n); }
+#s00 .answer::before { content: "About"; display: block; font-size: 40px; color: #fff; }
+#s00 .answer::after { content: counter(x) " tonnes"; font-size: 132px; }
+#s00 .answer.on { animation: s00-count 1s var(--out) both; }
+@keyframes s00-push { from { scale: 1; } to { scale: 1.09; } }
+@keyframes s00-count { from { --n: 0; } }
+@media print { #s00 * { animation: none !important; } }
+
+/* s02 Hook. Base styles are the finished slide (beat 3, and print).
+   data-step rules wind it back: hero pie on the plate, then a clear look at the photo. */
+
+/* Photo moment */
+#s02 .bleed { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; object-fit: cover; object-position: 50% 42%; translate: 0 0; transition: opacity .9s var(--out); }
+#s02[data-step="2"] .bleed, #s02[data-step="3"] .bleed { animation: s02-burns 16s linear both; }
+#s02 .scrim { position: absolute; inset: 0; opacity: .9; background: linear-gradient(90deg, rgb(16 22 27 / .97), rgb(16 22 27 / .8)); transition: opacity 1s var(--out); }
+#s02[data-step="0"] .scrim, #s02[data-step="1"] .scrim { opacity: 0; transition: none; }
+#s02[data-step="2"] .scrim { opacity: .78; transition: opacity 1s var(--inout) 1.5s; }
+
+#s02 .kicker, #s02 .lead, #s02 .pie, #s02 .num, #s02 .cap, #s02 .src, #s02 .right { position: absolute; }
+#s02 .kicker { left: var(--pad); top: 88px; }
+
+/* Arrival question */
+#s02 .lead { left: var(--pad); top: 340px; width: 760px; font-size: 92px; opacity: 0; transition: opacity .4s; }
+#s02[data-step="0"] .lead { opacity: 1; }
+
+/* Pies. --angle draws them; both share the same whole */
+#s02 .pie { width: 220px; height: 220px; border-radius: 50%; left: var(--pad); box-shadow: 0 0 0 2px var(--line); }
+#s02 .pie-a { top: 196px; --angle: 167.4deg; background: conic-gradient(var(--red) var(--angle), rgb(255 255 255 / .12) 0); }
+#s02 .pie-b { top: 556px; --angle: 25.2deg; translate: 0 0; background: conic-gradient(var(--red) var(--angle), color-mix(in srgb, var(--red) 28%, transparent) 0); }
+
+#s02 .num { left: 348px; font-size: 104px; line-height: 1; }
+#s02 .num::before { color: var(--red); }
+#s02 .num-a { top: 196px; --n: 465; counter-reset: w round(down, var(--n) / 10, 1) t mod(var(--n), 10); }
+#s02 .num-a::before { content: counter(w) "." counter(t) "%"; }
+#s02 .num-b { top: 556px; --n: 7; counter-reset: x var(--n); }
+#s02 .num-b::before { content: counter(x) "%"; }
+#s02 .cap { left: 348px; width: 390px; font-size: 28px; line-height: 1.28; }
+#s02 .cap-a { top: 312px; }
+#s02 .cap-b { top: 672px; }
+#s02 .src { left: var(--pad); top: 938px; }
+
+/* Hero layout for beats 0 and 1: --hero maps each piece from its finished spot */
+#s02 .pie-a { --hero: translate(1084px, 214px) scale(2.91); }
+#s02 .num-a { --hero: translate(-252px, 84px) scale(2.45); transform-origin: 0 0; }
+#s02 .cap-a { --hero: translate(-252px, 248px) scale(1.5); transform-origin: 0 0; }
+#s02 .src { --hero: none; }
+#s02 .kicker { --hero: none; }
+#s02:is([data-step="0"], [data-step="1"]) :is(.pie-a, .num-a, .cap-a) { transform: var(--hero); }
+#s02[data-step="0"] .pie-a { --angle: 0deg; }
+#s02[data-step="1"] .pie-a { animation: s02-pie-a 1.9s var(--out) both; }
+#s02[data-step="1"] .num-a { animation: s02-467 1.9s var(--out) both; }
+/* On beat 2 the hero clears out so the photo stands alone, then each piece returns home */
+#s02[data-step="2"] :is(.pie-a, .num-a, .cap-a, .kicker, .src) { animation: s02-home 2.5s linear both; }
+
+/* Elephant count */
+#s02 .right { left: 790px; top: 92px; width: 1034px; }
+#s02 .right.on { transition-delay: 1.5s; }
+#s02 .elc { font-size: 168px; line-height: 1; --n: 42; counter-reset: w round(down, var(--n) / 10, 1) t mod(var(--n), 10); }
+#s02 .elc::before { content: counter(w) "." counter(t) " million"; }
+#s02[data-step="2"] .elc { animation: s02-42 1.9s linear 1.6s both; }
+#s02 .els { margin-top: 6px; font-size: 34px; }
+
+/* The herd */
+#s02 .herd { margin-top: 26px; padding: 28px 32px 22px; background: color-mix(in srgb, var(--ink) 62%, transparent); backdrop-filter: blur(14px) saturate(.7); }
+#s02 .field { display: block; width: 100%; height: auto; }
+#s02 .field use { fill: var(--red); transform-box: fill-box; transform-origin: center; }
+#s02 .field use:nth-child(n+30) { opacity: .26; }
+#s02:is([data-step="0"], [data-step="1"]) .field use:nth-child(n) { opacity: 0; scale: .3; }
+#s02[data-step="2"] .field use:nth-child(n) { opacity: 1; transition: opacity .25s linear, scale .4s var(--spring); transition-delay: calc(1.6s + var(--i, 1) * 4.5ms); }
+#s02[data-step="3"] .field use { transition: opacity .8s var(--out); }
+
+#s02 .legend { display: flex; justify-content: space-between; gap: 32px; margin-top: 18px; color: var(--fog); }
+#s02 .legend .fs { color: #fff; translate: 0 0; }
+#s02 .eln { --n: 288; counter-reset: x var(--n); color: var(--red); font-weight: 700; }
+#s02 .eln::before { content: counter(x) ",000"; }
+#s02[data-step="3"] .eln { animation: s02-638 1.6s var(--out) both; }
+
+/* Beat 3 */
+#s02[data-step="3"] .pie-b { animation: s02-pie-b 1.5s var(--out) both; }
+#s02[data-step="3"] .num-b { animation: s02-7 1.2s var(--out) both; }
+
+@keyframes s02-burns { from { scale: 1.07; } to { scale: 1; } }
+@keyframes s02-pie-a { from { --angle: 0deg; } to { --angle: 167.4deg; } }
+@keyframes s02-pie-b { from { --angle: 0deg; } to { --angle: 25.2deg; } }
+@keyframes s02-467 { from { --n: 0; } to { --n: 465; } }
+@keyframes s02-42 { from { --n: 0; } to { --n: 42; } }
+@keyframes s02-638 { from { --n: 0; } to { --n: 288; } }
+@keyframes s02-7 { from { --n: 0; } to { --n: 7; } }
+@keyframes s02-home {
+  0% { opacity: 1; transform: var(--hero); }
+  12% { opacity: 0; transform: var(--hero); }
+  60% { opacity: 0; transform: none; }
+  84%, 100% { opacity: 1; transform: none; }
+}
+
+@media print {
+  #s02 * { animation: none !important; }
+}
+
+/* s01 Title: the logo builds itself on stage */
+#s01 { background: radial-gradient(760px 760px at 352px 540px, color-mix(in srgb, var(--green) 11%, transparent), transparent 72%) var(--ink); }
+
+#s01 .mark { position: absolute; left: 13px; top: 160px; width: 760px; height: 760px; overflow: visible; }
+
+/* Ring draws on */
+#s01 .ring { stroke-linecap: round; stroke-dasharray: 1 2; stroke-dashoffset: 0; }
+#s01.is-active .ring { animation: s01-draw 1.1s var(--inout) .15s both; }
+
+/* Containers fan out of a single stack */
+#s01 .glow { opacity: .5; }
+#s01.is-active .glow { animation: s01-glow 1.2s var(--out) .7s both; }
+#s01 .fan rect { rotate: var(--r); }
+#s01.is-active .fan rect { animation: s01-fan .95s var(--spring) both; animation-delay: calc(.75s + var(--o) * 90ms); }
+
+/* F, 4, L written stroke by stroke */
+#s01 .strokes path { stroke-dasharray: 1 2; stroke-dashoffset: 0; }
+#s01.is-active .strokes path { animation: s01-draw .42s var(--inout) both; animation-delay: calc(1.45s + var(--o) * 280ms); }
+
+/* Leaf pops into the counter of the 4 */
+#s01 .leaf { transform-box: fill-box; transform-origin: 20% 95%; }
+#s01.is-active .leaf { animation: s01-leaf .85s var(--bounce) 2.8s both; }
+
+/* Wordmark */
+#s01 .words { position: absolute; left: 790px; right: var(--pad); top: 228px; }
+#s01 .domain { margin-bottom: 14px; }
+#s01 h1 { font-size: 216px; line-height: 1; white-space: nowrap; }
+#s01 h1 span { display: inline-block; }
+#s01.is-active h1 span { animation: s01-letter .8s var(--spring) both; animation-delay: calc(1.2s + var(--i, 1) * 55ms); }
+#s01 .line { margin-top: 34px; font-size: 38px; line-height: 1.32; max-width: 960px; color: var(--fog); }
+#s01 .line strong { display: block; margin-bottom: 12px; font-size: 64px; color: #fff; }
+#s01 .speakers { position: absolute; left: 790px; bottom: 112px; font-size: 28px; }
+
+#s01.is-active .domain { animation: s01-rise .8s var(--out) 1.1s both; }
+#s01.is-active .line { animation: s01-rise .9s var(--out) 2.1s both; }
+#s01.is-active .speakers { animation: s01-rise .9s var(--out) 2.9s both; }
+
+@keyframes s01-draw { from { stroke-dashoffset: 1.002; } to { stroke-dashoffset: 0; } }
+@keyframes s01-glow { from { opacity: 0; } to { opacity: .5; } }
+@keyframes s01-fan { from { rotate: 0deg; scale: .72; opacity: 0; } to { rotate: var(--r); scale: 1; opacity: 1; } }
+@keyframes s01-leaf { from { scale: 0; rotate: -38deg; } to { scale: 1; rotate: 0deg; } }
+@keyframes s01-letter { from { opacity: 0; translate: 0 .42em; rotate: 6deg; } to { opacity: 1; translate: 0 0; rotate: 0deg; } }
+@keyframes s01-rise { from { opacity: 0; translate: 0 22px; } to { opacity: 1; translate: 0 0; } }
+
+@media print {
+  #s01 * { animation: none !important; }
+}
+
+/* s03 Problem: two photos start apart, then a plate carries a line between them.
+   The base styles are the connected end state; data-step below 3 pulls them apart. */
+#s03 .kicker { margin-bottom: 6px; }
+
+#s03 .ph { position: absolute; top: 240px; width: 700px; height: 530px; z-index: 2; transition: opacity var(--beat-d) var(--out), translate var(--beat-d) var(--spring), transform 1.1s var(--spring); }
+#s03 .rest { left: var(--pad); transform-origin: 0 50%; }
+#s03 .stud { right: var(--pad); transform-origin: 100% 50%; }
+#s03[data-step="0"] .rest, #s03[data-step="1"] .rest, #s03[data-step="2"] .rest { transform: scale(.86) rotate(-3deg); }
+#s03[data-step="0"] .stud, #s03[data-step="1"] .stud, #s03[data-step="2"] .stud { transform: scale(.86) rotate(3deg); }
+
+/* A fanned container tucked behind each photo, from the logo */
+#s03 .ph::before { content: ""; position: absolute; inset: 0; border-radius: 40px; corner-shape: squircle; background: rgb(255 255 255 / .09); rotate: -4deg; }
+#s03 .stud::before { rotate: 4deg; }
+
+#s03 .in { position: relative; height: 100%; border-radius: 40px; corner-shape: squircle; overflow: hidden; }
+#s03 .in img { display: block; width: 100%; height: 100%; object-fit: cover; }
+#s03 .rest img { object-position: 50% 74%; }
+#s03 .stud img { object-position: 50% 62%; }
+
+/* The connection */
+#s03 .link { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; z-index: 1; overflow: visible; translate: 0 0; pointer-events: none; }
+#s03 .link path { fill: none; stroke: var(--green); stroke-width: 10; stroke-linecap: round; stroke-dasharray: 1 2; stroke-dashoffset: 0; }
+#s03 .link.on path { animation: s03-draw 1.25s var(--inout) both; }
+
+#s03 .hub { position: absolute; left: 0; top: 0; width: 176px; height: 176px; z-index: 3; border-radius: 40px; box-shadow: 0 16px 50px rgb(0 0 0 / .4); offset-path: path("M770 555 C860 435 1060 575 1150 455"); offset-rotate: 0deg; offset-distance: 50%; translate: 0 0; transition-duration: .2s; }
+#s03 .hub.on { animation: s03-carry 1.1s var(--inout) both, s03-land .7s var(--spring) 1.02s both; }
+
+#s03 .proof { position: absolute; top: 796px; width: 700px; height: 170px; padding: 24px 36px; display: flex; align-items: center; gap: 30px; }
+#s03 .p-rest { left: var(--pad); }
+#s03 .p-stud { right: var(--pad); }
+#s03 .proof b { font-size: 92px; line-height: 1; color: var(--green); flex: none; }
+#s03 .proof p { font-size: 29px; line-height: 1.26; }
+#s03 .proof.on { transition-delay: calc(1.1s + var(--i, 0) * 90ms); }
+
+@keyframes s03-draw { from { stroke-dashoffset: 1.002; } to { stroke-dashoffset: 0; } }
+@keyframes s03-carry { from { offset-distance: 0%; } to { offset-distance: 50%; } }
+@keyframes s03-land { from { scale: 1; } 40% { scale: 1.14; } to { scale: 1; } }
+
+@media print {
+  #s03 * { animation: none !important; }
+}
+
+/* Slide 05: Value proposition. A balance beam: one side lands, the beam tips; the other lands, it levels. */
+#s05 > .kicker { text-align: center; }
+#s05 h2 { font-size: 176px; line-height: 1; text-align: center; margin-top: 18px; letter-spacing: -.03em; }
+#s05 h2 .ln { display: block; }
+
+#s05 .balance { position: absolute; left: var(--pad); right: var(--pad); top: 925px; }
+#s05 .beam { --angle: 0deg; position: absolute; left: 0; right: 0; top: 0; height: 8px; border-radius: 8px; background: var(--fog); rotate: var(--angle); transform-origin: 50% 50%; transition: --angle 1.1s var(--spring); }
+@media screen {
+  #s05[data-step="1"] .beam { --angle: -3.2deg; }
+}
+#s05 .arm { position: absolute; bottom: 8px; width: 590px; min-height: 216px; display: flex; flex-direction: column; justify-content: center; gap: 10px; padding: 26px 38px; background: var(--ink-2); border: 1px solid var(--line); border-radius: 32px; corner-shape: squircle; rotate: calc(var(--angle) * -1); transform-origin: 50% 100%; }
+#s05 .arm.cust { left: 14px; }
+#s05 .arm.biz { right: 14px; }
+#s05 .arm h3 { font-size: 44px; }
+#s05 .arm.cust { translate: -60px -40px; }
+#s05 .arm.biz { translate: 60px -40px; }
+#s05 .arm.on { translate: 0 0; }
+
+/* Cropped to the logo's own ring, so the plate rests on the beam */
+#s05 .dish { position: absolute; left: 50%; bottom: 7px; width: 252px; height: 252px; margin-left: -126px; border-radius: 50%; overflow: hidden; rotate: calc(var(--angle) * -1); transform-origin: 50% 100%; }
+#s05 .dish img { display: block; width: 124%; height: 124%; margin: -12%; }
+#s05.is-active .dish img { animation: s05-land .9s var(--bounce) .35s backwards; }
+@keyframes s05-land { from { scale: .5; opacity: 0; translate: 0 -70px; } }
+
+#s05 .pivot { position: absolute; left: 50%; top: 4px; width: 92px; height: 56px; margin-left: -46px; background: var(--fog); clip-path: polygon(50% 0, 100% 100%, 0 100%); }
+
+@media print {
+  #s05 .arm { translate: 0 0 !important; }
+  #s05 .dish img { animation: none; }
+}
+
+/* Slide 06: Solution. Beats are hidden sentinels: #s06:has([data-beat="N"].on) means "step is at least N".
+   Timed moments inside a beat are transition-delays, so going back simply undoes them. */
+
+/* Left column */
+#s06 .story { position: absolute; left: var(--pad); top: 88px; width: 1090px; bottom: 96px; display: flex; flex-direction: column; }
+#s06 h2 { font-size: 56px; line-height: 1.1; margin-top: 12px; }
+
+#s06 .flow { --rail: 0; position: relative; list-style: none; padding: 0; margin-top: 30px; display: grid; gap: 14px; }
+#s06 .flow::before, #s06 .flow::after { content: ""; position: absolute; left: 25px; top: 29px; bottom: 29px; width: 3px; margin-left: -1px; background: var(--ink-3); }
+#s06 .flow::after { background: var(--green); transform-origin: top; scale: 1 var(--rail); transition: scale 1.1s var(--inout); }
+#s06 .flow li { position: relative; z-index: 1; display: flex; align-items: center; gap: 26px; height: 58px; font-size: 33px; font-weight: 600; color: var(--fog); opacity: .6; transition: color .5s, opacity .5s; }
+#s06 .flow b { flex: none; display: grid; place-items: center; width: 50px; height: 50px; border-radius: 50%; font-size: 26px; background: var(--ink-3); color: var(--fog); transition: background .5s, color .5s, scale .7s var(--spring); }
+#s06 .flow li:nth-child(1), #s06 .flow li.lit { color: #fff; opacity: 1; }
+#s06 .flow li:nth-child(1) b { background: var(--green); color: var(--ink); }
+
+#s06:has([data-beat="1"].on) .flow { --rail: .4; }
+#s06:has([data-beat="1"].on) .flow li:nth-child(2) { color: #fff; opacity: 1; }
+#s06:has([data-beat="1"].on) .flow li:nth-child(2) b { background: var(--green); color: var(--ink); }
+#s06:has([data-beat="1"].on) .flow li:nth-child(3) { color: #fff; opacity: 1; transition-delay: 1.1s; }
+#s06:has([data-beat="1"].on) .flow li:nth-child(3) b { background: var(--green); color: var(--ink); transition-delay: 1.1s; }
+#s06:has([data-beat="2"].on) .flow { --rail: .6; }
+#s06:has([data-beat="2"].on) .flow li:nth-child(3), #s06:has([data-beat="2"].on) .flow li:nth-child(3) b { transition-delay: 0s; }
+#s06:has([data-beat="2"].on) .flow li:nth-child(4) { color: #fff; opacity: 1; }
+#s06:has([data-beat="2"].on) .flow li:nth-child(4) b { background: var(--amber); color: var(--ink); scale: 1.08; }
+#s06:has([data-beat="4"].on) .flow { --rail: .8; }
+#s06:has([data-beat="4"].on) .flow li:nth-child(4) b { scale: 1; }
+#s06:has([data-beat="4"].on) .flow li:nth-child(5) { color: #fff; opacity: 1; }
+#s06:has([data-beat="4"].on) .flow li:nth-child(5) b { background: var(--green); color: var(--ink); scale: 1.08; }
+#s06:has([data-beat="5"].on) .flow { --rail: 1; }
+#s06:has([data-beat="5"].on) .flow li:nth-child(5) b { scale: 1; }
+#s06:has([data-beat="5"].on) .flow li:nth-child(6) { color: #fff; opacity: 1; }
+#s06:has([data-beat="5"].on) .flow li:nth-child(6) b { background: var(--green); color: var(--ink); scale: 1.08; }
+
+#s06 .missed { font-size: 29px; line-height: 1.2; color: var(--leaf); margin-top: 24px; }
+
+#s06 .built { margin-top: auto; }
+#s06 .built ul { list-style: none; padding: 0; margin-top: 8px; display: flex; justify-content: space-between; }
+#s06 .built li { display: flex; flex-direction: column; align-items: center; gap: 6px; font-size: 20px; color: var(--fog); }
+#s06 .built .logo { height: 34px; max-width: 120px; object-fit: contain; }
+#s06 .disclosure { margin-top: 12px; color: #C9D3D9; }
+
+/* Phone */
+#s06 .phone { position: absolute; left: 1332px; top: 88px; width: 432px; height: 892px; padding: 13px; border-radius: 66px; background: #0C1115; box-shadow: 0 0 0 2px #46525B, 0 40px 90px rgb(0 0 0 / .5); transition: box-shadow 1s var(--out); }
+#s06 .screen { position: relative; width: 100%; height: 100%; border-radius: 54px; overflow: hidden; background: var(--ink-2); }
+#s06 .island { position: absolute; left: 50%; top: 14px; width: 118px; height: 34px; margin-left: -59px; border-radius: 20px; background: #0C1115; z-index: 9; }
+
+#s06 .photo { position: absolute; inset: 0 0 auto; height: 348px; background: url(assets/pizza.jpg) 50% 76% / 124% auto no-repeat; }
+#s06 .photo::after { content: ""; position: absolute; inset: 60% 0 0; background: linear-gradient(transparent, var(--ink-2)); }
+#s06 .shutter { position: absolute; inset: 0; background: #fff; opacity: 0; z-index: 2; }
+#s06.is-active .shutter { animation: s06-shutter .9s var(--out) .55s; }
+@keyframes s06-shutter { 0% { opacity: .95; } 100% { opacity: 0; } }
+#s06 .frame { position: absolute; inset: 70px 32px 40px; z-index: 1; --c: #fff; --l: 42px; background: linear-gradient(var(--c) 0 0) 0 0 / var(--l) 3px, linear-gradient(var(--c) 0 0) 0 0 / 3px var(--l), linear-gradient(var(--c) 0 0) 100% 0 / var(--l) 3px, linear-gradient(var(--c) 0 0) 100% 0 / 3px var(--l), linear-gradient(var(--c) 0 0) 0 100% / var(--l) 3px, linear-gradient(var(--c) 0 0) 0 100% / 3px var(--l), linear-gradient(var(--c) 0 0) 100% 100% / var(--l) 3px, linear-gradient(var(--c) 0 0) 100% 100% / 3px var(--l); background-repeat: no-repeat; transition: opacity .5s, scale .7s var(--out); }
+#s06:has([data-beat="1"].on) .frame { opacity: 0; scale: 1.08; }
+
+#s06 .live { position: absolute; left: 22px; top: 62px; z-index: 2; display: flex; align-items: center; gap: 8px; padding: 5px 15px 5px 12px; border-radius: 20px; font-size: 20px; font-weight: 600; background: var(--amber); color: var(--ink); opacity: 0; scale: .6; transition: opacity .4s, scale .6s var(--spring); }
+#s06 .live i { width: 11px; height: 11px; border-radius: 50%; background: var(--ink); }
+#s06:has([data-beat="2"].on) .live { opacity: 1; scale: 1; }
+#s06:has([data-beat="4"].on) .live { opacity: 0; scale: .6; }
+/* Slow, subtle loop */
+#s06:has([data-beat="2"].on) .live i { animation: s06-pulse 2.4s ease-in-out infinite; }
+@keyframes s06-pulse { 50% { opacity: .35; } }
+
+/* Listing: skeleton until the AI draft, allergens wait for staff */
+#s06 .listing { position: absolute; left: 24px; right: 24px; top: 332px; height: 182px; }
+#s06 .skel { position: absolute; left: 0; height: 26px; border-radius: 10px; background: var(--ink-3); transition: opacity .35s; }
+#s06 .skel.s1 { top: 8px; width: 72%; }
+#s06 .skel.s2 { top: 58px; width: 92%; }
+#s06:has([data-beat="1"].on) .skel { opacity: 0; }
+#s06 .listing h3 { font-size: 35px; clip-path: inset(0 100% 0 0); transition: clip-path .7s var(--inout); }
+#s06 .desc { font-size: 22px; line-height: 1.25; color: var(--fog); margin-top: 8px; clip-path: inset(0 100% 0 0); transition: clip-path .7s var(--inout); }
+#s06:has([data-beat="1"].on) .listing h3 { clip-path: inset(0); }
+#s06:has([data-beat="1"].on) .desc { clip-path: inset(0); transition-delay: .25s; }
+#s06 .allergens { display: inline-flex; align-items: center; gap: 8px; margin-top: 12px; padding: 5px 16px 5px 10px; border-radius: 22px; font-size: 21px; font-weight: 600; background: color-mix(in srgb, var(--green) 20%, transparent); color: var(--leaf); opacity: 0; scale: .8; transform-origin: 0 50%; transition: opacity .35s, scale .6s var(--spring); }
+#s06 .allergens svg { width: 24px; height: 24px; fill: none; stroke: currentColor; stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
+#s06:has([data-beat="1"].on) .allergens { opacity: 1; scale: 1; transition-delay: 1.1s; }
+
+/* Bid block */
+#s06 .bid { position: absolute; left: 12px; right: 12px; top: 522px; height: 176px; display: flex; justify-content: space-between; align-items: center; padding: 8px 14px 8px 14px; border-radius: 26px; overflow: hidden; opacity: 0; translate: 0 24px; transition: opacity .5s, translate .7s var(--spring); }
+#s06 .bid::before, #s06 .bid::after { content: ""; position: absolute; inset: 0; background: var(--amber); opacity: 0; pointer-events: none; }
+#s06:has([data-beat="2"].on) .bid { opacity: 1; translate: 0 0; }
+#s06:has([data-beat="2"].on) .bid::before { animation: s06-flash .9s var(--out) .15s, s06-flash .9s var(--out) 1.3s; }
+#s06:has([data-beat="3"].on) .bid::after { animation: s06-flash .9s var(--out) .7s; }
+@keyframes s06-flash { 0% { opacity: .55; } 100% { opacity: 0; } }
+
+#s06 .cur { position: relative; z-index: 1; }
+#s06 .lbl { font-size: 21px; color: var(--fog); }
+#s06 .price { position: relative; height: 84px; width: 210px; font-size: 76px; line-height: 84px; color: var(--amber); }
+#s06 .p { position: absolute; left: 0; top: 0; opacity: 0; translate: 0 38px; transition: opacity .3s, translate .5s var(--spring); }
+#s06 .p4 { opacity: 1; translate: 0 0; }
+/* $4.00 hands over to $5.00, then the rebid takes it to $6.50 */
+#s06:has([data-beat="2"].on) .p4 { opacity: 0; translate: 0 -38px; transition-delay: 1.3s; }
+#s06:has([data-beat="2"].on) .p5 { opacity: 1; translate: 0 0; transition-delay: 1.3s; }
+#s06:has([data-beat="3"].on) .p4 { transition-delay: 0s; }
+#s06:has([data-beat="3"].on) .p5 { opacity: 0; translate: 0 -38px; transition-delay: .7s; }
+#s06:has([data-beat="3"].on) .p65 { opacity: 1; translate: 0 0; transition-delay: .7s; }
+
+#s06 .status { position: relative; height: 28px; font-size: 21px; font-weight: 600; }
+#s06 .st { position: absolute; left: 0; top: 0; white-space: nowrap; transition: opacity .3s; }
+#s06 .st.lead { color: var(--leaf); }
+#s06 .st.out { color: var(--amber); opacity: 0; }
+#s06:has([data-beat="2"].on) .st.lead { opacity: 0; transition-delay: 1.3s; }
+#s06:has([data-beat="2"].on) .st.out { opacity: 1; transition-delay: 1.3s; }
+#s06:has([data-beat="3"].on) .st.lead { opacity: 1; transition-delay: .7s; }
+#s06:has([data-beat="3"].on) .st.out { opacity: 0; transition-delay: .7s; }
+
+/* Countdown ring: --n is seconds left, and drives both the arc and the label */
+#s06 .timer { --n: 45; position: relative; z-index: 1; flex: none; width: 118px; height: 118px; border-radius: 50%; display: grid; place-items: center; transition: --n .4s linear; }
+#s06 .timer::before { content: ""; position: absolute; inset: 0; border-radius: 50%; background: conic-gradient(var(--amber) calc(var(--n) / 45 * 1turn), var(--ink-3) 0); mask: radial-gradient(farthest-side, transparent calc(100% - 11px), #000 calc(100% - 10px)); }
+#s06 .timer span { font-size: 28px; font-weight: 700; font-family: "Display", "Body", sans-serif; counter-reset: s var(--n); }
+#s06 .timer span::before { content: "0:" counter(s, decimal-leading-zero); }
+#s06:has([data-beat="2"].on) .timer { --n: 9; transition: --n 36s linear; }
+#s06:has([data-beat="4"].on) .timer { --n: 0; transition: --n .7s var(--out); }
+
+/* Buttons */
+#s06 .actions { position: absolute; left: 24px; right: 24px; bottom: 34px; display: grid; grid-template-columns: 1fr 1.5fr; gap: 12px; opacity: 0; transition: opacity .5s; }
+#s06:has([data-beat="2"].on) .actions { opacity: 1; }
+#s06 .btn { display: grid; place-items: center; height: 78px; border-radius: 26px; font-size: 28px; font-weight: 700; }
+#s06 .bidbtn { background: color-mix(in srgb, var(--amber) 18%, transparent); color: var(--amber); box-shadow: inset 0 0 0 2px var(--amber); }
+#s06 .buy { background: var(--green); color: var(--ink); }
+#s06:has([data-beat="3"].on) .bidbtn { animation: s06-tap .6s var(--out) .2s; }
+@keyframes s06-tap { 40% { scale: .92; background: var(--amber); color: var(--ink); } }
+
+/* Outbid alert */
+#s06 .alert { position: absolute; left: 12px; right: 12px; top: 58px; z-index: 6; display: flex; align-items: center; gap: 16px; padding: 16px 20px; border-radius: 26px; background: var(--amber); color: var(--ink); box-shadow: 0 16px 40px rgb(0 0 0 / .4); translate: 0 -190px; transition: translate .5s var(--inout); }
+#s06 .alert svg { flex: none; width: 46px; height: 46px; fill: none; stroke: currentColor; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
+#s06 .alert strong { display: block; font-size: 27px; line-height: 1.15; }
+#s06 .alert span { font-size: 22px; }
+#s06:has([data-beat="2"].on) .alert { translate: 0 0; transition: translate .8s var(--spring) 1.9s; }
+#s06:has([data-beat="3"].on) .alert { translate: 0 -190px; transition: translate .4s var(--inout); }
+
+/* You won, then the sheet rises to reveal the QR */
+#s06 .sheet { --peek: 412px; position: absolute; left: 0; right: 0; bottom: 0; height: 564px; z-index: 7; padding: 26px 28px 0; border-radius: 38px 38px 0 0; background: var(--paper); color: var(--ink); box-shadow: 0 -18px 50px rgb(0 0 0 / .45); translate: 0 100%; transition: translate .9s var(--spring); }
+#s06:has([data-beat="4"].on) .sheet { translate: 0 var(--peek); }
+#s06:has([data-beat="5"].on) .sheet { translate: 0 0; }
+#s06 .won { display: flex; align-items: center; gap: 16px; }
+#s06 .won svg { flex: none; width: 92px; height: 92px; fill: none; stroke: var(--green); stroke-width: 6; stroke-linecap: round; stroke-linejoin: round; }
+#s06 .won svg > * { stroke-dasharray: 1; stroke-dashoffset: 1; transition: stroke-dashoffset .8s var(--inout) .35s; }
+#s06:has([data-beat="4"].on) .won svg > * { stroke-dashoffset: 0; }
+#s06 .won .display { font-size: 54px; line-height: 1; }
+#s06 .paid { font-size: 22px; line-height: 1.15; font-weight: 600; color: #41505A; margin-top: 6px; }
+#s06 .qr { position: relative; width: 322px; height: 322px; margin: 22px auto 0; padding: 12px; border-radius: 22px; background: #fff; box-shadow: 0 8px 26px rgb(27 36 43 / .12); overflow: hidden; }
+#s06 .qr svg { display: block; width: 100%; height: 100%; fill: var(--ink); clip-path: inset(0 0 100% 0); transition: clip-path .9s var(--inout) .25s; }
+#s06:has([data-beat="5"].on) .qr svg { clip-path: inset(0); }
+#s06 .scan { position: absolute; left: 0; right: 0; top: 0; height: 5px; background: var(--green); box-shadow: 0 0 18px var(--green); opacity: 0; }
+/* Slow, subtle loop */
+#s06:has([data-beat="5"].on) .scan { animation: s06-scan 3.6s var(--inout) 1.2s infinite alternate; }
+@keyframes s06-scan { 0% { opacity: .85; top: 4%; } 100% { opacity: .85; top: 95%; } }
+#s06 .at { text-align: center; font-size: 24px; font-weight: 600; margin-top: 14px; }
+
+@media print {
+  #s06 .flow { --rail: 1; }
+  #s06 .flow li { color: #fff; opacity: 1; }
+  #s06 .flow b { background: var(--green); color: var(--ink); }
+  #s06 .frame, #s06 .skel, #s06 .alert { display: none; }
+  #s06 .live { opacity: 0; }
+  #s06 .allergens { opacity: 1; scale: 1; }
+  #s06 .listing h3, #s06 .desc, #s06 .qr svg { clip-path: none; }
+  #s06 .bid, #s06 .actions { opacity: 1; translate: 0 0; }
+  #s06 .p4, #s06 .p5 { opacity: 0; }
+  #s06 .p65 { opacity: 1; translate: 0 0; }
+  #s06 .timer { --n: 0; }
+  #s06 .sheet { translate: 0 0; }
+  #s06 .won svg > * { stroke-dashoffset: 0; }
+}
+
+/* Slide 07: one $8 meal comes apart, then the commission opens up into its own bar.
+   Default rules are the final state, so print shows everything. The earlier
+   steps are screen-only overrides keyed off data-step, which the engine sets. */
+#s07 { --deep: color-mix(in oklab, var(--green) 58%, var(--ink)); }
+#s07 h2 { font-size: 72px; white-space: nowrap; margin-top: 10px; }
+#s07 .sub { font-size: 32px; margin-top: 14px; }
+
+#s07 .meal { position: absolute; left: var(--pad); top: 306px; width: 1034px; transition: width .9s var(--inout); }
+#s07 .fee-label { height: 42px; font-size: 26px; text-align: right; white-space: nowrap; }
+
+#s07 .bar { display: flex; gap: 12px; height: 196px; transition: gap .7s var(--spring); }
+#s07 .seg { display: flex; flex-direction: column; justify-content: center; min-width: 0; border-radius: 28px; corner-shape: squircle; padding: 0 36px; line-height: 1.15; transition: background-color .6s var(--out), border-radius .6s var(--out), color .6s var(--out); }
+#s07 .seg b { font-weight: 700; }
+
+#s07 .rest { flex: 85 1 0; position: relative; background: var(--ink); color: #fff; }
+#s07 .fee { flex: 15 1 0; align-items: center; padding: 0; background: var(--green); color: var(--ink); }
+#s07 .fee b { font-size: 50px; transition: opacity .5s var(--out) .15s; }
+
+#s07 .whole { position: absolute; left: 44px; top: 50%; translate: 0 -50%; font-size: 84px; white-space: nowrap; opacity: 0; transition: opacity .35s var(--out); }
+#s07 .kept { display: flex; align-items: baseline; gap: 20px; font-size: 30px; transition: opacity .5s var(--out) .15s; }
+#s07 .kept b { font-size: 84px; }
+
+#s07 .wedge { height: 118px; background: linear-gradient(color-mix(in srgb, var(--green) 48%, transparent), color-mix(in srgb, var(--green) 16%, transparent)); clip-path: polygon(85% 0, 100% 0, 100% 100%, 0 100%); translate: none; transition: opacity .4s var(--out), clip-path .9s var(--inout); }
+
+#s07 .low { display: flex; gap: 12px; height: 196px; translate: none; clip-path: inset(0 0 0 0 round 28px); transition: opacity .4s var(--out), clip-path .9s var(--inout); }
+#s07 .low .seg { padding: 0 32px; }
+#s07 .low b { font-size: 54px; white-space: nowrap; }
+#s07 .low span { font-size: 26px; margin-top: 6px; }
+#s07 .processing { flex: 59 1 0; background: #DCE3DD; color: var(--ink); }
+#s07 .left { flex: 91 1 0; background: var(--green); color: var(--ink); }
+
+#s07 .basis { margin-top: 20px; display: flex; flex-wrap: wrap; column-gap: 26px; }
+
+/* Running costs */
+#s07 .costs { position: absolute; left: 1180px; top: 296px; width: 644px; padding: 30px 36px 32px; }
+#s07 .costs h3 { font-size: 38px; }
+#s07 ul { list-style: none; padding: 0; margin-top: 10px; }
+#s07 li { display: grid; grid-template-columns: 48px 1fr 190px; align-items: center; column-gap: 18px; min-height: 96px; padding: 10px 0; border-bottom: 1px solid rgb(27 36 43 / .1); line-height: 1.2; }
+#s07 li:last-child { border-bottom: 0; }
+#s07 li .logo { height: 44px; max-width: 48px; justify-self: center; }
+#s07 li .glyph { width: 44px; height: 44px; justify-self: center; fill: none; stroke: var(--ink); stroke-width: 3.5; }
+#s07 li b { font-size: 26px; font-weight: 600; }
+#s07 li span { display: block; font-size: 20px; color: #55636C; margin-top: 2px; }
+#s07 .price { text-align: right; }
+#s07 .price b { font-weight: 700; white-space: nowrap; }
+#s07 .total { display: flex; align-items: baseline; justify-content: space-between; flex-wrap: wrap; gap: 0 18px; margin-top: 8px; padding: 16px 24px; border-radius: 22px; corner-shape: squircle; background: var(--green); color: var(--ink); }
+#s07 .total b { font-size: 38px; white-space: nowrap; }
+#s07 .total span { font-size: 22px; font-weight: 600; }
+
+/* Earlier steps. Screen only, so print falls through to the final state above. */
+@media screen {
+  /* Before the running costs arrive, the meal has the whole stage. */
+  #s07:not([data-step="3"]) .meal { width: 1728px; }
+
+  /* Before the split: one solid bar. */
+  #s07:not([data-step="1"], [data-step="2"], [data-step="3"]) .bar { gap: 0; }
+  #s07:not([data-step="1"], [data-step="2"], [data-step="3"]) .rest { border-radius: 28px 0 0 28px; }
+  #s07:not([data-step="1"], [data-step="2"], [data-step="3"]) .fee { border-radius: 0 28px 28px 0; background: var(--ink); color: transparent; }
+  #s07:not([data-step="1"], [data-step="2"], [data-step="3"]) .fee b,
+  #s07:not([data-step="1"], [data-step="2"], [data-step="3"]) .kept { opacity: 0; transition-delay: 0s; }
+  #s07:not([data-step="1"], [data-step="2"], [data-step="3"]) .whole { opacity: 1; }
+
+  /* Before the commission opens up: wedge and lower bar are folded under the fee. */
+  #s07 .wedge:not(.on) { clip-path: polygon(85% 0, 100% 0, 100% 0, 85% 0); }
+  #s07 .low:not(.on) { clip-path: inset(0 0 0 85% round 28px); }
+}
+
+@media print {
+  #s07 .wedge, #s07 .low, #s07 .costs, #s07 li, #s07 .fee-label { opacity: 1 !important; }
+}
+
+/* Slide 08: a to-scale zoom out. Circle area is proportional to business count,
+   so the pilot really is the dot. --pct holds a log zoom: each radius is
+   r * exp(--pct), which makes the zoom feel even from step to step.
+   Final state (--pct 0) is the default, so print shows the whole picture. */
+#s08 { --pct: 0; transition: --pct 1.5s var(--inout); }
+
+#s08 .world { position: absolute; inset: 0; width: 1920px; height: 1080px; }
+#s08 .ring { translate: none; stroke-width: 2.5; }
+#s08 .ring.tam { --r: 390; fill: color-mix(in srgb, var(--green) 14%, transparent); stroke: color-mix(in srgb, var(--green) 70%, transparent); }
+#s08 .ring.sam { --r: 67.15; fill: color-mix(in srgb, var(--green) 46%, transparent); stroke: var(--green); }
+#s08 .ring.som { --r: 1.6; fill: var(--leaf); stroke: none; }
+#s08 .halo { translate: none; fill: none; stroke: var(--leaf); stroke-width: 2; }
+#s08 .halo.on { animation: s08-halo 5s var(--inout) infinite alternate; }
+@keyframes s08-halo { to { stroke-opacity: .35; } }
+
+/* Rim labels ride along with their circles */
+#s08 .tag { position: absolute; left: 1434px; top: 478px; font-size: 26px; font-weight: 600; line-height: 1; white-space: nowrap; translate: -50% calc((var(--off) - var(--r)) * 1px); }
+#s08 .tag.tam { --r: 390; --off: 24; }
+#s08 .tag.sam { --r: 67.15; --off: -40; }
+#s08 .tag.som { --r: 1.6; --off: -40; }
+#s08 .inside { position: absolute; left: 1434px; top: 478px; translate: -50% -50%; font-size: 48px; color: var(--ink); white-space: nowrap; opacity: 0; transition: opacity .3s var(--out); }
+#s08 .scale { position: absolute; left: 1434px; top: 776px; font-size: 20px; white-space: nowrap; translate: -50% 0; }
+
+@supports (width: calc(exp(0) * 1px)) {
+  #s08 .ring { r: calc(var(--r) * exp(var(--pct)) * 1px); }
+  #s08 .tag { translate: -50% calc((var(--off) - var(--r) * exp(var(--pct))) * 1px); }
+}
+
+/* Screen only: z-pilot fills the panel, then z-Hamilton, then the default. */
+@media screen {
+  #s08 { --pct: 5.05; }
+  #s08[data-step="1"] { --pct: 1.314; }
+  #s08[data-step="2"], #s08[data-step="3"] { --pct: 0; }
+  #s08:not([data-step="1"], [data-step="2"], [data-step="3"]) .inside { opacity: 1; transition-delay: .3s; }
+}
+
+/* Left column */
+#s08 .col { position: relative; z-index: 1; width: 910px; }
+#s08 h2 { font-size: 62px; margin-top: 10px; }
+#s08 .formula { font-size: 50px; margin-top: 26px; white-space: nowrap; }
+#s08 .formula span { color: var(--green); }
+#s08 .per { font-size: 26px; margin-top: 4px; }
+#s08 .head { margin-top: 22px; }
+
+#s08 .tier { display: grid; grid-template-columns: 22px 348px 1fr; align-items: center; column-gap: 16px; height: 98px; }
+#s08 .tier i { width: 22px; height: 22px; border-radius: 50%; }
+#s08 .tier.som i { background: var(--leaf); }
+#s08 .tier.sam i { background: color-mix(in srgb, var(--green) 46%, var(--ink)); border: 2px solid var(--green); }
+#s08 .tier.tam i { background: color-mix(in srgb, var(--green) 14%, var(--ink)); border: 2px solid color-mix(in srgb, var(--green) 70%, transparent); }
+#s08 .tier p { line-height: 1.2; font-size: 26px; }
+#s08 .tier p b { font-weight: 600; }
+#s08 .tier p span { display: block; font-size: 24px; color: var(--fog); }
+
+/* Count-ups. --n holds the final value at rest, so anything without animation
+   support still shows the right figure. */
+#s08 .fig { font-size: 62px; white-space: nowrap; font-variant-numeric: tabular-nums; }
+#s08 .tier.som .fig { --n: 11250; }
+#s08 .tier.sam .fig { --n: 199; }
+#s08 .tier.tam .fig { --n: 6724; }
+#s08 .tier.som .fig::after { counter-reset: a calc(round(down, var(--n) / 1000, 1)) b mod(var(--n), 1000); content: "C$" counter(a) "," counter(b, s08-pad3); }
+#s08 .tier.sam .fig::after,
+#s08 .tier.tam .fig::after { counter-reset: a calc(round(down, var(--n) / 100, 1)) b mod(var(--n), 100); content: "C$" counter(a) "." counter(b, decimal-leading-zero) "M"; }
+@counter-style s08-pad3 { system: extends decimal; pad: 3 "0"; }
+
+#s08 .tier.on .fig { animation: s08-count 1.5s var(--out) both; }
+@keyframes s08-count { from { --n: 0; } }
+
+#s08 .segment { font-size: 30px; line-height: 1.3; margin-top: 18px; }
+
+#s08 .assume { position: absolute; left: var(--pad); right: var(--pad); top: 912px; z-index: 1; font-size: 21px; line-height: 1.35; }
+
+@media print {
+  #s08 .ring, #s08 .halo, #s08 .tag, #s08 .scale, #s08 .tier, #s08 .segment { opacity: 1 !important; }
+  #s08 .fig { animation: none !important; }
+  /* The engine forces translate: 0 0 in print; these labels need theirs back. */
+  #s08 .tag { translate: -50% calc((var(--off) - var(--r)) * 1px) !important; }
+  #s08 .scale { translate: -50% 0 !important; }
+}
+
+/* Slide 09: competitor table. Beats: 1 rows fill, 2 F4L row lifts, 3 edge, moat and partner line. */
+#s09 .kicker { color: color-mix(in srgb, var(--green) 62%, var(--ink)); }
+#s09 h2 { font-size: 72px; margin-top: 8px; }
+
+#s09 .fan { position: absolute; right: -50px; top: -80px; width: 310px; height: 310px; pointer-events: none; }
+#s09 .fan rect { fill: var(--green); fill-opacity: .1; }
+#s09 .fan circle { fill: none; stroke: var(--ink); stroke-opacity: .12; stroke-width: .9; }
+
+#s09 .matrix { display: block; width: 1728px; margin-top: 14px; border-collapse: collapse; }
+#s09 .matrix thead, #s09 .matrix tbody { display: block; }
+#s09 .matrix tr { display: grid; grid-template-columns: 340px 1fr 1fr 340px; align-items: center; column-gap: 24px; min-height: 68px; padding: 0 24px; border-radius: 18px; corner-shape: squircle; position: relative; font-size: 27px; line-height: 1.15; }
+#s09 thead tr { min-height: 40px; }
+#s09 thead th { font-size: 24px; font-weight: 600; text-align: left; color: #55636C; }
+#s09 tbody tr { box-shadow: inset 0 -1px 0 rgb(27 36 43 / .12); }
+#s09 tbody th { font-weight: 600; text-align: left; }
+#s09 tr.f4l { min-height: 80px; font-weight: 600; }
+#s09 tr.f4l th { display: flex; align-items: center; gap: 14px; }
+#s09 tr.f4l th img { height: 50px; border-radius: 12px; }
+#s09 tr.f4l th b { font-family: "Display", "Body", sans-serif; font-size: 34px; letter-spacing: -.02em; }
+
+/* The F4L row lifts and glows on beat 2 and stays lifted */
+#s09 tr.f4l { transition: opacity var(--beat-d) var(--out), background-color .6s var(--out), color .6s var(--out), translate .8s var(--spring), box-shadow .8s var(--out); }
+#s09:is([data-step="2"], [data-step="3"]) tr.f4l { background: var(--ink); color: #fff; translate: 0 -4px; z-index: 1; box-shadow: 0 0 0 2px var(--green), 0 18px 44px rgb(27 36 43 / .28), 0 0 64px color-mix(in srgb, var(--green) 60%, transparent); }
+#s09:is([data-step="2"], [data-step="3"]) .live { color: var(--amber); }
+
+#s09 .why { display: grid; grid-template-columns: 1fr 1.28fr 1.12fr; gap: 22px; margin-top: 18px; }
+#s09 .why .card { padding: 14px 26px 16px; border-radius: 24px; font-size: 27px; line-height: 1.3; }
+#s09 .why h3 { font-size: 30px; margin-bottom: 4px; }
+#s09 .why .partner { display: flex; align-items: center; background: color-mix(in srgb, var(--leaf) 45%, #fff); box-shadow: none; }
+
+@media print {
+  #s09 tr.f4l { background: var(--ink); color: #fff; box-shadow: 0 0 0 2px var(--green); }
+  #s09 .live { color: var(--amber); }
+}
+
+/* Slide 10: timeline. --k is how many of the 6 equal path segments are drawn.
+   Beats: 1 to Dec 2026, 2 to Fall 2027, 3 to the end, 4 risk and partnerships. */
+#s10 { --k: 0; }
+#s10[data-step="1"] { --k: 2; }
+#s10[data-step="2"] { --k: 4; }
+#s10[data-step="3"], #s10[data-step="4"] { --k: 6; }
+
+#s10 h2 { font-size: 72px; margin-top: 8px; }
+
+#s10 .road { position: absolute; inset: 0; width: 1920px; height: 1080px; pointer-events: none; }
+#s10 .track, #s10 .draw { fill: none; stroke-linecap: round; }
+#s10 .track { stroke: var(--line); stroke-width: 4; stroke-dasharray: 2 14; }
+#s10 .draw {
+  stroke: var(--green); stroke-width: 6;
+  stroke-dasharray: 6 6; stroke-dashoffset: calc(6 - var(--k));
+  transition: stroke-dashoffset 1.8s var(--inout);
+}
+
+/* Hollow rings are targets; only the first milestone is filled */
+#s10 .node[data-beat] { fill: var(--ink); stroke: var(--amber); stroke-width: 4; translate: 0 0; scale: .3; transform-box: fill-box; transform-origin: center; }
+#s10 .node[data-beat].on { scale: 1; }
+#s10 .done[data-beat] { translate: 0 0; }
+#s10 .done circle { fill: var(--green); }
+#s10 .done path { fill: none; stroke: var(--ink); stroke-width: 3.6; stroke-linecap: round; stroke-linejoin: round; }
+
+/* Same d as the SVG path, in stage px */
+#s10 .dot {
+  position: absolute; left: 0; top: 0; width: 26px; height: 26px; border-radius: 50%;
+  background: var(--leaf); box-shadow: 0 0 0 6px color-mix(in srgb, var(--green) 45%, transparent), 0 0 34px var(--green);
+  offset-path: path("M120 500C230 500 250 580 360 580C470 580 490 500 600 500C710 500 730 580 840 580C950 580 970 500 1080 500C1190 500 1210 580 1320 580C1430 580 1450 500 1560 500");
+  offset-rotate: 0deg; offset-distance: calc(var(--k) * 100% / 6);
+  transition: offset-distance 1.8s var(--inout);
+}
+
+#s10 .path { list-style: none; padding: 0; }
+#s10 .path li { position: absolute; left: calc(var(--x) - 16px); width: var(--w, 440px); font-size: 26px; line-height: 1.3; }
+#s10 .path li.up { bottom: 610px; }
+#s10 .path li.down { top: 612px; }
+#s10 .path li:not(.on) { transition-delay: 0s; }
+#s10 .path h3 { font-size: 38px; margin: 2px 0 6px; color: var(--amber); }
+#s10 .nb { white-space: nowrap; }
+#s10 .tag { font-size: 20px; line-height: 1.2; font-weight: 600; letter-spacing: .12em; text-transform: uppercase; color: var(--fog); }
+#s10 .tag.ok { color: var(--green); }
+#s10 .tag.ok + h3 { color: var(--green); }
+
+#s10 .foot { position: absolute; left: var(--pad); right: var(--pad); top: 862px; display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 44px; }
+#s10 .risk { padding: 22px 32px; font-size: 30px; line-height: 1.25; border-radius: 26px; }
+#s10 .risk b { color: var(--amber); font-weight: 600; }
+#s10 .partners { font-size: 26px; line-height: 1.3; width: 420px; }
+#s10 .todo { color: var(--amber); white-space: nowrap; }
+
+@media print {
+  #s10, #s10[data-step] { --k: 6; }
+  #s10 .node[data-beat] { scale: 1; }
+}
+
+/* Slide 11: Go-to-market. Copy on the left, schematic ripple map on the right. */
+#s11 .copy { position: absolute; left: 96px; top: 88px; width: 790px; }
+#s11 h2 { margin-top: 18px; }
+
+#s11 .lead { display: flex; align-items: center; justify-content: space-between; gap: 32px; margin-top: 36px; padding: 32px 44px 34px; background: var(--ink); border: 0; color: #fff; }
+#s11 .lead .tag { font-weight: 600; font-size: 24px; letter-spacing: .12em; text-transform: uppercase; color: var(--leaf); }
+#s11 .lead h3 { margin-top: 10px; font-size: 62px; line-height: 1.05; }
+#s11 .lead .where { margin-top: 10px; font-size: 32px; color: var(--fog); }
+
+/* Same ripple as the map pin, so the card and the map read as one thing */
+#s11 .beacon { position: relative; flex: none; width: 96px; height: 96px; }
+#s11 .beacon::before, #s11 .beacon::after { content: ""; position: absolute; border-radius: 50%; }
+#s11 .beacon::before { inset: 32px; background: var(--green); }
+#s11 .beacon::after { inset: 0; border: 3px solid var(--green); opacity: .4; }
+#s11 .lead.on .beacon::after { animation: s11-beacon 4.5s linear infinite; } /* slow, subtle loop */
+@keyframes s11-beacon { from { scale: .3; opacity: .8; } 70%, to { scale: 1; opacity: 0; } }
+
+#s11 .also { list-style: none; padding: 0; margin-top: 44px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
+#s11 .also li { display: grid; gap: 14px; align-content: start; font-size: 30px; line-height: 1.2; font-weight: 600; }
+#s11 .also svg { width: 68px; height: 68px; fill: none; stroke: var(--ink); stroke-width: 2.6; stroke-linejoin: round; stroke-linecap: round; }
+
+#s11 .map { position: absolute; left: 924px; top: 76px; width: 900px; height: 900px; }
+#s11 .map svg { display: block; overflow: visible; }
+#s11 .map figcaption { position: absolute; right: 0; bottom: 0; }
+
+#s11 .streets path { fill: none; stroke: #1B242B; stroke-opacity: .1; stroke-width: 7; stroke-linecap: round; }
+#s11 .rings circle { fill: none; stroke: #1B242B; stroke-opacity: .1; stroke-width: 1.5; stroke-dasharray: 3 11; stroke-linecap: round; }
+
+/* Ripples: the clock runs from arrival, the beat only reveals them, so the places
+   below stay in step however long the presenter waits. Slow, subtle loop. */
+#s11 .ripples[data-beat] { translate: 0 0; }
+#s11 .rip { fill: color-mix(in srgb, var(--green) 12%, transparent); stroke: var(--green); stroke-width: 3; vector-effect: non-scaling-stroke; transform-box: fill-box; transform-origin: center; opacity: 0; }
+#s11.is-active .rip { animation: s11-rip 9s linear infinite; }
+#s11.is-active .rip.two { animation-delay: 4.5s; }
+@keyframes s11-rip {
+  from { scale: .04; opacity: 0; }
+  5% { opacity: .75; }
+  to { scale: 1; opacity: 0; }
+}
+
+#s11 .link { fill: none; stroke: var(--green); stroke-width: 4; stroke-linecap: round; stroke-dasharray: 1; stroke-dashoffset: 1; transition: opacity .3s, stroke-dashoffset 1.2s var(--inout) calc(var(--i, 0) * 90ms); translate: 0 0; }
+#s11 .link.on { stroke-dashoffset: 0; }
+
+#s11 .node { fill: var(--ink); stroke: var(--paper); stroke-width: 5; }
+#s11 .place text { font-family: "Display", "Body", sans-serif; font-weight: 700; font-size: 40px; letter-spacing: -.01em; fill: var(--ink); paint-order: stroke; stroke: var(--paper); stroke-width: 10px; stroke-linejoin: round; }
+
+/* Each place pings as a ripple reaches it: 308 and 350 of 420 along a 9s run, every 4.5s */
+#s11 .ping { fill: color-mix(in srgb, var(--green) 30%, transparent); stroke: var(--green); stroke-width: 3; vector-effect: non-scaling-stroke; transform-box: fill-box; transform-origin: center; opacity: 0; }
+#s11.is-active .west .ping { animation: s11-ping 4.5s var(--out) 2.1s infinite; }
+#s11.is-active .south .ping { animation: s11-ping 4.5s var(--out) 3s infinite; }
+@keyframes s11-ping {
+  from { scale: .2; opacity: .9; }
+  30%, to { scale: 1; opacity: 0; }
+}
+
+#s11 .pin text { font-family: "Display", "Body", sans-serif; font-weight: 700; font-size: 52px; letter-spacing: -.02em; fill: var(--ink); paint-order: stroke; stroke: var(--paper); stroke-width: 12px; stroke-linejoin: round; }
+#s11.is-active .pin { animation: s11-drop 1s var(--bounce) .35s backwards; }
+@keyframes s11-drop { from { translate: 0 -150px; opacity: 0; } }
+
+@media (prefers-reduced-motion: reduce) {
+  #s11.is-active .rip, #s11.is-active .ping, #s11 .lead.on .beacon::after { animation: none; }
+}
+@media print {
+  #s11 .link { stroke-dashoffset: 0; }
+  #s11 .rip, #s11 .ping, #s11 .pin, #s11 .beacon::after { animation: none !important; }
+}
+
+/* Slide 12: Team. Initials sit in the ring until assets/team/NAME.jpg exists. */
+#s12 h2 { margin-top: 14px; }
+
+#s12 .people { display: grid; grid-template-columns: repeat(4, 1fr); gap: 48px; margin-top: 36px; }
+#s12 .person h3 { margin-top: 26px; font-size: 44px; }
+#s12 .person p { margin-top: 10px; font-size: 26px; line-height: 1.3; color: var(--fog); }
+#s12 .person b { font-weight: 600; color: #fff; }
+
+/* Monogram: the logo's fan inside a ring that draws itself on */
+#s12 .mono { position: relative; width: 230px; height: 230px; border-radius: 50%; overflow: hidden; display: grid; place-items: center; background: var(--ink-2); }
+#s12 .mono::after { content: ""; position: absolute; inset: 0; border-radius: 50%; --angle: 360deg; background: conic-gradient(from -90deg, var(--green) var(--angle), transparent 0); mask: radial-gradient(farthest-side, transparent calc(100% - 7px), #000 calc(100% - 6px)); }
+#s12 .person.on .mono::after { animation: s12-ring 1.3s var(--inout) .1s backwards; }
+@keyframes s12-ring { from { --angle: 0deg; } }
+
+#s12 .photo { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+#s12 .mono::after { z-index: 1; }
+#s12 .mono .fan { position: absolute; inset: -30px; width: calc(100% + 60px); height: calc(100% + 60px); }
+#s12 .mono .fan rect { fill: #fff; fill-opacity: .07; }
+#s12 .person.on .fan { animation: s12-turn 60s linear infinite; } /* slow, subtle loop */
+#s12 .person:nth-child(2).on .fan { animation-direction: reverse; animation-duration: 72s; }
+#s12 .person:nth-child(3).on .fan { animation-duration: 84s; }
+@keyframes s12-turn { to { rotate: 360deg; } }
+
+#s12 .mono span { position: relative; font-family: "Display", "Body", sans-serif; font-weight: 600; font-size: 34px; letter-spacing: -.01em; color: var(--leaf); }
+#s12 .person.on .mono span { animation: s12-label .8s var(--spring) .5s backwards; }
+@keyframes s12-label { from { opacity: 0; scale: .7; } }
+
+#s12 .built { position: absolute; left: 96px; top: 900px; font-size: 52px; color: var(--leaf); }
+
+@media (prefers-reduced-motion: reduce) {
+  #s12 .person.on .fan { animation: none; }
+}
+@media print {
+  #s12 .mono::after, #s12 .fan, #s12 .mono span { animation: none !important; }
+}
+
+/* Slide 13: Closing. The logo settles inside the ambient plate, echoing slide 01. */
+#s13 .mark { position: absolute; left: 142px; top: 110px; width: 460px; height: 460px; }
+#s13 .mark img { display: block; width: 100%; height: 100%; }
+#s13.is-active .mark img { animation: s13-settle 1.5s var(--spring) .1s backwards; }
+@keyframes s13-settle { from { scale: 1.45; rotate: -7deg; opacity: 0; filter: blur(14px); } }
+
+/* One ring leaves the logo as it lands, then the slide is still */
+#s13 .pulse { position: absolute; inset: 0; border-radius: 50%; border: 3px solid var(--green); opacity: 0; }
+#s13.is-active .pulse { animation: s13-pulse 1.8s var(--out) .75s; }
+@keyframes s13-pulse { from { scale: .8; opacity: .7; } to { scale: 1.5; opacity: 0; } }
+
+#s13 .vision { position: absolute; left: 760px; top: 190px; width: 1064px; font-size: 112px; color: var(--leaf); }
+
+#s13 .thanks { position: absolute; left: 96px; top: 700px; font-size: 120px; }
+
+#s13 .qr { position: absolute; right: 96px; top: 650px; width: 287px; }
+#s13 .qr img { display: block; width: 287px; height: 287px; border-radius: 22px; }
+#s13 .qr figcaption { margin-top: 10px; font-size: 28px; font-weight: 600; text-align: center; }
+
+@media print {
+  #s13 .mark img, #s13 .pulse { animation: none !important; }
+}
+
+</style>
+</head>
+<body>
+<div id="stage">
+<div id="plate"><svg viewBox="-60 -60 120 120" aria-hidden="true"><g class="fan" fill="#fff" fill-opacity=".09">
+<rect x="-36" y="-36" width="72" height="72" rx="13" style="--i:0" transform="rotate(-24) translate(-12 -6)"/><rect x="-36" y="-36" width="72" height="72" rx="13" style="--i:1" transform="rotate(-12) translate(-6 0)"/><rect x="-36" y="-36" width="72" height="72" rx="13" style="--i:2" transform="rotate(0) translate(0 6)"/><rect x="-36" y="-36" width="72" height="72" rx="13" style="--i:3" transform="rotate(14) translate(6 -6)"/><rect x="-36" y="-36" width="72" height="72" rx="13" style="--i:4" transform="rotate(28) translate(12 0)"/>
+</g><circle r="56" fill="none" stroke="#fff" stroke-width=".9"/></svg></div>
+<section class="slide" id="s00" data-tone="bare" data-plate="2700 540 400 0">
+  <img class="bleed" src="assets/elephants.jpg" alt="An African elephant walking through green grass with its calves">
+  <div class="scrim"></div>
+  <h1 data-split>How much does an African elephant weigh?</h1>
+  <p class="answer display" data-beat="1" aria-label="About 5 tonnes"></p>
+
+  <aside class="notes">Quick question before we start. How much do you think an African elephant weighs? Shout out a number.
+
+[Take two or three guesses.]
+
+About 5 tonnes. Hold on to that number.</aside>
+</section>
+
+<section class="slide" id="s02" data-plate="1290 520 860 .3">
+  <img class="bleed" data-beat="2" src="assets/elephants.jpg" alt="African elephants grazing">
+  <div class="scrim"></div>
+
+  <p class="kicker">Food waste</p>
+  <h2 class="lead" data-split>How much of the food supply is wasted?</h2>
+
+  <div class="pie pie-a" role="img" aria-label="Pie chart: 46.5% of the food supply is wasted"></div>
+  <p class="num num-a display" data-beat="1" aria-label="46.5%"></p>
+  <p class="cap cap-a" data-beat="1">of the food supply is wasted. Nearly half.</p>
+
+  <div class="pie pie-b" data-beat="3" role="img" aria-label="Pie chart: 7% of the food wasted comes from food service"></div>
+  <p class="num num-b display" data-beat="3" aria-label="7%"></p>
+  <p class="cap cap-b" data-beat="3">of that waste comes from food service alone.</p>
+
+  <div class="right" data-beat="2">
+    <p class="elc display" aria-label="4.2 million"></p>
+    <p class="els">African elephants by weight. That is 21.18 million tonnes.</p>
+    <div class="card herd">
+      <svg class="field" viewBox="0 0 2016 780" role="img" aria-label="420 elephant silhouettes, each standing for 10,000 elephants">
+        <defs>
+          <path id="s02-e" fill-rule="evenodd" d="M7 15C7 8 14 4 25 4c5 0 9 0 13 1 4-3 12-3 16 2 3 4 4 9 4 15 0 6 2 10 5 11v3c-5 1-9-3-10-8-1-2-2-3-3-3-1 3-3 4-5 4v13h-8V32H18v10h-8V30C9 29 8 27 7.500 25L5 31 3 30l3-9c1-2 1-4 1-6ZM42 9c-3 2-4 6-3 11 1 4 4 6 7 4-1-3-1-6 0-9 1-3 0-5-4-6Z"/>
+        </defs>
+        <g data-stagger><use href="#s02-e" x="4" y="4"/><use href="#s02-e" x="76" y="4"/><use href="#s02-e" x="148" y="4"/><use href="#s02-e" x="220" y="4"/><use href="#s02-e" x="292" y="4"/><use href="#s02-e" x="364" y="4"/><use href="#s02-e" x="436" y="4"/><use href="#s02-e" x="508" y="4"/><use href="#s02-e" x="580" y="4"/><use href="#s02-e" x="652" y="4"/><use href="#s02-e" x="724" y="4"/><use href="#s02-e" x="796" y="4"/><use href="#s02-e" x="868" y="4"/><use href="#s02-e" x="940" y="4"/><use href="#s02-e" x="1012" y="4"/><use href="#s02-e" x="1084" y="4"/><use href="#s02-e" x="1156" y="4"/><use href="#s02-e" x="1228" y="4"/><use href="#s02-e" x="1300" y="4"/><use href="#s02-e" x="1372" y="4"/><use href="#s02-e" x="1444" y="4"/><use href="#s02-e" x="1516" y="4"/><use href="#s02-e" x="1588" y="4"/><use href="#s02-e" x="1660" y="4"/><use href="#s02-e" x="1732" y="4"/><use href="#s02-e" x="1804" y="4"/><use href="#s02-e" x="1876" y="4"/><use href="#s02-e" x="1948" y="4"/><use href="#s02-e" x="4" y="56"/><use href="#s02-e" x="76" y="56"/><use href="#s02-e" x="148" y="56"/><use href="#s02-e" x="220" y="56"/><use href="#s02-e" x="292" y="56"/><use href="#s02-e" x="364" y="56"/><use href="#s02-e" x="436" y="56"/><use href="#s02-e" x="508" y="56"/><use href="#s02-e" x="580" y="56"/><use href="#s02-e" x="652" y="56"/><use href="#s02-e" x="724" y="56"/><use href="#s02-e" x="796" y="56"/><use href="#s02-e" x="868" y="56"/><use href="#s02-e" x="940" y="56"/><use href="#s02-e" x="1012" y="56"/><use href="#s02-e" x="1084" y="56"/><use href="#s02-e" x="1156" y="56"/><use href="#s02-e" x="1228" y="56"/><use href="#s02-e" x="1300" y="56"/><use href="#s02-e" x="1372" y="56"/><use href="#s02-e" x="1444" y="56"/><use href="#s02-e" x="1516" y="56"/><use href="#s02-e" x="1588" y="56"/><use href="#s02-e" x="1660" y="56"/><use href="#s02-e" x="1732" y="56"/><use href="#s02-e" x="1804" y="56"/><use href="#s02-e" x="1876" y="56"/><use href="#s02-e" x="1948" y="56"/><use href="#s02-e" x="4" y="108"/><use href="#s02-e" x="76" y="108"/><use href="#s02-e" x="148" y="108"/><use href="#s02-e" x="220" y="108"/><use href="#s02-e" x="292" y="108"/><use href="#s02-e" x="364" y="108"/><use href="#s02-e" x="436" y="108"/><use href="#s02-e" x="508" y="108"/><use href="#s02-e" x="580" y="108"/><use href="#s02-e" x="652" y="108"/><use href="#s02-e" x="724" y="108"/><use href="#s02-e" x="796" y="108"/><use href="#s02-e" x="868" y="108"/><use href="#s02-e" x="940" y="108"/><use href="#s02-e" x="1012" y="108"/><use href="#s02-e" x="1084" y="108"/><use href="#s02-e" x="1156" y="108"/><use href="#s02-e" x="1228" y="108"/><use href="#s02-e" x="1300" y="108"/><use href="#s02-e" x="1372" y="108"/><use href="#s02-e" x="1444" y="108"/><use href="#s02-e" x="1516" y="108"/><use href="#s02-e" x="1588" y="108"/><use href="#s02-e" x="1660" y="108"/><use href="#s02-e" x="1732" y="108"/><use href="#s02-e" x="1804" y="108"/><use href="#s02-e" x="1876" y="108"/><use href="#s02-e" x="1948" y="108"/><use href="#s02-e" x="4" y="160"/><use href="#s02-e" x="76" y="160"/><use href="#s02-e" x="148" y="160"/><use href="#s02-e" x="220" y="160"/><use href="#s02-e" x="292" y="160"/><use href="#s02-e" x="364" y="160"/><use href="#s02-e" x="436" y="160"/><use href="#s02-e" x="508" y="160"/><use href="#s02-e" x="580" y="160"/><use href="#s02-e" x="652" y="160"/><use href="#s02-e" x="724" y="160"/><use href="#s02-e" x="796" y="160"/><use href="#s02-e" x="868" y="160"/><use href="#s02-e" x="940" y="160"/><use href="#s02-e" x="1012" y="160"/><use href="#s02-e" x="1084" y="160"/><use href="#s02-e" x="1156" y="160"/><use href="#s02-e" x="1228" y="160"/><use href="#s02-e" x="1300" y="160"/><use href="#s02-e" x="1372" y="160"/><use href="#s02-e" x="1444" y="160"/><use href="#s02-e" x="1516" y="160"/><use href="#s02-e" x="1588" y="160"/><use href="#s02-e" x="1660" y="160"/><use href="#s02-e" x="1732" y="160"/><use href="#s02-e" x="1804" y="160"/><use href="#s02-e" x="1876" y="160"/><use href="#s02-e" x="1948" y="160"/><use href="#s02-e" x="4" y="212"/><use href="#s02-e" x="76" y="212"/><use href="#s02-e" x="148" y="212"/><use href="#s02-e" x="220" y="212"/><use href="#s02-e" x="292" y="212"/><use href="#s02-e" x="364" y="212"/><use href="#s02-e" x="436" y="212"/><use href="#s02-e" x="508" y="212"/><use href="#s02-e" x="580" y="212"/><use href="#s02-e" x="652" y="212"/><use href="#s02-e" x="724" y="212"/><use href="#s02-e" x="796" y="212"/><use href="#s02-e" x="868" y="212"/><use href="#s02-e" x="940" y="212"/><use href="#s02-e" x="1012" y="212"/><use href="#s02-e" x="1084" y="212"/><use href="#s02-e" x="1156" y="212"/><use href="#s02-e" x="1228" y="212"/><use href="#s02-e" x="1300" y="212"/><use href="#s02-e" x="1372" y="212"/><use href="#s02-e" x="1444" y="212"/><use href="#s02-e" x="1516" y="212"/><use href="#s02-e" x="1588" y="212"/><use href="#s02-e" x="1660" y="212"/><use href="#s02-e" x="1732" y="212"/><use href="#s02-e" x="1804" y="212"/><use href="#s02-e" x="1876" y="212"/><use href="#s02-e" x="1948" y="212"/><use href="#s02-e" x="4" y="264"/><use href="#s02-e" x="76" y="264"/><use href="#s02-e" x="148" y="264"/><use href="#s02-e" x="220" y="264"/><use href="#s02-e" x="292" y="264"/><use href="#s02-e" x="364" y="264"/><use href="#s02-e" x="436" y="264"/><use href="#s02-e" x="508" y="264"/><use href="#s02-e" x="580" y="264"/><use href="#s02-e" x="652" y="264"/><use href="#s02-e" x="724" y="264"/><use href="#s02-e" x="796" y="264"/><use href="#s02-e" x="868" y="264"/><use href="#s02-e" x="940" y="264"/><use href="#s02-e" x="1012" y="264"/><use href="#s02-e" x="1084" y="264"/><use href="#s02-e" x="1156" y="264"/><use href="#s02-e" x="1228" y="264"/><use href="#s02-e" x="1300" y="264"/><use href="#s02-e" x="1372" y="264"/><use href="#s02-e" x="1444" y="264"/><use href="#s02-e" x="1516" y="264"/><use href="#s02-e" x="1588" y="264"/><use href="#s02-e" x="1660" y="264"/><use href="#s02-e" x="1732" y="264"/><use href="#s02-e" x="1804" y="264"/><use href="#s02-e" x="1876" y="264"/><use href="#s02-e" x="1948" y="264"/><use href="#s02-e" x="4" y="316"/><use href="#s02-e" x="76" y="316"/><use href="#s02-e" x="148" y="316"/><use href="#s02-e" x="220" y="316"/><use href="#s02-e" x="292" y="316"/><use href="#s02-e" x="364" y="316"/><use href="#s02-e" x="436" y="316"/><use href="#s02-e" x="508" y="316"/><use href="#s02-e" x="580" y="316"/><use href="#s02-e" x="652" y="316"/><use href="#s02-e" x="724" y="316"/><use href="#s02-e" x="796" y="316"/><use href="#s02-e" x="868" y="316"/><use href="#s02-e" x="940" y="316"/><use href="#s02-e" x="1012" y="316"/><use href="#s02-e" x="1084" y="316"/><use href="#s02-e" x="1156" y="316"/><use href="#s02-e" x="1228" y="316"/><use href="#s02-e" x="1300" y="316"/><use href="#s02-e" x="1372" y="316"/><use href="#s02-e" x="1444" y="316"/><use href="#s02-e" x="1516" y="316"/><use href="#s02-e" x="1588" y="316"/><use href="#s02-e" x="1660" y="316"/><use href="#s02-e" x="1732" y="316"/><use href="#s02-e" x="1804" y="316"/><use href="#s02-e" x="1876" y="316"/><use href="#s02-e" x="1948" y="316"/><use href="#s02-e" x="4" y="368"/><use href="#s02-e" x="76" y="368"/><use href="#s02-e" x="148" y="368"/><use href="#s02-e" x="220" y="368"/><use href="#s02-e" x="292" y="368"/><use href="#s02-e" x="364" y="368"/><use href="#s02-e" x="436" y="368"/><use href="#s02-e" x="508" y="368"/><use href="#s02-e" x="580" y="368"/><use href="#s02-e" x="652" y="368"/><use href="#s02-e" x="724" y="368"/><use href="#s02-e" x="796" y="368"/><use href="#s02-e" x="868" y="368"/><use href="#s02-e" x="940" y="368"/><use href="#s02-e" x="1012" y="368"/><use href="#s02-e" x="1084" y="368"/><use href="#s02-e" x="1156" y="368"/><use href="#s02-e" x="1228" y="368"/><use href="#s02-e" x="1300" y="368"/><use href="#s02-e" x="1372" y="368"/><use href="#s02-e" x="1444" y="368"/><use href="#s02-e" x="1516" y="368"/><use href="#s02-e" x="1588" y="368"/><use href="#s02-e" x="1660" y="368"/><use href="#s02-e" x="1732" y="368"/><use href="#s02-e" x="1804" y="368"/><use href="#s02-e" x="1876" y="368"/><use href="#s02-e" x="1948" y="368"/><use href="#s02-e" x="4" y="420"/><use href="#s02-e" x="76" y="420"/><use href="#s02-e" x="148" y="420"/><use href="#s02-e" x="220" y="420"/><use href="#s02-e" x="292" y="420"/><use href="#s02-e" x="364" y="420"/><use href="#s02-e" x="436" y="420"/><use href="#s02-e" x="508" y="420"/><use href="#s02-e" x="580" y="420"/><use href="#s02-e" x="652" y="420"/><use href="#s02-e" x="724" y="420"/><use href="#s02-e" x="796" y="420"/><use href="#s02-e" x="868" y="420"/><use href="#s02-e" x="940" y="420"/><use href="#s02-e" x="1012" y="420"/><use href="#s02-e" x="1084" y="420"/><use href="#s02-e" x="1156" y="420"/><use href="#s02-e" x="1228" y="420"/><use href="#s02-e" x="1300" y="420"/><use href="#s02-e" x="1372" y="420"/><use href="#s02-e" x="1444" y="420"/><use href="#s02-e" x="1516" y="420"/><use href="#s02-e" x="1588" y="420"/><use href="#s02-e" x="1660" y="420"/><use href="#s02-e" x="1732" y="420"/><use href="#s02-e" x="1804" y="420"/><use href="#s02-e" x="1876" y="420"/><use href="#s02-e" x="1948" y="420"/><use href="#s02-e" x="4" y="472"/><use href="#s02-e" x="76" y="472"/><use href="#s02-e" x="148" y="472"/><use href="#s02-e" x="220" y="472"/><use href="#s02-e" x="292" y="472"/><use href="#s02-e" x="364" y="472"/><use href="#s02-e" x="436" y="472"/><use href="#s02-e" x="508" y="472"/><use href="#s02-e" x="580" y="472"/><use href="#s02-e" x="652" y="472"/><use href="#s02-e" x="724" y="472"/><use href="#s02-e" x="796" y="472"/><use href="#s02-e" x="868" y="472"/><use href="#s02-e" x="940" y="472"/><use href="#s02-e" x="1012" y="472"/><use href="#s02-e" x="1084" y="472"/><use href="#s02-e" x="1156" y="472"/><use href="#s02-e" x="1228" y="472"/><use href="#s02-e" x="1300" y="472"/><use href="#s02-e" x="1372" y="472"/><use href="#s02-e" x="1444" y="472"/><use href="#s02-e" x="1516" y="472"/><use href="#s02-e" x="1588" y="472"/><use href="#s02-e" x="1660" y="472"/><use href="#s02-e" x="1732" y="472"/><use href="#s02-e" x="1804" y="472"/><use href="#s02-e" x="1876" y="472"/><use href="#s02-e" x="1948" y="472"/><use href="#s02-e" x="4" y="524"/><use href="#s02-e" x="76" y="524"/><use href="#s02-e" x="148" y="524"/><use href="#s02-e" x="220" y="524"/><use href="#s02-e" x="292" y="524"/><use href="#s02-e" x="364" y="524"/><use href="#s02-e" x="436" y="524"/><use href="#s02-e" x="508" y="524"/><use href="#s02-e" x="580" y="524"/><use href="#s02-e" x="652" y="524"/><use href="#s02-e" x="724" y="524"/><use href="#s02-e" x="796" y="524"/><use href="#s02-e" x="868" y="524"/><use href="#s02-e" x="940" y="524"/><use href="#s02-e" x="1012" y="524"/><use href="#s02-e" x="1084" y="524"/><use href="#s02-e" x="1156" y="524"/><use href="#s02-e" x="1228" y="524"/><use href="#s02-e" x="1300" y="524"/><use href="#s02-e" x="1372" y="524"/><use href="#s02-e" x="1444" y="524"/><use href="#s02-e" x="1516" y="524"/><use href="#s02-e" x="1588" y="524"/><use href="#s02-e" x="1660" y="524"/><use href="#s02-e" x="1732" y="524"/><use href="#s02-e" x="1804" y="524"/><use href="#s02-e" x="1876" y="524"/><use href="#s02-e" x="1948" y="524"/><use href="#s02-e" x="4" y="576"/><use href="#s02-e" x="76" y="576"/><use href="#s02-e" x="148" y="576"/><use href="#s02-e" x="220" y="576"/><use href="#s02-e" x="292" y="576"/><use href="#s02-e" x="364" y="576"/><use href="#s02-e" x="436" y="576"/><use href="#s02-e" x="508" y="576"/><use href="#s02-e" x="580" y="576"/><use href="#s02-e" x="652" y="576"/><use href="#s02-e" x="724" y="576"/><use href="#s02-e" x="796" y="576"/><use href="#s02-e" x="868" y="576"/><use href="#s02-e" x="940" y="576"/><use href="#s02-e" x="1012" y="576"/><use href="#s02-e" x="1084" y="576"/><use href="#s02-e" x="1156" y="576"/><use href="#s02-e" x="1228" y="576"/><use href="#s02-e" x="1300" y="576"/><use href="#s02-e" x="1372" y="576"/><use href="#s02-e" x="1444" y="576"/><use href="#s02-e" x="1516" y="576"/><use href="#s02-e" x="1588" y="576"/><use href="#s02-e" x="1660" y="576"/><use href="#s02-e" x="1732" y="576"/><use href="#s02-e" x="1804" y="576"/><use href="#s02-e" x="1876" y="576"/><use href="#s02-e" x="1948" y="576"/><use href="#s02-e" x="4" y="628"/><use href="#s02-e" x="76" y="628"/><use href="#s02-e" x="148" y="628"/><use href="#s02-e" x="220" y="628"/><use href="#s02-e" x="292" y="628"/><use href="#s02-e" x="364" y="628"/><use href="#s02-e" x="436" y="628"/><use href="#s02-e" x="508" y="628"/><use href="#s02-e" x="580" y="628"/><use href="#s02-e" x="652" y="628"/><use href="#s02-e" x="724" y="628"/><use href="#s02-e" x="796" y="628"/><use href="#s02-e" x="868" y="628"/><use href="#s02-e" x="940" y="628"/><use href="#s02-e" x="1012" y="628"/><use href="#s02-e" x="1084" y="628"/><use href="#s02-e" x="1156" y="628"/><use href="#s02-e" x="1228" y="628"/><use href="#s02-e" x="1300" y="628"/><use href="#s02-e" x="1372" y="628"/><use href="#s02-e" x="1444" y="628"/><use href="#s02-e" x="1516" y="628"/><use href="#s02-e" x="1588" y="628"/><use href="#s02-e" x="1660" y="628"/><use href="#s02-e" x="1732" y="628"/><use href="#s02-e" x="1804" y="628"/><use href="#s02-e" x="1876" y="628"/><use href="#s02-e" x="1948" y="628"/><use href="#s02-e" x="4" y="680"/><use href="#s02-e" x="76" y="680"/><use href="#s02-e" x="148" y="680"/><use href="#s02-e" x="220" y="680"/><use href="#s02-e" x="292" y="680"/><use href="#s02-e" x="364" y="680"/><use href="#s02-e" x="436" y="680"/><use href="#s02-e" x="508" y="680"/><use href="#s02-e" x="580" y="680"/><use href="#s02-e" x="652" y="680"/><use href="#s02-e" x="724" y="680"/><use href="#s02-e" x="796" y="680"/><use href="#s02-e" x="868" y="680"/><use href="#s02-e" x="940" y="680"/><use href="#s02-e" x="1012" y="680"/><use href="#s02-e" x="1084" y="680"/><use href="#s02-e" x="1156" y="680"/><use href="#s02-e" x="1228" y="680"/><use href="#s02-e" x="1300" y="680"/><use href="#s02-e" x="1372" y="680"/><use href="#s02-e" x="1444" y="680"/><use href="#s02-e" x="1516" y="680"/><use href="#s02-e" x="1588" y="680"/><use href="#s02-e" x="1660" y="680"/><use href="#s02-e" x="1732" y="680"/><use href="#s02-e" x="1804" y="680"/><use href="#s02-e" x="1876" y="680"/><use href="#s02-e" x="1948" y="680"/><use href="#s02-e" x="4" y="732"/><use href="#s02-e" x="76" y="732"/><use href="#s02-e" x="148" y="732"/><use href="#s02-e" x="220" y="732"/><use href="#s02-e" x="292" y="732"/><use href="#s02-e" x="364" y="732"/><use href="#s02-e" x="436" y="732"/><use href="#s02-e" x="508" y="732"/><use href="#s02-e" x="580" y="732"/><use href="#s02-e" x="652" y="732"/><use href="#s02-e" x="724" y="732"/><use href="#s02-e" x="796" y="732"/><use href="#s02-e" x="868" y="732"/><use href="#s02-e" x="940" y="732"/><use href="#s02-e" x="1012" y="732"/><use href="#s02-e" x="1084" y="732"/><use href="#s02-e" x="1156" y="732"/><use href="#s02-e" x="1228" y="732"/><use href="#s02-e" x="1300" y="732"/><use href="#s02-e" x="1372" y="732"/><use href="#s02-e" x="1444" y="732"/><use href="#s02-e" x="1516" y="732"/><use href="#s02-e" x="1588" y="732"/><use href="#s02-e" x="1660" y="732"/><use href="#s02-e" x="1732" y="732"/><use href="#s02-e" x="1804" y="732"/><use href="#s02-e" x="1876" y="732"/><use href="#s02-e" x="1948" y="732"/></g>
+      </svg>
+      <div class="legend">
+        <p class="note-small">Each silhouette = 10,000 elephants</p>
+        <p class="note-small fs" data-beat="3">Bright: food service, about <b class="eln" aria-label="288,000"></b> elephants</p>
+      </div>
+    </div>
+  </div>
+
+  <aside class="notes">Now, why am I asking about elephants? Because 46.5% of the food supply is wasted. That is nearly half.
+
+That equals 21.18 million tonnes, which is quite frankly an astonishing amount. At 5 tonnes each, that's the same weight as 4.2 million African elephants.
+
+Every silhouette you see here stands for 10,000 of them.
+
+And here's the piece we care about. Food service alone accounts for 7% of that waste, about 1.44 million tonnes, or 288,000 elephants. That's restaurants and cafeterias, and that's where we start.</aside>
+</section>
+
+<section class="slide" id="s01" data-tone="bare" data-plate="2700 540 400 .15">
+  <svg class="mark" viewBox="0 0 512 512" role="img" aria-label="Full4Less logo">
+    <defs>
+      <radialGradient id="s01-glow" cx="38%" cy="70%" r="75%">
+        <stop offset="0" stop-color="#ffffff" stop-opacity=".55"/>
+        <stop offset="1" stop-color="#ffffff" stop-opacity="0"/>
+      </radialGradient>
+      <clipPath id="s01-clip"><circle cx="256" cy="256" r="200"/></clipPath>
+    </defs>
+    <g clip-path="url(#s01-clip)">
+      <circle class="glow" cx="256" cy="256" r="200" fill="url(#s01-glow)"/>
+      <g class="fan" fill="#fff" fill-opacity=".09">
+        <rect x="112" y="150" width="210" height="210" rx="36" style="--r:-24deg;--o:0;transform-origin:217px 255px"/>
+        <rect x="146" y="118" width="210" height="210" rx="36" style="--r:-12deg;--o:1;transform-origin:251px 223px"/>
+        <rect x="182" y="146" width="210" height="210" rx="36" style="--r:0deg;--o:2;transform-origin:287px 251px"/>
+        <rect x="196" y="190" width="200" height="200" rx="36" style="--r:14deg;--o:3;transform-origin:296px 290px"/>
+        <rect x="104" y="196" width="210" height="210" rx="36" style="--r:28deg;--o:4;transform-origin:209px 301px"/>
+      </g>
+    </g>
+    <circle class="ring" pathLength="1" cx="256" cy="256" r="200" fill="none" stroke="#fff" stroke-width="8" transform="rotate(-90 256 256)"/>
+    <g class="strokes" fill="none" stroke="#72C14A" stroke-width="30" stroke-linecap="round" stroke-linejoin="round">
+      <path pathLength="1" style="--o:0" d="M116 334 V178 H176"/>
+      <path pathLength="1" style="--o:1" d="M116 254 H164"/>
+      <path pathLength="1" style="--o:2" d="M284 178 L204 288 H318"/>
+      <path pathLength="1" style="--o:3" d="M284 178 V334"/>
+      <path pathLength="1" style="--o:4" d="M348 178 V334 H402"/>
+    </g>
+    <g class="leaf">
+      <path d="M250 269 C243 252 250 236 266 224 C271 242 267 259 250 269 Z" fill="#C4EDA0"/>
+      <path d="M251 266 C255 253 260 241 264 230" fill="none" stroke="#1B242B" stroke-width="2.5" stroke-linecap="round"/>
+    </g>
+  </svg>
+
+  <div class="words">
+    <p class="kicker domain">Food waste · Hamilton, Ontario</p>
+    <h1 aria-label="Full4Less" data-stagger><span>F</span><span>u</span><span>l</span><span>l</span><span class="green">4</span><span>L</span><span>e</span><span>s</span><span>s</span></h1>
+    <p class="line"><strong class="display">Full meals, for less.</strong> A live marketplace for good food that would otherwise be thrown away.</p>
+  </div>
+
+  <p class="speakers muted">[Name], [Title] · [email]</p>
+
+  <aside class="notes">I'm [Name], and this is Full4Less.
+
+Full meals, for less. We're building a live marketplace for good food that would otherwise be thrown away.
+
+Restaurants and cafeterias list what they can't sell, nearby customers bid on it or buy it right away, and they pick it up with a QR code. We're starting right here in Hamilton, Ontario, at McMaster.
+
+Over the next few minutes I'll show you why this problem matters, how the product works, and why we think it can work.</aside>
+</section>
+
+<section class="slide" id="s03" data-plate="960 505 380 .4">
+  <p class="kicker">Problem</p>
+  <h2 data-split>Two problems</h2>
+
+  <svg class="link" viewBox="0 0 1920 1080" data-beat="3" aria-hidden="true">
+    <path pathLength="1" d="M770 555 C860 435 1060 575 1150 455"/>
+  </svg>
+
+  <figure class="ph rest" data-beat="1">
+    <div class="in">
+      <img src="assets/pizza.jpg" alt="Pizzas on wooden boards in a restaurant">
+    </div>
+  </figure>
+
+  <figure class="ph stud" data-beat="2">
+    <div class="in">
+      <img src="assets/library.jpg" alt="Students studying at long tables in a library">
+    </div>
+  </figure>
+
+  <img class="hub" data-beat="3" src="assets/f4l-icon.svg" alt="Full4Less logo">
+
+  <div class="card proof p-rest" data-beat="3">
+    <b class="display">5</b>
+    <p>local restaurants told us they throw away food waste, and that it's a problem.</p>
+  </div>
+
+  <div class="card proof p-stud" data-beat="3" style="--i:3">
+    <b class="display">20+</b>
+    <p>McMaster students said they'd be willing to purchase cheaper food.</p>
+  </div>
+
+  <aside class="notes">On one side, restaurants prepare food that sometimes goes unsold or gets cancelled, and it ends up in the garbage.
+
+On the other side, students are looking for affordable meals.
+
+Full4Less connects these two problems.
+
+We checked this ourselves. Five local restaurants told us they throw away food waste and that it's a problem, and more than 20 McMaster students said they'd be willing to purchase cheaper food.</aside>
+</section>
+
+<section class="slide" id="s05" data-plate="960 799 430 .5">
+  <p class="kicker">Value proposition</p>
+  <h2 data-split><span class="ln">Affordable meals.</span> <span class="ln green">Less food waste.</span></h2>
+  <div class="balance">
+    <div class="beam">
+      <div class="arm cust" data-beat="1">
+        <p class="kicker">Customers</p>
+        <h3>Get food for cheaper</h3>
+      </div>
+      <div class="dish"><img src="assets/f4l-icon.svg" alt="Full4Less plate"></div>
+      <div class="arm biz" data-beat="2">
+        <p class="kicker">Businesses</p>
+        <h3>Waste less quality food and recover revenue</h3>
+      </div>
+    </div>
+    <div class="pivot"></div>
+  </div>
+  <aside class="notes">Full4Less comes down to one line: affordable meals, less food waste.
+
+On one side, customers get food for cheaper. Good food, at a price they can actually manage.
+
+On the other side, businesses waste less of the quality food they already made, and they recover revenue they would have lost.
+
+Most deals ask one side to give something up. This one balances, because the same plate solves both problems at once. The food gets eaten, the customer saves money, and the restaurant gets paid. That balance is the whole idea behind what we built.</aside>
+</section>
+
+<section class="slide" id="s06" data-plate="1548 532 960 .35">
+  <div class="beats" hidden><i data-beat="1"></i><i data-beat="2"></i><i data-beat="3"></i><i data-beat="4"></i><i data-beat="5"></i></div>
+
+  <div class="story">
+    <p class="kicker">Solution</p>
+    <h2 data-split>Live bidding on individually described meals, so every portion <span class="amber">finds its price.</span></h2>
+
+    <ol class="flow">
+      <li><b>1</b>Snap a photo</li>
+      <li><b>2</b>AI drafts the listing</li>
+      <li><b>3</b>Staff confirm allergens</li>
+      <li class="auction"><b>4</b>Customers bid or Buy Now</li>
+      <li><b>5</b>Winner charged automatically</li>
+      <li><b>6</b>Scan QR at pickup</li>
+    </ol>
+
+    <p class="missed" data-beat="5">Missed pickup? Staff check it's still safe, then it goes back up for auction.</p>
+
+    <div class="built">
+      <p class="note-small">Built with</p>
+      <ul>
+        <li><img class="logo" src="assets/logos/expo.svg" alt=""><span>Expo</span></li>
+        <li><img class="logo" src="assets/logos/stripe.svg" alt=""><span>Stripe</span></li>
+        <li><img class="logo" src="assets/logos/googlegemini.svg" alt=""><span>Gemini</span></li>
+        <li><img class="logo" src="assets/logos/postgresql.svg" alt=""><span>PostgreSQL</span></li>
+        <li><img class="logo" src="assets/logos/cloudflare.svg" alt=""><span>Cloudflare Tunnel</span></li>
+        <li><img class="logo" src="assets/logos/nextdotjs.svg" alt=""><span>Next.js</span></li>
+        <li><img class="logo" src="assets/logos/fastify.svg" alt=""><span>Fastify</span></li>
+      </ul>
+    </div>
+    <p class="note-small disclosure">Demo runs in test mode: cards are simulated and timers are shortened.</p>
+  </div>
+
+  <div class="phone" aria-label="Phone showing a live food auction">
+    <div class="screen">
+      <div class="photo"><span class="shutter"></span><span class="frame"></span></div>
+      <div class="live"><i></i>Live</div>
+
+      <div class="listing">
+        <span class="skel s1"></span>
+        <span class="skel s2"></span>
+        <h3>Beef &amp; pepper pizza</h3>
+        <p class="desc">Ground beef, green pepper and onion, with melted mozzarella.</p>
+        <p class="allergens"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 13l4 4L19 7"/></svg>Milk, wheat: staff confirmed</p>
+      </div>
+
+      <div class="bid">
+        <div class="cur">
+          <p class="lbl">Current bid</p>
+          <p class="display price"><span class="p p4">$4.00</span><span class="p p5">$5.00</span><span class="p p65">$6.50</span></p>
+          <p class="status"><span class="st lead">You're the top bidder</span><span class="st out">Someone bid higher</span></p>
+        </div>
+        <div class="timer"><span></span></div>
+      </div>
+
+      <div class="actions">
+        <span class="btn bidbtn">Bid</span>
+        <span class="btn buy">Buy Now</span>
+      </div>
+
+      <div class="alert">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 17V11a6 6 0 0 1 12 0v6l2 2H4zM10 21h4"/></svg>
+        <div><strong>You've been outbid</strong><span>Now at $5.00</span></div>
+      </div>
+
+      <div class="sheet">
+        <div class="won">
+          <svg viewBox="0 0 64 64" aria-hidden="true"><circle pathLength="1" cx="32" cy="32" r="27"/><path pathLength="1" d="M20 33l9 9 16-18"/></svg>
+          <div>
+            <p class="display">You won</p>
+            <p class="paid">$6.50 charged automatically</p>
+          </div>
+        </div>
+        <div class="qr">
+          <svg viewBox="-1 -1 27 27" shape-rendering="crispEdges" role="img" aria-label="Pickup QR code"><path d="M0 0h1v1h-1zM1 0h1v1h-1zM2 0h1v1h-1zM3 0h1v1h-1zM4 0h1v1h-1zM5 0h1v1h-1zM6 0h1v1h-1zM9 0h1v1h-1zM11 0h1v1h-1zM13 0h1v1h-1zM15 0h1v1h-1zM16 0h1v1h-1zM18 0h1v1h-1zM19 0h1v1h-1zM20 0h1v1h-1zM21 0h1v1h-1zM22 0h1v1h-1zM23 0h1v1h-1zM24 0h1v1h-1zM0 1h1v1h-1zM6 1h1v1h-1zM8 1h1v1h-1zM9 1h1v1h-1zM15 1h1v1h-1zM18 1h1v1h-1zM24 1h1v1h-1zM0 2h1v1h-1zM2 2h1v1h-1zM3 2h1v1h-1zM4 2h1v1h-1zM6 2h1v1h-1zM8 2h1v1h-1zM10 2h1v1h-1zM11 2h1v1h-1zM13 2h1v1h-1zM18 2h1v1h-1zM20 2h1v1h-1zM21 2h1v1h-1zM22 2h1v1h-1zM24 2h1v1h-1zM0 3h1v1h-1zM2 3h1v1h-1zM3 3h1v1h-1zM4 3h1v1h-1zM6 3h1v1h-1zM8 3h1v1h-1zM9 3h1v1h-1zM10 3h1v1h-1zM11 3h1v1h-1zM15 3h1v1h-1zM18 3h1v1h-1zM20 3h1v1h-1zM21 3h1v1h-1zM22 3h1v1h-1zM24 3h1v1h-1zM0 4h1v1h-1zM2 4h1v1h-1zM3 4h1v1h-1zM4 4h1v1h-1zM6 4h1v1h-1zM8 4h1v1h-1zM10 4h1v1h-1zM12 4h1v1h-1zM13 4h1v1h-1zM14 4h1v1h-1zM16 4h1v1h-1zM18 4h1v1h-1zM20 4h1v1h-1zM21 4h1v1h-1zM22 4h1v1h-1zM24 4h1v1h-1zM0 5h1v1h-1zM6 5h1v1h-1zM9 5h1v1h-1zM10 5h1v1h-1zM12 5h1v1h-1zM14 5h1v1h-1zM15 5h1v1h-1zM18 5h1v1h-1zM24 5h1v1h-1zM0 6h1v1h-1zM1 6h1v1h-1zM2 6h1v1h-1zM3 6h1v1h-1zM4 6h1v1h-1zM5 6h1v1h-1zM6 6h1v1h-1zM9 6h1v1h-1zM10 6h1v1h-1zM11 6h1v1h-1zM12 6h1v1h-1zM14 6h1v1h-1zM18 6h1v1h-1zM19 6h1v1h-1zM20 6h1v1h-1zM21 6h1v1h-1zM22 6h1v1h-1zM23 6h1v1h-1zM24 6h1v1h-1zM9 7h1v1h-1zM10 7h1v1h-1zM13 7h1v1h-1zM16 7h1v1h-1zM1 8h1v1h-1zM3 8h1v1h-1zM4 8h1v1h-1zM9 8h1v1h-1zM11 8h1v1h-1zM13 8h1v1h-1zM14 8h1v1h-1zM15 8h1v1h-1zM16 8h1v1h-1zM17 8h1v1h-1zM18 8h1v1h-1zM24 8h1v1h-1zM2 9h1v1h-1zM4 9h1v1h-1zM6 9h1v1h-1zM7 9h1v1h-1zM12 9h1v1h-1zM13 9h1v1h-1zM14 9h1v1h-1zM16 9h1v1h-1zM19 9h1v1h-1zM20 9h1v1h-1zM21 9h1v1h-1zM22 9h1v1h-1zM1 10h1v1h-1zM3 10h1v1h-1zM4 10h1v1h-1zM5 10h1v1h-1zM6 10h1v1h-1zM8 10h1v1h-1zM9 10h1v1h-1zM10 10h1v1h-1zM11 10h1v1h-1zM12 10h1v1h-1zM13 10h1v1h-1zM14 10h1v1h-1zM15 10h1v1h-1zM19 10h1v1h-1zM21 10h1v1h-1zM22 10h1v1h-1zM23 10h1v1h-1zM24 10h1v1h-1zM2 11h1v1h-1zM3 11h1v1h-1zM4 11h1v1h-1zM5 11h1v1h-1zM6 11h1v1h-1zM8 11h1v1h-1zM9 11h1v1h-1zM10 11h1v1h-1zM13 11h1v1h-1zM14 11h1v1h-1zM15 11h1v1h-1zM16 11h1v1h-1zM18 11h1v1h-1zM19 11h1v1h-1zM20 11h1v1h-1zM21 11h1v1h-1zM22 11h1v1h-1zM23 11h1v1h-1zM24 11h1v1h-1zM1 12h1v1h-1zM5 12h1v1h-1zM7 12h1v1h-1zM9 12h1v1h-1zM11 12h1v1h-1zM12 12h1v1h-1zM13 12h1v1h-1zM14 12h1v1h-1zM15 12h1v1h-1zM18 12h1v1h-1zM23 12h1v1h-1zM24 12h1v1h-1zM0 13h1v1h-1zM1 13h1v1h-1zM3 13h1v1h-1zM4 13h1v1h-1zM5 13h1v1h-1zM6 13h1v1h-1zM12 13h1v1h-1zM14 13h1v1h-1zM15 13h1v1h-1zM16 13h1v1h-1zM18 13h1v1h-1zM20 13h1v1h-1zM21 13h1v1h-1zM23 13h1v1h-1zM0 14h1v1h-1zM2 14h1v1h-1zM3 14h1v1h-1zM4 14h1v1h-1zM5 14h1v1h-1zM6 14h1v1h-1zM7 14h1v1h-1zM9 14h1v1h-1zM11 14h1v1h-1zM12 14h1v1h-1zM13 14h1v1h-1zM14 14h1v1h-1zM15 14h1v1h-1zM18 14h1v1h-1zM19 14h1v1h-1zM20 14h1v1h-1zM23 14h1v1h-1zM24 14h1v1h-1zM0 15h1v1h-1zM1 15h1v1h-1zM6 15h1v1h-1zM8 15h1v1h-1zM9 15h1v1h-1zM10 15h1v1h-1zM11 15h1v1h-1zM13 15h1v1h-1zM18 15h1v1h-1zM19 15h1v1h-1zM20 15h1v1h-1zM22 15h1v1h-1zM23 15h1v1h-1zM24 15h1v1h-1zM0 16h1v1h-1zM2 16h1v1h-1zM6 16h1v1h-1zM8 16h1v1h-1zM10 16h1v1h-1zM11 16h1v1h-1zM12 16h1v1h-1zM14 16h1v1h-1zM15 16h1v1h-1zM17 16h1v1h-1zM19 16h1v1h-1zM20 16h1v1h-1zM22 16h1v1h-1zM24 16h1v1h-1zM8 17h1v1h-1zM9 17h1v1h-1zM11 17h1v1h-1zM13 17h1v1h-1zM14 17h1v1h-1zM17 17h1v1h-1zM19 17h1v1h-1zM0 18h1v1h-1zM1 18h1v1h-1zM2 18h1v1h-1zM3 18h1v1h-1zM4 18h1v1h-1zM5 18h1v1h-1zM6 18h1v1h-1zM9 18h1v1h-1zM10 18h1v1h-1zM11 18h1v1h-1zM12 18h1v1h-1zM16 18h1v1h-1zM18 18h1v1h-1zM23 18h1v1h-1zM0 19h1v1h-1zM6 19h1v1h-1zM9 19h1v1h-1zM10 19h1v1h-1zM11 19h1v1h-1zM12 19h1v1h-1zM17 19h1v1h-1zM18 19h1v1h-1zM20 19h1v1h-1zM21 19h1v1h-1zM22 19h1v1h-1zM23 19h1v1h-1zM24 19h1v1h-1zM0 20h1v1h-1zM2 20h1v1h-1zM3 20h1v1h-1zM4 20h1v1h-1zM6 20h1v1h-1zM9 20h1v1h-1zM11 20h1v1h-1zM12 20h1v1h-1zM14 20h1v1h-1zM15 20h1v1h-1zM16 20h1v1h-1zM23 20h1v1h-1zM0 21h1v1h-1zM2 21h1v1h-1zM3 21h1v1h-1zM4 21h1v1h-1zM6 21h1v1h-1zM8 21h1v1h-1zM10 21h1v1h-1zM11 21h1v1h-1zM13 21h1v1h-1zM14 21h1v1h-1zM17 21h1v1h-1zM18 21h1v1h-1zM19 21h1v1h-1zM20 21h1v1h-1zM23 21h1v1h-1zM24 21h1v1h-1zM0 22h1v1h-1zM2 22h1v1h-1zM3 22h1v1h-1zM4 22h1v1h-1zM6 22h1v1h-1zM10 22h1v1h-1zM12 22h1v1h-1zM14 22h1v1h-1zM15 22h1v1h-1zM17 22h1v1h-1zM18 22h1v1h-1zM24 22h1v1h-1zM0 23h1v1h-1zM6 23h1v1h-1zM8 23h1v1h-1zM9 23h1v1h-1zM10 23h1v1h-1zM11 23h1v1h-1zM12 23h1v1h-1zM17 23h1v1h-1zM23 23h1v1h-1zM0 24h1v1h-1zM1 24h1v1h-1zM2 24h1v1h-1zM3 24h1v1h-1zM4 24h1v1h-1zM5 24h1v1h-1zM6 24h1v1h-1zM9 24h1v1h-1zM10 24h1v1h-1zM13 24h1v1h-1zM14 24h1v1h-1zM16 24h1v1h-1zM17 24h1v1h-1zM20 24h1v1h-1zM22 24h1v1h-1z"/></svg>
+          <span class="scan"></span>
+        </div>
+        <p class="at">Scan at pickup</p>
+      </div>
+      <span class="island"></span>
+    </div>
+  </div>
+
+  <aside class="notes">Here's how it works. A restaurant has unsold food, so staff snap a photo.
+
+AI drafts the listing, and staff confirm the allergens. Allergens are always entered by staff, never by AI.
+
+Nearby customers see a live auction, and they can bid or just hit Buy Now. The bid climbs. Get outbid, you get an alert, and you can bid again.
+
+When the timer ends, the winner is charged automatically and picks up by scanning a QR code.
+
+If someone misses pickup, staff check it's still safe, then it goes back up for auction.
+
+What makes this ours: live bidding on individually described meals, so every portion finds its price. The demo runs in test mode, with simulated cards and shortened timers.</aside>
+</section>
+
+<section class="slide light" id="s07" data-plate="1560 540 700 .15">
+  <p class="kicker">Business model</p>
+  <h2 data-split>B2B2C: we earn 15% of each completed sale.</h2>
+  <p class="sub muted">Restaurants pay nothing until something sells.</p>
+
+  <div class="meal">
+    <p class="fee-label" data-beat="1"><b>Full4Less commission</b>, 15%</p>
+    <div class="bar">
+      <div class="seg rest">
+        <span class="whole display">One $10 meal</span>
+        <span class="kept"><b class="display">$8.50</b> restaurant keeps</span>
+      </div>
+      <div class="seg fee"><b class="display">$1.50</b></div>
+    </div>
+    <div class="wedge" data-beat="2"></div>
+    <div class="low" data-beat="2">
+      <div class="seg processing"><b class="display">about $0.59</b><span>card processing</span></div>
+      <div class="seg left"><b class="display">about $0.91</b><span>left per meal, before fixed costs</span></div>
+    </div>
+    <p class="basis note-small">Illustrative meal; card fee estimate about 2.9% + 30¢<span>All figures in Canadian dollars.</span></p>
+  </div>
+
+  <div class="card costs" data-beat="3">
+    <h3>Running costs</h3>
+    <ul data-stagger>
+      <li data-beat="3">
+        <img class="logo" src="assets/logos/expo.svg" alt="Expo">
+        <p><b>Expo</b></p>
+        <p class="price"><b>$0</b><span>free tier</span></p>
+      </li>
+      <li data-beat="3">
+        <img class="logo" src="assets/logos/apple.svg" alt="Apple">
+        <p><b>Apple Developer</b></p>
+        <p class="price"><b>about C$139</b><span>a year</span></p>
+      </li>
+      <li data-beat="3">
+        <svg class="glyph" viewBox="0 0 48 48" aria-hidden="true"><rect x="7" y="9" width="34" height="12" rx="4"/><rect x="7" y="27" width="34" height="12" rx="4"/></svg>
+        <p><b>Hosting and database</b><span>planning estimate</span></p>
+        <p class="price"><b>about C$63</b><span>a month</span></p>
+      </li>
+      <li data-beat="3">
+        <img class="logo" src="assets/logos/googlegemini.svg" alt="Google Gemini">
+        <p><b>AI (Gemini)</b><span>estimate based on comparable API pricing</span></p>
+        <p class="price"><b>about C$3</b><span>per 1,000 listings</span></p>
+      </li>
+    </ul>
+    <p class="total" data-beat="3"><b class="display">About C$78 a month</b><span>plus payment fees</span></p>
+  </div>
+
+  <aside class="notes">We're B2B2C: restaurants list, customers buy, and we earn 15% of each completed sale. A restaurant pays nothing until something sells.
+
+Take one illustrative $10 meal, in Canadian dollars like everything on this slide. The restaurant keeps $8.50 and our commission is $1.50. Card processing takes about 59 cents on our estimate, which leaves about 91 cents per meal before fixed costs.
+
+Running costs stay small: Expo's free tier, Apple at about C$139 a year, hosting and database at about C$63 a month, and AI at about C$3 per 1,000 listings. That's about C$78 a month plus payment fees.
+
+To be plain, these numbers are illustrative until the pilot measures real supply.</aside>
+</section>
+
+<section class="slide" id="s08" data-plate="40 1000 560 .15">
+  <svg class="world" viewBox="0 0 1920 1080" aria-hidden="true">
+    <circle class="ring tam" data-beat="2" cx="1434" cy="478" r="390"/>
+    <circle class="ring sam" data-beat="1" cx="1434" cy="478" r="67.15"/>
+    <circle class="ring som" data-beat="0" cx="1434" cy="478" r="1.6"/>
+    <circle class="halo" data-beat="2" cx="1434" cy="478" r="15"/>
+  </svg>
+  <span class="tag tam" data-beat="2">Ontario</span>
+  <span class="tag sam" data-beat="1">Hamilton</span>
+  <span class="tag som" data-beat="0">Pilot</span>
+  <span class="inside display">5 businesses</span>
+  <span class="scale note-small" data-beat="2">Circle areas to scale</span>
+
+  <div class="col">
+    <p class="kicker">Market opportunity</p>
+    <h2 data-split>Five businesses first, then Hamilton, then Ontario</h2>
+
+    <p class="formula display">5 × C$10 × 15% × 300 = <span>C$2,250</span></p>
+    <p class="per muted">per business per year, bottom-up</p>
+
+    <p class="head note-small">Annual commission revenue</p>
+    <div class="tier som" data-beat="0">
+      <i></i><span class="fig display" role="img" aria-label="C$11,250"></span>
+      <p><b>SOM: initial pilot</b><span>5 businesses</span></p>
+    </div>
+    <div class="tier sam" data-beat="1">
+      <i></i><span class="fig display" role="img" aria-label="C$1.99M"></span>
+      <p><b>SAM: Hamilton</b><span>886 small food and beverage businesses</span></p>
+    </div>
+    <div class="tier tam" data-beat="2">
+      <i></i><span class="fig display" role="img" aria-label="C$67.24M"></span>
+      <p><b>TAM: Ontario</b><span>29,885 employer establishments</span></p>
+    </div>
+
+    <p class="segment" data-beat="3">Hamilton first: McMaster students, then Westdale, Ainslie Wood and downtown. Toronto next.</p>
+  </div>
+
+  <p class="assume note-small">Illustrative scenario; assumes 5 eligible meals per business per day, average C$10 sale, 15% commission on transaction value and 300 operating days. Counts include businesses that may not qualify or participate.</p>
+
+  <aside class="notes">We sized this bottom-up. Five eligible meals a day, an average C$10 sale, 15% commission and 300 operating days gives C$2,250 per business per year.
+
+Our initial pilot is five businesses, so C$11,250. Apply the same figure to Hamilton's 886 small food and beverage businesses and you get C$1.99 million. Across Ontario's 29,885 employer establishments, C$67.24 million. All of that is annual commission revenue.
+
+We go Hamilton first: McMaster students, then Westdale, Ainslie Wood and downtown, with Toronto next.
+
+I want to be plain: these numbers are illustrative until the pilot measures real supply, and the counts include businesses that may not qualify or participate.</aside>
+</section>
+
+<section class="slide light" id="s09" data-plate="1760 170 300 .2">
+  <svg class="fan" viewBox="-60 -60 120 120" aria-hidden="true">
+    <rect x="-36" y="-36" width="72" height="72" rx="13" transform="rotate(-18)"/>
+    <rect x="-36" y="-36" width="72" height="72" rx="13" transform="rotate(14)"/>
+    <circle r="56"/>
+  </svg>
+  <p class="kicker">Competitive analysis</p>
+  <h2 data-split>Built for the cancelled order</h2>
+
+  <table class="matrix">
+    <thead>
+      <tr><td></td><th scope="col">Focus</th><th scope="col">What you get</th><th scope="col">How price is set</th></tr>
+    </thead>
+    <tbody>
+      <tr class="f4l" data-beat="1">
+        <th scope="row"><img src="assets/f4l-icon.svg" alt=""><b>Full4Less</b></th>
+        <td>Restaurant meals and cancelled orders</td>
+        <td>The exact meal, photographed</td>
+        <td class="live">Live bidding or Buy Now</td>
+      </tr>
+      <tr data-beat="1" style="--i:1"><th scope="row">Too Good To Go</th><td>Discounted surplus food</td><td>Surprise Bag</td><td>Fixed price</td></tr>
+      <tr data-beat="1" style="--i:2"><th scope="row">Flashfood</th><td>Grocery store surplus</td><td>The exact item</td><td>Up to 50% off</td></tr>
+      <tr data-beat="1" style="--i:4"><th scope="row">Olio</th><td>Neighbours sharing surplus</td><td>Listed items</td><td>Free</td></tr>
+      <tr data-beat="1" style="--i:5"><th scope="row">FoodHero</th><td>Grocery surplus, mainly Canada/Quebec</td><td>Specific items</td><td>25% to 60% off</td></tr>
+      <tr data-beat="1" style="--i:6"><th scope="row">Phenix</th><td>Regional surplus, Europe</td><td>Filtered baskets</td><td>Surprise-bag model</td></tr>
+      <tr data-beat="1" style="--i:7"><th scope="row">Goodie Bag</th><td>US restaurant surplus</td><td>Restaurant and bakery leftovers</td><td>Up to 70% off</td></tr>
+    </tbody>
+  </table>
+
+  <div class="why">
+    <div class="card" data-beat="3"><h3>Edge</h3><p>Named meals, live pricing, ready for pickup in minutes.</p></div>
+    <div class="card" data-beat="3" style="--i:2"><h3>Moat</h3><p>Local density: restaurants and students on one platform, plus data on what sells, and when.</p></div>
+    <div class="card partner" data-beat="3" style="--i:4"><p>Food rescue is a partner, not a rival: food that should be donated stays donated.</p></div>
+  </div>
+
+  <aside class="notes">We're not the first people to go after food waste, so here's the field. Flashfood, FoodHero and Olio focus on groceries or neighbours sharing. Too Good To Go and Phenix sell surprise-style bags and baskets. Goodie Bag is closest on restaurant food, at a set discount.
+
+Here's what's different about us. We're built for the cancelled order, in the moment: you see the exact meal, and demand sets the price live.
+
+Our moat is local density, restaurants and students on one platform, plus data on what sells, and when.
+
+And food rescue groups are partners, not rivals. Food that should be donated stays donated.</aside>
+</section>
+
+<section class="slide" id="s10" data-plate="1730 150 420 .22">
+  <p class="kicker">Timeline</p>
+  <h2 data-split>Prototype done. The rest are targets.</h2>
+
+  <svg class="road" viewBox="0 0 1920 1080" aria-hidden="true">
+    <path class="track" d="M120 500C230 500 250 580 360 580C470 580 490 500 600 500C710 500 730 580 840 580C950 580 970 500 1080 500C1190 500 1210 580 1320 580C1430 580 1450 500 1560 500"/>
+    <path class="draw" pathLength="6" d="M120 500C230 500 250 580 360 580C470 580 490 500 600 500C710 500 730 580 840 580C950 580 970 500 1080 500C1190 500 1210 580 1320 580C1430 580 1450 500 1560 500"/>
+    <g class="done" data-beat="0"><circle cx="120" cy="500" r="16"/><path d="M112 501l6 6 11-13"/></g>
+    <circle class="node" data-beat="1" style="--i:9" cx="360" cy="580" r="14"/>
+    <circle class="node" data-beat="1" style="--i:18" cx="600" cy="500" r="14"/>
+    <circle class="node" data-beat="2" style="--i:9" cx="840" cy="580" r="14"/>
+    <circle class="node" data-beat="2" style="--i:18" cx="1080" cy="500" r="14"/>
+    <circle class="node" data-beat="3" style="--i:9" cx="1320" cy="580" r="14"/>
+    <circle class="node" data-beat="3" style="--i:18" cx="1560" cy="500" r="14"/>
+  </svg>
+  <span class="dot" aria-hidden="true"></span>
+
+  <ol class="path">
+    <li class="up" data-beat="0" style="--x:120px"><span class="tag ok">Done</span><h3>Oct 2026</h3><p>Working prototype built</p></li>
+    <li class="down" data-beat="1" style="--x:360px; --i:9"><span class="tag">Target</span><h3>Nov 14, 2026</h3><p>First pilot, 3 to 5 Hamilton outlets</p></li>
+    <li class="up" data-beat="1" style="--x:600px; --i:18"><span class="tag">Target</span><h3>Dec 2026</h3><p>Pilot results: measure real supply and test bidding against fixed discounts</p></li>
+    <li class="down" data-beat="2" style="--x:840px; --i:9"><span class="tag">Target</span><h3>Winter 2027</h3><p>10 to 15 outlets around McMaster, Westdale and Ainslie Wood; <span class="nb">food-safety</span> protocol confirmed with Hamilton Public Health</p></li>
+    <li class="up" data-beat="2" style="--x:1080px; --i:18"><span class="tag">Target</span><h3>Fall 2027</h3><p>Public iOS and Android release; real restaurant payouts; downtown Hamilton</p></li>
+    <li class="down" data-beat="3" style="--x:1320px; --w:400px; --i:9"><span class="tag">Target</span><h3>2028</h3><p>Toronto expansion</p></li>
+    <li class="up" data-beat="3" style="--x:1560px; --w:264px; --i:18"><span class="tag">Target</span><h3>2029 to 2031</h3><p>Ontario-wide</p></li>
+  </ol>
+
+  <div class="foot" data-beat="4">
+    <p class="risk card"><b>Biggest risk:</b> supply per outlet is still unmeasured. The pilot answers it first.</p>
+    <p class="partners">Partnerships with non-profits: <span class="todo">[3% of ... confirm]</span></p>
+  </div>
+
+  <aside class="notes">Here is where we are and where we're headed. The working prototype is built, that part is done. Everything after it is a target, not a promise.
+
+On November 14 we want our first pilot with three to five Hamilton outlets, and by December we want results: real supply, and bidding tested against fixed discounts. Winter 2027 is ten to fifteen outlets around McMaster, Westdale and Ainslie Wood, with our food-safety protocol confirmed with Hamilton Public Health. Fall 2027 is the public iOS and Android release, real restaurant payouts, and downtown Hamilton. Then Toronto in 2028, and Ontario-wide from 2029 to 2031.
+
+Our biggest risk is that supply per outlet is still unmeasured, so the pilot answers that first.
+
+[Team: confirm what the 3% for non-profit partnerships refers to before presenting.]</aside>
+</section>
+
+<section class="slide light" id="s11" data-plate="1370 540 760 .2">
+  <div class="copy">
+    <p class="kicker">Go-to-market · local first</p>
+    <h2 data-split>Hamilton, not a marketing campaign.</h2>
+
+    <div class="lead card" data-beat="1">
+      <div>
+        <p class="tag">First channel</p>
+        <h3>Student ambassadors</h3>
+        <p class="where">On McMaster campus</p>
+      </div>
+      <span class="beacon" aria-hidden="true"></span>
+    </div>
+
+    <ul class="also" data-stagger>
+      <li data-beat="3">
+        <svg viewBox="0 0 48 48" aria-hidden="true"><path d="M8 12a4 4 0 0 1 4-4h24a4 4 0 0 1 4 4v18a4 4 0 0 1-4 4H22l-9 7v-7h-1a4 4 0 0 1-4-4z"/></svg>
+        <span>Social media</span>
+      </li>
+      <li data-beat="3">
+        <svg viewBox="0 0 48 48" aria-hidden="true"><circle cx="18" cy="24" r="12"/><circle cx="30" cy="24" r="12"/></svg>
+        <span>Restaurant partnerships</span>
+      </li>
+      <li data-beat="3">
+        <svg viewBox="0 0 48 48" aria-hidden="true"><rect x="11" y="10" width="26" height="33" rx="3"/><path d="M24 4v6M17 20h14M17 28h14"/></svg>
+        <span>Posters in restaurants</span>
+      </li>
+    </ul>
+  </div>
+
+  <figure class="map" role="img" aria-label="Schematic map: pings radiate from a pin on McMaster out to Westdale and Ainslie Wood">
+    <svg viewBox="0 0 900 900" width="900" height="900" aria-hidden="true">
+      <defs>
+        <pattern id="s11-dots" width="30" height="30" patternUnits="userSpaceOnUse"><circle cx="15" cy="15" r="2.4" fill="#1B242B" fill-opacity=".14"/></pattern>
+        <radialGradient id="s11-fade"><stop offset=".55" stop-color="#fff"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient>
+        <mask id="s11-mask"><circle cx="450" cy="400" r="450" fill="url(#s11-fade)"/></mask>
+      </defs>
+
+      <g mask="url(#s11-mask)">
+        <rect width="900" height="900" fill="url(#s11-dots)"/>
+        <!-- Abstract streets only, not real geography -->
+        <g class="streets">
+          <path d="M-20 560 C 200 500 420 540 920 430"/>
+          <path d="M120 -20 C 170 240 150 520 260 920"/>
+          <path d="M640 -20 C 600 240 680 520 620 920"/>
+          <path d="M-20 240 C 260 300 560 210 920 280"/>
+        </g>
+      </g>
+
+      <!-- Resting rings: the map still reads with no animation -->
+      <g class="rings">
+        <circle cx="450" cy="400" r="150"/>
+        <circle cx="450" cy="400" r="290"/>
+        <circle cx="450" cy="400" r="420"/>
+      </g>
+
+      <g class="ripples" data-beat="1">
+        <circle class="rip" cx="450" cy="400" r="420"/>
+        <circle class="rip two" cx="450" cy="400" r="420"/>
+      </g>
+
+      <path class="link" data-beat="2" pathLength="1" d="M450 400 Q 610 390 745 480"/>
+      <path class="link" data-beat="2" style="--i:3" pathLength="1" d="M450 400 Q 300 450 190 610"/>
+
+      <g class="place west" data-beat="2">
+        <circle class="ping" cx="745" cy="480" r="66"/>
+        <circle class="node" cx="745" cy="480" r="15"/>
+        <text x="745" y="550" text-anchor="middle">Westdale</text>
+      </g>
+      <g class="place south" data-beat="2" style="--i:3">
+        <circle class="ping" cx="190" cy="610" r="66"/>
+        <circle class="node" cx="190" cy="610" r="15"/>
+        <text x="190" y="680" text-anchor="middle">Ainslie Wood</text>
+      </g>
+
+      <g class="pin">
+        <ellipse cx="450" cy="404" rx="26" ry="8" fill="#1B242B" fill-opacity=".18"/>
+        <path d="M450 400 C 424 360 396 334 396 298 A 54 54 0 1 1 504 298 C 504 334 476 360 450 400 Z" fill="#72C14A"/>
+        <circle cx="450" cy="298" r="22" fill="#F6F9F4"/>
+        <text x="526" y="316">McMaster</text>
+      </g>
+    </svg>
+    <figcaption class="note-small">Schematic, not to scale</figcaption>
+  </figure>
+
+  <aside class="notes">We're not starting with a big marketing campaign. We're starting in one city, Hamilton, and in one spot inside it.
+
+Our first channel is student ambassadors on McMaster campus. People talking to people. That's where our effort goes first.
+
+From campus it spreads to the neighbourhoods right beside it, Westdale and Ainslie Wood. Think of it as pings from one pin, not a national launch.
+
+Around that we add social media, restaurant partnerships, and posters in the restaurants themselves, so people meet Full4Less where they already eat.</aside>
+</section>
+
+<section class="slide" id="s12" data-plate="1850 90 380 .2">
+  <p class="kicker">Team</p>
+  <h2 data-split>Who is building Full4Less</h2>
+
+  <div class="people">
+    <article class="person" data-beat="1" style="--i:0">
+      <div class="mono">
+        <svg class="fan" viewBox="0 0 512 512" aria-hidden="true"><rect x="112" y="150" width="210" height="210" rx="36" transform="rotate(-24 217 255)"/><rect x="146" y="118" width="210" height="210" rx="36" transform="rotate(-12 251 223)"/><rect x="182" y="146" width="210" height="210" rx="36"/><rect x="196" y="190" width="200" height="200" rx="36" transform="rotate(14 296 290)"/><rect x="104" y="196" width="210" height="210" rx="36" transform="rotate(28 209 301)"/></svg>
+        <span>MD</span>
+        <img class="photo" src="assets/team/milton.jpg" alt="Milton Dai" onerror="this.remove()">
+      </div>
+      <h3>Milton Dai</h3>
+      <p>Co-Founder, Psychology Students' Youth Competition (partnered with YorkU).<br>Co-Founder, PeerPrism.<br>Prize Winner at the LIL Venture Fund.</p>
+    </article>
+
+    <article class="person" data-beat="1" style="--i:3">
+      <div class="mono">
+        <svg class="fan" viewBox="0 0 512 512" aria-hidden="true"><rect x="112" y="150" width="210" height="210" rx="36" transform="rotate(-24 217 255)"/><rect x="146" y="118" width="210" height="210" rx="36" transform="rotate(-12 251 223)"/><rect x="182" y="146" width="210" height="210" rx="36"/><rect x="196" y="190" width="200" height="200" rx="36" transform="rotate(14 296 290)"/><rect x="104" y="196" width="210" height="210" rx="36" transform="rotate(28 209 301)"/></svg>
+        <span>RM</span>
+        <img class="photo" src="assets/team/ryan.jpg" alt="Ryan Mai" onerror="this.remove()">
+      </div>
+      <h3>Ryan Mai</h3>
+      <p>Prev. CTO of BioBuddy AI. Participant of SpurHack Accelerator Program.</p>
+    </article>
+
+    <article class="person" data-beat="1" style="--i:6">
+      <div class="mono">
+        <svg class="fan" viewBox="0 0 512 512" aria-hidden="true"><rect x="112" y="150" width="210" height="210" rx="36" transform="rotate(-24 217 255)"/><rect x="146" y="118" width="210" height="210" rx="36" transform="rotate(-12 251 223)"/><rect x="182" y="146" width="210" height="210" rx="36"/><rect x="196" y="190" width="200" height="200" rx="36" transform="rotate(14 296 290)"/><rect x="104" y="196" width="210" height="210" rx="36" transform="rotate(28 209 301)"/></svg>
+        <span>OT</span>
+        <img class="photo" src="assets/team/olawale.jpg" alt="Olawale Tijani" onerror="this.remove()">
+      </div>
+      <h3>Olawale Tijani</h3>
+      <p>Diplomas in Business Management and Business Finance, with 3 years of experience in software and mobile engineering.</p>
+    </article>
+
+    <article class="person" data-beat="1" style="--i:9">
+      <div class="mono">
+        <svg class="fan" viewBox="0 0 512 512" aria-hidden="true"><rect x="112" y="150" width="210" height="210" rx="36" transform="rotate(-24 217 255)"/><rect x="146" y="118" width="210" height="210" rx="36" transform="rotate(-12 251 223)"/><rect x="182" y="146" width="210" height="210" rx="36"/><rect x="196" y="190" width="200" height="200" rx="36" transform="rotate(14 296 290)"/><rect x="104" y="196" width="210" height="210" rx="36" transform="rotate(28 209 301)"/></svg>
+        <span>HS</span>
+        <img class="photo" src="assets/team/hurrdy.jpg" alt="Hurrdy Situ" onerror="this.remove()">
+      </div>
+      <h3>Hurrdy Situ</h3>
+      <p>Technical Founder of Local Robotics Organization.</p>
+    </article>
+  </div>
+
+  <p class="built display" data-beat="2">We built the working prototype ourselves.</p>
+
+  <aside class="notes">We're Milton, Ryan, Olawale and Hurrdy.
+
+Milton co-founded the Psychology Students' Youth Competition, partnered with YorkU, co-founded PeerPrism, and is a prize winner at the LIL Venture Fund.
+
+Ryan was previously CTO of BioBuddy AI and took part in the SpurHack Accelerator Program.
+
+Olawale has diplomas in Business Management and Business Finance, with three years of experience in software and mobile engineering.
+
+Hurrdy is the technical founder of a local robotics organization.
+
+What matters most is the last line. We built the working prototype ourselves.</aside>
+</section>
+
+<section class="slide" id="s13" data-tone="bare" data-plate="372 340 650 .35">
+  <div class="mark">
+    <span class="pulse" aria-hidden="true"></span>
+    <img src="assets/f4l-icon.svg" alt="Full4Less logo">
+  </div>
+
+  <h2 class="vision" data-beat="1">No good meal ends the night in the bin.</h2>
+
+  <p class="thanks display" data-beat="2">Thank you</p>
+
+  <figure class="qr" data-beat="2">
+    <img src="assets/qr-repo.svg" alt="QR code linking to github.com/MDpraisethetwig/food_auction" width="287" height="287">
+    <figcaption>See the code</figcaption>
+  </figure>
+
+  <aside class="notes">We started this for one simple reason.
+
+No good meal ends the night in the bin.
+
+Thank you. And if you want proof, scan the code. It's all there.</aside>
+</section>
+
+<div id="progress"><img src="assets/f4l-icon.svg" alt=""><span class="count"></span><span class="track"><span class="fill" style="display:block"></span></span></div>
+</div>
+<div id="notes"></div>
+<script>
+
+// Full4Less deck engine: navigation, beats, view transitions, stage scaling.
+(() => {
+  const stage = document.getElementById("stage");
+  const slides = [...document.querySelectorAll(".slide")];
+  const plate = document.getElementById("plate");
+  const label = document.querySelector("#progress .count");
+  const notes = document.getElementById("notes");
+  let index = 0, step = 0;
+
+  const fit = () => stage.style.setProperty("--scale", Math.min(innerWidth / 1920, innerHeight / 1080));
+  addEventListener("resize", fit);
+  fit();
+
+  // Split [data-split] text into words for the reveal
+  document.querySelectorAll("[data-split]").forEach(el => {
+    let w = 0;
+    const walk = node => [...node.childNodes].forEach(n => {
+      if (n.nodeType === 3 && n.textContent.trim()) {
+        const f = document.createDocumentFragment();
+        n.textContent.split(/(\s+)/).forEach(t => {
+          if (!t.trim()) return f.append(t);
+          const s = document.createElement("span");
+          s.className = "w"; s.style.setProperty("--w", w++); s.textContent = t;
+          f.append(s);
+        });
+        n.replaceWith(f);
+      } else if (n.nodeType === 1) walk(n);
+    });
+    walk(el);
+  });
+
+  // Fallback stagger where sibling-index() is missing
+  if (!CSS.supports("width", "calc(sibling-index() * 1px)"))
+    document.querySelectorAll("[data-stagger]").forEach(p => [...p.children].forEach((c, i) => c.style.setProperty("--i", i + 1)));
+
+  const beats = s => {
+    const all = [...s.querySelectorAll("[data-beat]")].map(e => +e.dataset.beat);
+    return all.length ? Math.max(...all) : 0;
+  };
+
+  const applyBeats = () => {
+    const s = slides[index];
+    s.dataset.step = step;
+    s.querySelectorAll("[data-beat]").forEach(e => e.classList.toggle("on", +e.dataset.beat <= step));
+    s.dispatchEvent(new CustomEvent("beat", { detail: { step } }));
+  };
+
+  const applySlide = () => {
+    slides.forEach((s, i) => s.classList.toggle("is-active", i === index));
+    const s = slides[index];
+    stage.dataset.tone = s.dataset.tone || (s.classList.contains("light") ? "light" : "dark");
+    const [x, y, size, o] = (s.dataset.plate || "1500 540 800 .5").split(" ");
+    plate.style.setProperty("--px", x + "px");
+    plate.style.setProperty("--py", y + "px");
+    plate.style.setProperty("--ps", size / 100);
+    plate.style.setProperty("--po", o ?? .5);
+    stage.style.setProperty("--prog", (index + 1) / slides.length);
+    label.textContent = `${String(index + 1).padStart(2, "0")} / ${slides.length}`;
+    notes.textContent = s.querySelector(".notes")?.textContent.trim() ?? "";
+    location.hash = index + 1;
+  };
+
+  const go = (to, atStep = 0) => {
+    if (to < 0 || to >= slides.length) return;
+    if (to === index) { step = atStep; return applyBeats(); }
+    const dir = to > index ? "forward" : "back";
+    slides[index].dispatchEvent(new CustomEvent("leave"));
+    const update = () => {
+      index = to; step = atStep;
+      applySlide();
+      // Beats paint after the slide exists, so transitions run on arrival
+      requestAnimationFrame(() => { applyBeats(); slides[index].dispatchEvent(new CustomEvent("enter")); });
+    };
+    if (document.startViewTransition && !matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      try { document.startViewTransition({ update, types: [dir] }); }
+      catch { document.startViewTransition(update); }
+    } else update();
+  };
+
+  const next = () => step < beats(slides[index]) ? (step++, applyBeats()) : go(index + 1);
+  const prev = () => step > 0 ? (step--, applyBeats()) : go(index - 1, beats(slides[index - 1] ?? slides[0]));
+
+  addEventListener("keydown", e => {
+    if (["ArrowRight", "ArrowDown", "PageDown", " ", "Enter"].includes(e.key)) { e.preventDefault(); next(); }
+    else if (["ArrowLeft", "ArrowUp", "PageUp", "Backspace"].includes(e.key)) { e.preventDefault(); prev(); }
+    else if (e.key === "Home") go(0);
+    else if (e.key === "End") go(slides.length - 1);
+    else if (e.key === "n" || e.key === "N") notes.classList.toggle("open");
+    else if (e.key === "f" || e.key === "F") document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen();
+  });
+  stage.addEventListener("click", e => (e.clientX < innerWidth * .25 ? prev() : next()));
+
+  index = Math.min(Math.max((parseInt(location.hash.slice(1)) || 1) - 1, 0), slides.length - 1);
+  applySlide();
+  requestAnimationFrame(() => { applyBeats(); slides[index].dispatchEvent(new CustomEvent("enter")); });
+
+  // Test and print hook: show a slide with all beats, no transition
+  window.deck = { show(i) { index = i; step = beats(slides[i]); applySlide(); applyBeats(); slides[i].dispatchEvent(new CustomEvent("enter")); }, count: slides.length };
+})();
+
+</script>
+</body>
+</html>

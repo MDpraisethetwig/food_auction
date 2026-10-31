@@ -1,0 +1,70 @@
+/* Slide 07: one $8 meal comes apart, then the commission opens up into its own bar.
+   Default rules are the final state, so print shows everything. The earlier
+   steps are screen-only overrides keyed off data-step, which the engine sets. */
+#s07 { --deep: color-mix(in oklab, var(--green) 58%, var(--ink)); }
+#s07 h2 { font-size: 72px; white-space: nowrap; margin-top: 10px; }
+#s07 .sub { font-size: 32px; margin-top: 14px; }
+
+#s07 .meal { position: absolute; left: var(--pad); top: 306px; width: 1034px; transition: width .9s var(--inout); }
+#s07 .fee-label { height: 42px; font-size: 26px; text-align: right; white-space: nowrap; }
+
+#s07 .bar { display: flex; gap: 12px; height: 196px; transition: gap .7s var(--spring); }
+#s07 .seg { display: flex; flex-direction: column; justify-content: center; min-width: 0; border-radius: 28px; corner-shape: squircle; padding: 0 36px; line-height: 1.15; transition: background-color .6s var(--out), border-radius .6s var(--out), color .6s var(--out); }
+#s07 .seg b { font-weight: 700; }
+
+#s07 .rest { flex: 85 1 0; position: relative; background: var(--ink); color: #fff; }
+#s07 .fee { flex: 15 1 0; align-items: center; padding: 0; background: var(--green); color: var(--ink); }
+#s07 .fee b { font-size: 50px; transition: opacity .5s var(--out) .15s; }
+
+#s07 .whole { position: absolute; left: 44px; top: 50%; translate: 0 -50%; font-size: 84px; white-space: nowrap; opacity: 0; transition: opacity .35s var(--out); }
+#s07 .kept { display: flex; align-items: baseline; gap: 20px; font-size: 30px; transition: opacity .5s var(--out) .15s; }
+#s07 .kept b { font-size: 84px; }
+
+#s07 .wedge { height: 118px; background: linear-gradient(color-mix(in srgb, var(--green) 48%, transparent), color-mix(in srgb, var(--green) 16%, transparent)); clip-path: polygon(85% 0, 100% 0, 100% 100%, 0 100%); translate: none; transition: opacity .4s var(--out), clip-path .9s var(--inout); }
+
+#s07 .low { display: flex; gap: 12px; height: 196px; translate: none; clip-path: inset(0 0 0 0 round 28px); transition: opacity .4s var(--out), clip-path .9s var(--inout); }
+#s07 .low .seg { padding: 0 32px; }
+#s07 .low b { font-size: 54px; white-space: nowrap; }
+#s07 .low span { font-size: 26px; margin-top: 6px; }
+#s07 .processing { flex: 59 1 0; background: #DCE3DD; color: var(--ink); }
+#s07 .left { flex: 91 1 0; background: var(--green); color: var(--ink); }
+
+#s07 .basis { margin-top: 20px; display: flex; flex-wrap: wrap; column-gap: 26px; }
+
+/* Running costs */
+#s07 .costs { position: absolute; left: 1180px; top: 296px; width: 644px; padding: 30px 36px 32px; }
+#s07 .costs h3 { font-size: 38px; }
+#s07 ul { list-style: none; padding: 0; margin-top: 10px; }
+#s07 li { display: grid; grid-template-columns: 48px 1fr 190px; align-items: center; column-gap: 18px; min-height: 96px; padding: 10px 0; border-bottom: 1px solid rgb(27 36 43 / .1); line-height: 1.2; }
+#s07 li:last-child { border-bottom: 0; }
+#s07 li .logo { height: 44px; max-width: 48px; justify-self: center; }
+#s07 li .glyph { width: 44px; height: 44px; justify-self: center; fill: none; stroke: var(--ink); stroke-width: 3.5; }
+#s07 li b { font-size: 26px; font-weight: 600; }
+#s07 li span { display: block; font-size: 20px; color: #55636C; margin-top: 2px; }
+#s07 .price { text-align: right; }
+#s07 .price b { font-weight: 700; white-space: nowrap; }
+#s07 .total { display: flex; align-items: baseline; justify-content: space-between; flex-wrap: wrap; gap: 0 18px; margin-top: 8px; padding: 16px 24px; border-radius: 22px; corner-shape: squircle; background: var(--green); color: var(--ink); }
+#s07 .total b { font-size: 38px; white-space: nowrap; }
+#s07 .total span { font-size: 22px; font-weight: 600; }
+
+/* Earlier steps. Screen only, so print falls through to the final state above. */
+@media screen {
+  /* Before the running costs arrive, the meal has the whole stage. */
+  #s07:not([data-step="3"]) .meal { width: 1728px; }
+
+  /* Before the split: one solid bar. */
+  #s07:not([data-step="1"], [data-step="2"], [data-step="3"]) .bar { gap: 0; }
+  #s07:not([data-step="1"], [data-step="2"], [data-step="3"]) .rest { border-radius: 28px 0 0 28px; }
+  #s07:not([data-step="1"], [data-step="2"], [data-step="3"]) .fee { border-radius: 0 28px 28px 0; background: var(--ink); color: transparent; }
+  #s07:not([data-step="1"], [data-step="2"], [data-step="3"]) .fee b,
+  #s07:not([data-step="1"], [data-step="2"], [data-step="3"]) .kept { opacity: 0; transition-delay: 0s; }
+  #s07:not([data-step="1"], [data-step="2"], [data-step="3"]) .whole { opacity: 1; }
+
+  /* Before the commission opens up: wedge and lower bar are folded under the fee. */
+  #s07 .wedge:not(.on) { clip-path: polygon(85% 0, 100% 0, 100% 0, 85% 0); }
+  #s07 .low:not(.on) { clip-path: inset(0 0 0 85% round 28px); }
+}
+
+@media print {
+  #s07 .wedge, #s07 .low, #s07 .costs, #s07 li, #s07 .fee-label { opacity: 1 !important; }
+}

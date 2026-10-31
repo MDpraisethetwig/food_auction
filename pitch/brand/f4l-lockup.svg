@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1240 360" width="1240" height="360" role="img" aria-label="Full4Less">
+  <rect width="1240" height="360" rx="60" fill="#1B242B"/>
+  <g transform="translate(40 40) scale(.547)">
+    <circle cx="256" cy="256" r="200" fill="#fff" fill-opacity=".07"/>
+    <circle cx="256" cy="256" r="200" fill="none" stroke="#fff" stroke-width="8"/>
+    <g fill="none" stroke="#72C14A" stroke-width="30" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M116 334 V178 H176 M116 254 H164"/>
+      <path d="M284 178 L204 288 H318 M284 178 V334"/>
+      <path d="M348 178 V334 H402"/>
+    </g>
+    <path d="M250 269 C243 252 250 236 266 224 C271 242 267 259 250 269 Z" fill="#C4EDA0"/>
+  </g>
+  <text x="350" y="212" font-family="Bricolage Grotesque, Segoe UI, sans-serif" font-size="140" font-weight="700" letter-spacing="-4" fill="#fff">full<tspan fill="#72C14A">4</tspan>less</text>
+  <text x="356" y="268" font-family="Instrument Sans, Segoe UI, sans-serif" font-size="36" fill="#A9B6BE">Full meals, for less</text>
+</svg>

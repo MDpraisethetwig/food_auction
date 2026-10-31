@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512" role="img" aria-label="Full4Less logo">
+  <defs>
+    <radialGradient id="glow" cx="38%" cy="70%" r="75%">
+      <stop offset="0" stop-color="#ffffff" stop-opacity=".55"/>
+      <stop offset="1" stop-color="#ffffff" stop-opacity="0"/>
+    </radialGradient>
+    <clipPath id="plate"><circle cx="256" cy="256" r="200"/></clipPath>
+  </defs>
+  <rect width="512" height="512" rx="112" fill="#1B242B"/>
+  <!-- plate: fanned stack of translucent containers inside a ring -->
+  <g clip-path="url(#plate)">
+    <circle cx="256" cy="256" r="200" fill="url(#glow)" opacity=".5"/>
+    <g fill="#fff" fill-opacity=".09">
+      <rect x="112" y="150" width="210" height="210" rx="36" transform="rotate(-24 217 255)"/>
+      <rect x="146" y="118" width="210" height="210" rx="36" transform="rotate(-12 251 223)"/>
+      <rect x="182" y="146" width="210" height="210" rx="36"/>
+      <rect x="196" y="190" width="200" height="200" rx="36" transform="rotate(14 296 290)"/>
+      <rect x="104" y="196" width="210" height="210" rx="36" transform="rotate(28 209 301)"/>
+    </g>
+  </g>
+  <circle cx="256" cy="256" r="200" fill="none" stroke="#fff" stroke-width="8"/>
+  <!-- F4L -->
+  <g fill="none" stroke="#72C14A" stroke-width="30" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M116 334 V178 H176 M116 254 H164"/>
+    <path d="M284 178 L204 288 H318 M284 178 V334"/>
+    <path d="M348 178 V334 H402"/>
+  </g>
+  <!-- leaf in the counter of the 4 -->
+  <path d="M250 269 C243 252 250 236 266 224 C271 242 267 259 250 269 Z" fill="#C4EDA0"/>
+  <path d="M251 266 C255 253 260 241 264 230" fill="none" stroke="#1B242B" stroke-width="2.5" stroke-linecap="round"/>
+</svg>

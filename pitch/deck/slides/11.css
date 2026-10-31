@@ -1,0 +1,66 @@
+/* Slide 11: Go-to-market. Copy on the left, schematic ripple map on the right. */
+#s11 .copy { position: absolute; left: 96px; top: 88px; width: 790px; }
+#s11 h2 { margin-top: 18px; }
+
+#s11 .lead { display: flex; align-items: center; justify-content: space-between; gap: 32px; margin-top: 36px; padding: 32px 44px 34px; background: var(--ink); border: 0; color: #fff; }
+#s11 .lead .tag { font-weight: 600; font-size: 24px; letter-spacing: .12em; text-transform: uppercase; color: var(--leaf); }
+#s11 .lead h3 { margin-top: 10px; font-size: 62px; line-height: 1.05; }
+#s11 .lead .where { margin-top: 10px; font-size: 32px; color: var(--fog); }
+
+/* Same ripple as the map pin, so the card and the map read as one thing */
+#s11 .beacon { position: relative; flex: none; width: 96px; height: 96px; }
+#s11 .beacon::before, #s11 .beacon::after { content: ""; position: absolute; border-radius: 50%; }
+#s11 .beacon::before { inset: 32px; background: var(--green); }
+#s11 .beacon::after { inset: 0; border: 3px solid var(--green); opacity: .4; }
+#s11 .lead.on .beacon::after { animation: s11-beacon 4.5s linear infinite; } /* slow, subtle loop */
+@keyframes s11-beacon { from { scale: .3; opacity: .8; } 70%, to { scale: 1; opacity: 0; } }
+
+#s11 .also { list-style: none; padding: 0; margin-top: 44px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
+#s11 .also li { display: grid; gap: 14px; align-content: start; font-size: 30px; line-height: 1.2; font-weight: 600; }
+#s11 .also svg { width: 68px; height: 68px; fill: none; stroke: var(--ink); stroke-width: 2.6; stroke-linejoin: round; stroke-linecap: round; }
+
+#s11 .map { position: absolute; left: 924px; top: 76px; width: 900px; height: 900px; }
+#s11 .map svg { display: block; overflow: visible; }
+#s11 .map figcaption { position: absolute; right: 0; bottom: 0; }
+
+#s11 .streets path { fill: none; stroke: #1B242B; stroke-opacity: .1; stroke-width: 7; stroke-linecap: round; }
+#s11 .rings circle { fill: none; stroke: #1B242B; stroke-opacity: .1; stroke-width: 1.5; stroke-dasharray: 3 11; stroke-linecap: round; }
+
+/* Ripples: the clock runs from arrival, the beat only reveals them, so the places
+   below stay in step however long the presenter waits. Slow, subtle loop. */
+#s11 .ripples[data-beat] { translate: 0 0; }
+#s11 .rip { fill: color-mix(in srgb, var(--green) 12%, transparent); stroke: var(--green); stroke-width: 3; vector-effect: non-scaling-stroke; transform-box: fill-box; transform-origin: center; opacity: 0; }
+#s11.is-active .rip { animation: s11-rip 9s linear infinite; }
+#s11.is-active .rip.two { animation-delay: 4.5s; }
+@keyframes s11-rip {
+  from { scale: .04; opacity: 0; }
+  5% { opacity: .75; }
+  to { scale: 1; opacity: 0; }
+}
+
+#s11 .link { fill: none; stroke: var(--green); stroke-width: 4; stroke-linecap: round; stroke-dasharray: 1; stroke-dashoffset: 1; transition: opacity .3s, stroke-dashoffset 1.2s var(--inout) calc(var(--i, 0) * 90ms); translate: 0 0; }
+#s11 .link.on { stroke-dashoffset: 0; }
+
+#s11 .node { fill: var(--ink); stroke: var(--paper); stroke-width: 5; }
+#s11 .place text { font-family: "Display", "Body", sans-serif; font-weight: 700; font-size: 40px; letter-spacing: -.01em; fill: var(--ink); paint-order: stroke; stroke: var(--paper); stroke-width: 10px; stroke-linejoin: round; }
+
+/* Each place pings as a ripple reaches it: 308 and 350 of 420 along a 9s run, every 4.5s */
+#s11 .ping { fill: color-mix(in srgb, var(--green) 30%, transparent); stroke: var(--green); stroke-width: 3; vector-effect: non-scaling-stroke; transform-box: fill-box; transform-origin: center; opacity: 0; }
+#s11.is-active .west .ping { animation: s11-ping 4.5s var(--out) 2.1s infinite; }
+#s11.is-active .south .ping { animation: s11-ping 4.5s var(--out) 3s infinite; }
+@keyframes s11-ping {
+  from { scale: .2; opacity: .9; }
+  30%, to { scale: 1; opacity: 0; }
+}
+
+#s11 .pin text { font-family: "Display", "Body", sans-serif; font-weight: 700; font-size: 52px; letter-spacing: -.02em; fill: var(--ink); paint-order: stroke; stroke: var(--paper); stroke-width: 12px; stroke-linejoin: round; }
+#s11.is-active .pin { animation: s11-drop 1s var(--bounce) .35s backwards; }
+@keyframes s11-drop { from { translate: 0 -150px; opacity: 0; } }
+
+@media (prefers-reduced-motion: reduce) {
+  #s11.is-active .rip, #s11.is-active .ping, #s11 .lead.on .beacon::after { animation: none; }
+}
+@media print {
+  #s11 .link { stroke-dashoffset: 0; }
+  #s11 .rip, #s11 .ping, #s11 .pin, #s11 .beacon::after { animation: none !important; }
+}

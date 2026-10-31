@@ -1,0 +1,119 @@
+/* Full4Less deck: shared engine styles. Slide-specific CSS lives in slides/NN.css. */
+@font-face { font-family: "Display"; src: url(assets/fonts/display.woff2) format("woff2"); font-weight: 200 800; font-display: block; }
+@font-face { font-family: "Body"; src: url(assets/fonts/body.woff2) format("woff2"); font-weight: 400 700; font-display: block; }
+
+/* Registered so these can be animated smoothly */
+@property --n     { syntax: "<integer>"; inherits: true; initial-value: 0; }
+@property --pct   { syntax: "<number>";  inherits: true; initial-value: 0; }
+@property --angle { syntax: "<angle>";   inherits: true; initial-value: 0deg; }
+
+:root {
+  --ink: #1B242B;
+  --ink-2: #232F38;
+  --ink-3: #2E3B45;
+  --line: rgb(255 255 255 / .14);
+  --fog: #A9B6BE;
+  --paper: #F6F9F4;
+  --green: #72C14A;
+  --leaf: #C4EDA0;
+  --amber: #F5B841;
+  --red: #F0705A;
+
+  /* linear() approximations of springs */
+  --spring: linear(0, .009, .035 2.1%, .141 4.4%, .723 12.9%, .938 16.7%, 1.017, 1.077 20.4%, 1.121, 1.149 24.3%, 1.159, 1.163 27%, 1.154, 1.129 32.8%, 1.051 39.6%, 1.017 43.1%, .991, .977 51%, .974 53.8%, .975 57.1%, .997 69.8%, 1.003 76.9%, 1);
+  --bounce: linear(0, .25 8%, .9 20%, 1.08 28%, 1.02 40%, .99 52%, 1);
+  --out: cubic-bezier(.16, 1, .3, 1);
+  --inout: cubic-bezier(.65, 0, .35, 1);
+
+  --beat-d: .7s;
+  --pad: 96px;
+}
+
+* { box-sizing: border-box; margin: 0; }
+html, body { height: 100%; background: #10161B; color: #fff; overflow: hidden; font-family: "Body", system-ui, sans-serif; -webkit-font-smoothing: antialiased; }
+
+/* 1920x1080 stage, scaled to fit by deck.js */
+#stage { position: fixed; left: 50%; top: 50%; width: 1920px; height: 1080px; transform-origin: 0 0; transform: scale(var(--scale, 1)) translate(-50%, -50%); background: var(--ink); overflow: hidden; contain: layout paint; }
+
+.slide { position: absolute; inset: 0; padding: 88px var(--pad) 96px; display: none; font-size: 30px; line-height: 1.35; view-transition-name: slide; }
+.slide.is-active { display: block; }
+.slide.light { background: var(--paper); color: var(--ink); }
+
+h1, h2, h3, .display { font-family: "Display", "Body", sans-serif; font-weight: 700; letter-spacing: -.02em; line-height: 1.05; text-wrap: balance; }
+h2 { font-size: 84px; }
+h3 { font-size: 40px; line-height: 1.15; }
+p { text-wrap: pretty; }
+.kicker { font-weight: 600; font-size: 24px; letter-spacing: .14em; text-transform: uppercase; color: var(--green); }
+.muted { color: var(--fog); }
+.light .muted { color: #55636C; }
+.green { color: var(--green); }
+.amber { color: var(--amber); }
+.note-small { font-size: 22px; color: var(--fog); }
+.light .note-small { color: #55636C; }
+
+.card { background: var(--ink-2); border: 1px solid var(--line); border-radius: 32px; padding: 36px 40px; corner-shape: squircle; }
+.light .card { background: #fff; border-color: rgb(27 36 43 / .1); box-shadow: 0 12px 40px rgb(27 36 43 / .08); }
+
+/* Monochrome brand marks. Use <img class="logo" src="assets/logos/x.svg" alt="X"> */
+.logo { height: 56px; width: auto; filter: brightness(0) invert(1); }
+.light .logo { filter: brightness(0) saturate(100%) invert(12%) sepia(10%) saturate(1200%) hue-rotate(165deg); }
+
+/* The ambient plate: lives in the stage and glides between slides.
+   Each slide positions it with data-plate="x y size" (px, centre of the ring). */
+#plate { position: absolute; left: 0; top: 0; width: 100px; height: 100px; transform: translate(var(--px, 1500px), var(--py, 540px)) translate(-50%, -50%) scale(var(--ps, 8)); transition: transform 1s var(--out), opacity .6s; view-transition-name: plate; pointer-events: none; opacity: var(--po, .5); }
+#plate svg { width: 100%; height: 100%; overflow: visible; }
+#plate .fan rect { transform-box: fill-box; transform-origin: center; animation: drift 18s var(--inout) infinite alternate; animation-delay: calc(var(--i) * -3s); }
+@keyframes drift { to { rotate: 10deg; } }
+
+/* Beats: anything with data-beat="n" appears on the nth click.
+   data-beat="0" appears on arrival. --i staggers siblings. */
+[data-beat] { opacity: 0; translate: 0 28px; transition: opacity var(--beat-d) var(--out), translate var(--beat-d) var(--spring), scale var(--beat-d) var(--spring); transition-delay: calc(var(--i, 0) * 90ms); }
+@supports (width: calc(sibling-index() * 1px)) {
+  [data-stagger] > * { --i: sibling-index(); }
+}
+[data-beat].on { opacity: 1; translate: 0 0; }
+
+/* Word-by-word title reveal: wrap words in <span class="w"> via data-split on the element */
+[data-split] .w { display: inline-block; opacity: 0; translate: 0 .5em; rotate: 4deg; }
+.is-active [data-split] .w { animation: word .9s var(--spring) forwards; animation-delay: calc(var(--w) * 70ms + .15s); }
+@keyframes word { to { opacity: 1; translate: 0 0; rotate: 0deg; } }
+
+/* Progress */
+#progress { position: absolute; left: var(--pad); right: var(--pad); bottom: 40px; display: flex; align-items: center; gap: 18px; font-size: 20px; color: var(--fog); z-index: 5; pointer-events: none; }
+#progress img { height: 36px; border-radius: 9px; }
+#progress .track { flex: 1; height: 3px; background: var(--line); border-radius: 3px; overflow: hidden; }
+#progress .fill { height: 100%; background: var(--green); width: 100%; transform-origin: left; transform: scaleX(var(--prog, 0)); transition: transform .8s var(--out); }
+#stage[data-tone="light"] #progress { color: #55636C; }
+#stage[data-tone="light"] #progress .track { background: rgb(27 36 43 / .14); }
+#stage[data-tone="bare"] #progress { opacity: 0; }
+
+/* Speaker notes: press N */
+.notes { display: none; }
+#notes { position: fixed; left: 24px; right: 24px; bottom: 24px; max-height: 40vh; overflow: auto; padding: 20px 24px; border-radius: 16px; background: rgb(0 0 0 / .85); color: #fff; font-size: 18px; line-height: 1.45; z-index: 20; white-space: pre-line; display: none; transition: opacity .25s, display .25s allow-discrete; opacity: 0; }
+#notes.open { display: block; opacity: 1; }
+@starting-style { #notes.open { opacity: 0; } }
+
+/* Slide change. Direction comes from the view transition type set in deck.js */
+::view-transition-group(*) { animation-duration: .85s; animation-timing-function: var(--out); }
+::view-transition-old(slide), ::view-transition-new(slide) { animation-duration: .85s; animation-timing-function: var(--out); mix-blend-mode: normal; }
+html:active-view-transition-type(forward) { &::view-transition-old(slide) { animation-name: out-left; } &::view-transition-new(slide) { animation-name: in-right; } }
+html:active-view-transition-type(back) { &::view-transition-old(slide) { animation-name: out-right; } &::view-transition-new(slide) { animation-name: in-left; } }
+@keyframes out-left  { to   { translate: -6% 0; opacity: 0; scale: .96; filter: blur(8px); } }
+@keyframes out-right { to   { translate: 6% 0;  opacity: 0; scale: .96; filter: blur(8px); } }
+@keyframes in-right  { from { translate: 8% 0;  opacity: 0; scale: 1.02; } }
+@keyframes in-left   { from { translate: -8% 0; opacity: 0; scale: 1.02; } }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after, ::view-transition-group(*), ::view-transition-old(*), ::view-transition-new(*) { animation-duration: .01ms !important; animation-delay: 0ms !important; transition-duration: .01ms !important; transition-delay: 0ms !important; }
+}
+
+/* Print to PDF gives a backup deck with every beat visible */
+@page { size: 1920px 1080px; margin: 0; }
+@media print {
+  html, body { overflow: visible; height: auto; background: none; }
+  #stage { position: static; transform: none; height: auto; overflow: visible; contain: none; background: none; }
+  #plate, #progress, #notes { display: none; }
+  .slide { display: block; position: relative; width: 1920px; height: 1080px; break-after: page; overflow: hidden; background: var(--ink); print-color-adjust: exact; -webkit-print-color-adjust: exact; }
+  .slide.light { background: var(--paper); }
+  [data-beat], [data-split] .w { opacity: 1 !important; translate: 0 0 !important; rotate: 0deg !important; animation: none !important; transition: none !important; }
+}

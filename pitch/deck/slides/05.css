@@ -1,0 +1,30 @@
+/* Slide 05: Value proposition. A balance beam: one side lands, the beam tips; the other lands, it levels. */
+#s05 > .kicker { text-align: center; }
+#s05 h2 { font-size: 176px; line-height: 1; text-align: center; margin-top: 18px; letter-spacing: -.03em; }
+#s05 h2 .ln { display: block; }
+
+#s05 .balance { position: absolute; left: var(--pad); right: var(--pad); top: 925px; }
+#s05 .beam { --angle: 0deg; position: absolute; left: 0; right: 0; top: 0; height: 8px; border-radius: 8px; background: var(--fog); rotate: var(--angle); transform-origin: 50% 50%; transition: --angle 1.1s var(--spring); }
+@media screen {
+  #s05[data-step="1"] .beam { --angle: -3.2deg; }
+}
+#s05 .arm { position: absolute; bottom: 8px; width: 590px; min-height: 216px; display: flex; flex-direction: column; justify-content: center; gap: 10px; padding: 26px 38px; background: var(--ink-2); border: 1px solid var(--line); border-radius: 32px; corner-shape: squircle; rotate: calc(var(--angle) * -1); transform-origin: 50% 100%; }
+#s05 .arm.cust { left: 14px; }
+#s05 .arm.biz { right: 14px; }
+#s05 .arm h3 { font-size: 44px; }
+#s05 .arm.cust { translate: -60px -40px; }
+#s05 .arm.biz { translate: 60px -40px; }
+#s05 .arm.on { translate: 0 0; }
+
+/* Cropped to the logo's own ring, so the plate rests on the beam */
+#s05 .dish { position: absolute; left: 50%; bottom: 7px; width: 252px; height: 252px; margin-left: -126px; border-radius: 50%; overflow: hidden; rotate: calc(var(--angle) * -1); transform-origin: 50% 100%; }
+#s05 .dish img { display: block; width: 124%; height: 124%; margin: -12%; }
+#s05.is-active .dish img { animation: s05-land .9s var(--bounce) .35s backwards; }
+@keyframes s05-land { from { scale: .5; opacity: 0; translate: 0 -70px; } }
+
+#s05 .pivot { position: absolute; left: 50%; top: 4px; width: 92px; height: 56px; margin-left: -46px; background: var(--fog); clip-path: polygon(50% 0, 100% 100%, 0 100%); }
+
+@media print {
+  #s05 .arm { translate: 0 0 !important; }
+  #s05 .dish img { animation: none; }
+}

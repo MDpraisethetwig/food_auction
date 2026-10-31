@@ -1,0 +1,35 @@
+/* Slide 12: Team. Initials sit in the ring until assets/team/NAME.jpg exists. */
+#s12 h2 { margin-top: 14px; }
+
+#s12 .people { display: grid; grid-template-columns: repeat(4, 1fr); gap: 48px; margin-top: 36px; }
+#s12 .person h3 { margin-top: 26px; font-size: 44px; }
+#s12 .person p { margin-top: 10px; font-size: 26px; line-height: 1.3; color: var(--fog); }
+#s12 .person b { font-weight: 600; color: #fff; }
+
+/* Monogram: the logo's fan inside a ring that draws itself on */
+#s12 .mono { position: relative; width: 230px; height: 230px; border-radius: 50%; overflow: hidden; display: grid; place-items: center; background: var(--ink-2); }
+#s12 .mono::after { content: ""; position: absolute; inset: 0; border-radius: 50%; --angle: 360deg; background: conic-gradient(from -90deg, var(--green) var(--angle), transparent 0); mask: radial-gradient(farthest-side, transparent calc(100% - 7px), #000 calc(100% - 6px)); }
+#s12 .person.on .mono::after { animation: s12-ring 1.3s var(--inout) .1s backwards; }
+@keyframes s12-ring { from { --angle: 0deg; } }
+
+#s12 .photo { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+#s12 .mono::after { z-index: 1; }
+#s12 .mono .fan { position: absolute; inset: -30px; width: calc(100% + 60px); height: calc(100% + 60px); }
+#s12 .mono .fan rect { fill: #fff; fill-opacity: .07; }
+#s12 .person.on .fan { animation: s12-turn 60s linear infinite; } /* slow, subtle loop */
+#s12 .person:nth-child(2).on .fan { animation-direction: reverse; animation-duration: 72s; }
+#s12 .person:nth-child(3).on .fan { animation-duration: 84s; }
+@keyframes s12-turn { to { rotate: 360deg; } }
+
+#s12 .mono span { position: relative; font-family: "Display", "Body", sans-serif; font-weight: 600; font-size: 34px; letter-spacing: -.01em; color: var(--leaf); }
+#s12 .person.on .mono span { animation: s12-label .8s var(--spring) .5s backwards; }
+@keyframes s12-label { from { opacity: 0; scale: .7; } }
+
+#s12 .built { position: absolute; left: 96px; top: 900px; font-size: 52px; color: var(--leaf); }
+
+@media (prefers-reduced-motion: reduce) {
+  #s12 .person.on .fan { animation: none; }
+}
+@media print {
+  #s12 .mono::after, #s12 .fan, #s12 .mono span { animation: none !important; }
+}
