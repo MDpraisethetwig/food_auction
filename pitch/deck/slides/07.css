@@ -30,13 +30,26 @@
 #s07 .left { flex: 190 1 0; background: var(--green); color: var(--ink); }
 
 #s07 .basis { margin-top: 16px; display: flex; flex-wrap: wrap; column-gap: 26px; }
-#s07 .later { margin-top: 22px; font-size: 26px; line-height: 1.35; color: var(--ink); }
-#s07 .later b { font-weight: 700; }
 
 /* Running costs */
-#s07 .costs { position: absolute; left: 1150px; top: 292px; width: 674px; padding: 24px 32px 26px; }
-#s07 .costs h3 { font-size: 34px; }
-#s07 .scale-note { font-size: 20px; color: #55636C; margin-top: 2px; }
+#s07 .panel { position: absolute; left: 1150px; top: 278px; width: 674px; height: 676px; padding: 22px 32px 26px; display: flex; flex-direction: column; }
+#s07 .panel .total { margin-top: auto; }
+#s07 .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
+
+/* Tab strip: both panels carry it, so the slide-over reads as switching tabs */
+#s07 .tabs { display: flex; gap: 6px; padding: 5px; border-radius: 18px; background: #EEF2EC; align-self: flex-start; }
+#s07 .tab { font-size: 24px; font-weight: 600; padding: 8px 18px; border-radius: 14px; color: #55636C; white-space: nowrap; }
+#s07 .tab.is-on { background: #fff; color: var(--ink); box-shadow: 0 2px 8px rgb(27 36 43 / .12); }
+#s07 .scale-note { margin-top: 10px; }
+
+/* Beat 4: "As volume grows" slides in over the cost panel, which steps back like a card underneath */
+#s07 .costs { transform-origin: 50% 100%; transition: opacity var(--beat-d) var(--out), translate var(--beat-d) var(--spring), scale .7s var(--out), filter .7s var(--out); }
+#s07 .growth { z-index: 2; translate: 120px 0; rotate: 2deg; transition: opacity .45s var(--out), translate .9s var(--spring), rotate .9s var(--spring); }
+#s07 .growth.on { translate: 0 0; rotate: 0deg; }
+#s07[data-step="4"] .costs { translate: 0 16px; scale: .95; filter: brightness(.93); }
+#s07 .growth li { opacity: 0; translate: 24px 0; transition: opacity .5s var(--out), translate .6s var(--spring); transition-delay: calc(.25s + var(--i, 0) * 80ms); }
+#s07 .growth.on li { opacity: 1; translate: 0 0; }
+#s07 .scale-note { font-size: 20px; color: #55636C; }
 #s07 ul { list-style: none; padding: 0; margin-top: 4px; }
 #s07 li { display: grid; grid-template-columns: 40px 1fr 150px; align-items: center; column-gap: 16px; min-height: 76px; padding: 6px 0; border-bottom: 1px solid rgb(27 36 43 / .1); line-height: 1.2; }
 #s07 li:last-child { border-bottom: 0; }
@@ -69,5 +82,6 @@
 }
 
 @media print {
-  #s07 .wedge, #s07 .low, #s07 .costs, #s07 li, #s07 .fee-label, #s07 .later { opacity: 1 !important; }
+  #s07 .growth li { opacity: 1 !important; translate: 0 0 !important; }
+  #s07 .wedge, #s07 .low, #s07 .costs, #s07 li, #s07 .fee-label { opacity: 1 !important; }
 }
