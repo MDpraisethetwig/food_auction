@@ -248,7 +248,9 @@ html:active-view-transition-type(back) { &::view-transition-old(slide) { animati
 #s01.is-active h1 span { animation: s01-letter .8s var(--spring) both; animation-delay: calc(1.2s + var(--i, 1) * 55ms); }
 #s01 .line { margin-top: 34px; font-size: 38px; line-height: 1.32; max-width: 960px; color: var(--fog); }
 #s01 .line strong { display: block; margin-bottom: 12px; font-size: 64px; color: #fff; }
-#s01 .speakers { position: absolute; left: 790px; bottom: 112px; font-size: 28px; }
+#s01 .speakers { position: absolute; left: 790px; bottom: 104px; display: flex; flex-direction: column; gap: 12px; }
+#s01 .speakers .names { font-size: 30px; font-weight: 600; color: #fff; }
+#s01 .speakers .track { margin: 0; }
 
 #s01.is-active .domain { animation: s01-rise .8s var(--out) 1.1s both; }
 #s01.is-active .line { animation: s01-rise .9s var(--out) 2.1s both; }
@@ -881,11 +883,7 @@ html:active-view-transition-type(back) { &::view-transition-old(slide) { animati
   <h1 data-split>How much does an African elephant weigh?</h1>
   <p class="answer display" data-beat="1" aria-label="About 5 tonnes"></p>
 
-  <aside class="notes">Quick question before we start. How much do you think an African elephant weighs? Shout out a number.
-
-[Take two or three guesses.]
-
-About 5 tonnes. Hold on to that number.</aside>
+  <aside class="notes">Quick question before we start. How much does an African elephant weigh? About five tonnes. Hold on to that number.</aside>
 </section>
 
 <section class="slide" id="s02" data-plate="1290 520 860 .3">
@@ -920,13 +918,9 @@ About 5 tonnes. Hold on to that number.</aside>
     </div>
   </div>
 
-  <aside class="notes">Now, why am I asking about elephants? Because 46.5% of the food supply is wasted. That is nearly half.
+  <aside class="notes">46.5 percent of the food supply is wasted. That's 21.18 million tonnes, the weight of 4.2 million African elephants.
 
-That equals 21.18 million tonnes, which is quite frankly an astonishing amount. At 5 tonnes each, that's the same weight as 4.2 million African elephants.
-
-Every silhouette you see here stands for 10,000 of them.
-
-And here's the piece we care about. Food service alone accounts for 7% of that waste, about 1.44 million tonnes, or 288,000 elephants. That's restaurants and cafeterias, and that's where we start.</aside>
+Food service alone is 7 percent of that waste: about 1.44 million tonnes, or 288,000 elephants. That's restaurants and cafeterias, and that's where we start.</aside>
 </section>
 
 <section class="slide" id="s01" data-tone="bare" data-plate="2700 540 400 .15">
@@ -945,15 +939,9 @@ And here's the piece we care about. Food service alone accounts for 7% of that w
     <p class="line"><strong class="display">Full meals, for less.</strong> A live marketplace for good food that would otherwise be thrown away.</p>
   </div>
 
-  <p class="speakers muted">[Name], [Title] · [email]</p>
+  <p class="speakers"><span class="names">Ryan Mai · Milton Dai · Hurrdy Situ · Olawale Tijani</span><span class="track kicker">Sustainability &amp; Social Impact</span></p>
 
-  <aside class="notes">I'm [Name], and this is Full4Less.
-
-Full meals, for less. We're building a live marketplace for good food that would otherwise be thrown away.
-
-Restaurants and cafeterias list what they can't sell, nearby customers bid on it or buy it right away, and they pick it up with a QR code. We're starting right here in Hamilton, Ontario, at McMaster.
-
-Over the next few minutes I'll show you why this problem matters, how the product works, and why we think it can work.</aside>
+  <aside class="notes">We're Full4Less. Full meals, for less. We're building a live marketplace for good food that would otherwise be thrown away, starting right here in Hamilton, at McMaster.</aside>
 </section>
 
 <section class="slide" id="s03" data-plate="960 505 380 .4">
@@ -988,13 +976,9 @@ Over the next few minutes I'll show you why this problem matters, how the produc
     <p>McMaster students said they'd be willing to purchase cheaper food.</p>
   </div>
 
-  <aside class="notes">On one side, restaurants prepare food that sometimes goes unsold or gets cancelled, and it ends up in the garbage.
+  <aside class="notes">There are two problems. Restaurants make food that goes unsold or gets cancelled, and it ends up in the bin. Students want meals they can afford.
 
-On the other side, students are looking for affordable meals.
-
-Full4Less connects these two problems.
-
-We checked this ourselves. Ten local restaurants told us they throw away food waste and that it's a problem, and 50 McMaster students said they'd be willing to purchase cheaper food.</aside>
+We checked. 10 local restaurants told us food waste is a real problem for them, and 50 McMaster students said they'd buy cheaper food. Full4Less connects the two.</aside>
 </section>
 
 <section class="slide" id="s05" data-plate="960 799 430 .5">
@@ -1014,13 +998,7 @@ We checked this ourselves. Ten local restaurants told us they throw away food wa
     </div>
     <div class="pivot"></div>
   </div>
-  <aside class="notes">Full4Less comes down to one line: affordable meals, less food waste.
-
-On one side, customers get food for cheaper. Good food, at a price they can actually manage.
-
-On the other side, businesses waste less of the quality food they already made, and they recover revenue they would have lost.
-
-Most deals ask one side to give something up. This one balances, because the same plate solves both problems at once. The food gets eaten, the customer saves money, and the restaurant gets paid. That balance is the whole idea behind what we built.</aside>
+  <aside class="notes">So the promise is simple: affordable meals, less food waste. Customers get good food for less. Businesses waste less and recover revenue they would have lost. The same plate solves both problems.</aside>
 </section>
 
 <section class="slide" id="s06" data-plate="1548 532 960 .35">
@@ -1106,17 +1084,11 @@ Most deals ask one side to give something up. This one balances, because the sam
     </div>
   </div>
 
-  <aside class="notes">Here's how it works. A restaurant has unsold food, so staff snap a photo.
+  <aside class="notes">Here's how it works. Staff snap a photo of unsold food or a cancelled order. Our AI drafts the listing from the photo and a quick voice note, and staff confirm the allergens themselves, never the AI.
 
-AI drafts the listing, and staff confirm the allergens. Allergens are always entered by staff, never by AI.
+Nearby customers bid live, or hit Buy Now. When the timer ends, the winner is charged automatically and picks up by scanning a QR code. Miss your pickup, and staff check the food is still safe, then put it back up for auction.
 
-Nearby customers see a live auction, and they can bid or just hit Buy Now. The bid climbs. Get outbid, you get an alert, and you can bid again.
-
-When the timer ends, the winner is charged automatically and picks up by scanning a QR code.
-
-If someone misses pickup, staff check it's still safe, then it goes back up for auction.
-
-What makes this ours: live bidding on individually described meals, so every portion finds its price. The demo runs in test mode, with simulated cards and shortened timers.</aside>
+Unlike a surprise bag, you see the exact meal, and demand sets the price. The prototype runs today in test mode.</aside>
 </section>
 
 <section class="slide light" id="s07" data-plate="1560 540 700 .15">
@@ -1180,15 +1152,9 @@ What makes this ours: live bidding on individually described meals, so every por
     <p class="total" data-beat="3"><b class="display">About C$85–105/mo</b><span>plus card fees</span></p>
   </div>
 
-  <aside class="notes">We earn on both sides of every sale. Restaurants pay nothing until something sells, and every sale earns us at least 75 cents.
+  <aside class="notes">We earn on both sides of every sale, and restaurants pay nothing until something sells. On a 10 dollar meal, the buyer pays 10.50, the restaurant keeps 8, and we take 2.50: a 20 percent commission plus a 50 cent buyer fee. After about 60 cents in card fees, we keep about 1.90.
 
-Take one illustrative $10 meal, in Canadian dollars. The buyer pays $10.50, the restaurant keeps $8.00, and we take $2.50: a 20% commission plus a 50-cent buyer fee. The card fee is about 60 cents on our estimate, which leaves about $1.90 per meal before fixed costs.
-
-Here's what it costs to run at pilot scale, about ten restaurants and 2,100 listings a month. Gemini reads the photo and the voice note and writes the listing, for about 10 to 30 dollars a month depending on the model. Hosting for our API, database and restaurant site is about 63 dollars. The app stores work out to about 12 dollars a month: Apple charges 99 US dollars a year, Google 25 once. Expo builds are free at this size. That's roughly 85 to 105 dollars a month plus card fees.
-
-Two costs come later: Stripe payouts to restaurants, about five dollars per restaurant a month once payouts are live, and liability insurance, which we're getting quoted.
-
-As volume grows we add wallet credits, F4L+ for buyers, Restaurant Pro and paid boosts. These numbers are illustrative until the pilot measures real supply.</aside>
+At pilot scale, about ten restaurants, running costs are roughly 85 to 105 dollars a month for AI, hosting and app store fees. As we grow, we add wallet credits, a buyer subscription and a Pro plan for restaurants.</aside>
 </section>
 
 <section class="slide" id="s08" data-plate="40 1000 560 .15">
@@ -1230,15 +1196,9 @@ As volume grows we add wallet credits, F4L+ for buyers, Restaurant Pro and paid 
 
   <p class="assume note-small">Estimates. Per partner: about 6 surplus items (~C$4) and 1 cancelled order (~C$8) a day over 300 days, at 20% commission plus a C$0.50 buyer fee. Assumes every food establishment has end-of-day surplus; the North America outlet count is a rough estimate. Excludes subscriptions and boosts.</p>
 
-  <aside class="notes">We sized this bottom-up, one partner at a time. Surplus items are the core of the supply: we assume a typical partner lists about six surplus items a day, plus about one cancelled order. At our 20% commission plus the 50-cent buyer fee, that's about C$9.90 a day, or roughly C$2,970 per partner per year.
+  <aside class="notes">We sized the market bottom-up. A partner listing about six surplus items and one cancelled order a day earns us about 2,970 dollars a year.
 
-Our obtainable market is Hamilton: 75 to 125 partners in the first two years, out of 886 small food and beverage businesses, so about C$220 to 370 thousand a year.
-
-Our serviceable market is Ontario. Almost every food business has something left at the end of the day, so all 29,885 food establishments qualify. That's about C$89 million a year.
-
-Our total market is North America, roughly a million food outlets across Canada and the U.S., about C$3 billion a year.
-
-To be plain, these are estimates until the pilot measures how many surplus items each partner really lists, and they don't include subscriptions or boosts.</aside>
+In Hamilton, 75 to 125 partners is 220 to 370 thousand dollars a year. Across Ontario's 29,885 food establishments, 89 million. Across North America, about 3 billion.</aside>
 </section>
 
 <section class="slide light" id="s09" data-plate="1760 170 300 0">
@@ -1268,13 +1228,9 @@ To be plain, these are estimates until the pilot measures how many surplus items
     <div class="card partner" data-beat="3" style="--i:4"><p>Food rescue is a partner, not a rival: food that should be donated stays donated.</p></div>
   </div>
 
-  <aside class="notes">We're not the first people to go after food waste, so here are the two names you'll know. Too Good To Go sells surprise bags at a fixed price and charges stores a per-bag fee plus an annual fee. Flashfood sells grocery surplus at up to 50% off and takes a share of the grocer's sales.
+  <aside class="notes">Too Good To Go sells surprise bags at a fixed price. Flashfood sells grocery surplus at a set discount. We're built for restaurant surplus and the cancelled order: the exact meal, priced live.
 
-Here's what's different about us. We're built for restaurant surplus and the cancelled order, in the moment: you see the exact meal, and demand sets the price live.
-
-Our moat is local density, restaurants and students on one platform, plus data on what sells, and when.
-
-And food rescue groups are partners, not rivals. Food that should be donated stays donated.</aside>
+Our moat is local density and data on what sells, and when. And food that should be donated stays donated.</aside>
 </section>
 
 <section class="slide" id="s10" data-plate="1730 150 420 .22">
@@ -1309,13 +1265,7 @@ And food rescue groups are partners, not rivals. Food that should be donated sta
     <p class="partners">Partnerships with non-profits: <span class="todo">[3% of ... confirm]</span></p>
   </div>
 
-  <aside class="notes">Here is where we are and where we're headed. The working prototype is built, that part is done. Everything after it is a target, not a promise.
-
-On November 14 we want our first pilot with three to five Hamilton outlets, and by December we want results: real supply, and bidding tested against fixed discounts. Winter 2027 is ten to fifteen outlets around McMaster, Westdale and Ainslie Wood, with our food-safety protocol confirmed with Hamilton Public Health. Fall 2027 is the public iOS and Android release, real restaurant payouts, and downtown Hamilton. Then Toronto in 2028, and Ontario-wide from 2029 to 2031.
-
-Our biggest risk is that supply per outlet is still unmeasured, so the pilot answers that first.
-
-[Team: confirm what the 3% for non-profit partnerships refers to before presenting.]</aside>
+  <aside class="notes">The prototype is built. On November 14 we pilot with three to five Hamilton outlets and measure real supply. This winter we grow to 10 to 15 outlets around McMaster, Westdale and Ainslie Wood, with our food-safety protocol confirmed with Hamilton Public Health. Then a public launch next fall, and Toronto in 2028.</aside>
 </section>
 
 <section class="slide light" id="s11" data-plate="1370 540 760 .2">
@@ -1403,13 +1353,7 @@ Our biggest risk is that supply per outlet is still unmeasured, so the pilot ans
     <figcaption class="note-small">Schematic, not to scale</figcaption>
   </figure>
 
-  <aside class="notes">We're not starting with a big marketing campaign. We're starting in one city, Hamilton, and in one spot inside it.
-
-Our first channel is student ambassadors on McMaster campus. People talking to people. That's where our effort goes first.
-
-From campus it spreads to the neighbourhoods right beside it, Westdale and Ainslie Wood. Think of it as pings from one pin, not a national launch.
-
-Around that we add social media, restaurant partnerships, and posters in the restaurants themselves, so people meet Full4Less where they already eat.</aside>
+  <aside class="notes">We grow locally, not with a big campaign. Student ambassadors on campus first, then the neighbourhoods next door, backed by social media, restaurant partners and posters where people already eat.</aside>
 </section>
 
 <section class="slide" id="s12" data-plate="1850 90 380 .2">
@@ -1460,17 +1404,7 @@ Around that we add social media, restaurant partnerships, and posters in the res
 
   <p class="built display" data-beat="2">We built the working prototype ourselves.</p>
 
-  <aside class="notes">We're Milton, Ryan, Olawale and Hurrdy.
-
-Milton co-founded the Psychology Students' Youth Competition, partnered with YorkU, co-founded PeerPrism, and is a prize winner at the LIL Venture Fund.
-
-Ryan was previously CTO of BioBuddy AI and took part in the SpurHack Accelerator Program.
-
-Olawale has diplomas in Business Management and Business Finance, with three years of experience in software and mobile engineering.
-
-Hurrdy is the technical founder of a local robotics organization.
-
-What matters most is the last line. We built the working prototype ourselves.</aside>
+  <aside class="notes">We're Ryan, Milton, Hurrdy and Olawale, with startup, AI, engineering and business experience between us. And we built the working prototype ourselves.</aside>
 </section>
 
 <section class="slide" id="s13" data-tone="bare" data-plate="372 340 650 .35">
@@ -1488,11 +1422,7 @@ What matters most is the last line. We built the working prototype ourselves.</a
     <figcaption>See the code</figcaption>
   </figure>
 
-  <aside class="notes">We started this for one simple reason.
-
-No good meal ends the night in the bin.
-
-Thank you. And if you want proof, scan the code. It's all there.</aside>
+  <aside class="notes">No good meal should end the night in the bin. Thank you. Scan the code to see everything we've built.</aside>
 </section>
 
 <div id="progress"><img src="assets/f4l-icon.svg" alt=""><span class="count"></span><span class="track"><span class="fill" style="display:block"></span></span></div>
