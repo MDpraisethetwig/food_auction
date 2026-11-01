@@ -2,9 +2,6 @@
 #s09 .kicker { color: color-mix(in srgb, var(--green) 62%, var(--ink)); }
 #s09 h2 { font-size: 72px; margin-top: 8px; }
 
-#s09 .fan { position: absolute; right: -50px; top: -80px; width: 310px; height: 310px; pointer-events: none; }
-#s09 .fan rect { fill: var(--green); fill-opacity: .1; }
-#s09 .fan circle { fill: none; stroke: var(--ink); stroke-opacity: .12; stroke-width: .9; }
 
 #s09 .matrix { display: block; width: 1728px; margin-top: 14px; border-collapse: collapse; }
 #s09 .matrix thead, #s09 .matrix tbody { display: block; }
