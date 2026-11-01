@@ -86,3 +86,5 @@
   #s07 .growth li { opacity: 1 !important; translate: 0 0 !important; }
   #s07 .wedge, #s07 .low, #s07 .costs, #s07 li, #s07 .fee-label { opacity: 1 !important; }
 }
+#s07 .price.wide { margin-left: -24px; }
+#s07 .price.wide b { font-size: .92em; letter-spacing: -.01em; }

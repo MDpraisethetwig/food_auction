@@ -8,7 +8,7 @@
 #s08 .ring { translate: none; stroke-width: 2.5; }
 #s08 .ring.tam { --r: 390; fill: color-mix(in srgb, var(--green) 14%, transparent); stroke: color-mix(in srgb, var(--green) 70%, transparent); }
 #s08 .ring.sam { --r: 67.4; fill: color-mix(in srgb, var(--green) 46%, transparent); stroke: var(--green); }
-#s08 .ring.som { --r: 2.76; fill: var(--leaf); stroke: none; }
+#s08 .ring.som { --r: 3.9; fill: var(--leaf); stroke: none; }
 #s08 .halo { translate: none; fill: none; stroke: var(--leaf); stroke-width: 2; }
 #s08 .halo.on { animation: s08-halo 5s var(--inout) infinite alternate; }
 @keyframes s08-halo { to { stroke-opacity: .35; } }
@@ -17,7 +17,7 @@
 #s08 .tag { position: absolute; left: 1434px; top: 478px; font-size: 26px; font-weight: 600; line-height: 1; white-space: nowrap; translate: -50% calc((var(--off) - var(--r)) * 1px); }
 #s08 .tag.tam { --r: 390; --off: 24; }
 #s08 .tag.sam { --r: 67.4; --off: -40; }
-#s08 .tag.som { --r: 2.76; --off: -40; }
+#s08 .tag.som { --r: 3.9; --off: -40; }
 #s08 .inside { position: absolute; left: 1434px; top: 478px; translate: -50% -50%; font-size: 48px; color: var(--ink); white-space: nowrap; opacity: 0; transition: opacity .3s var(--out); }
 #s08 .scale { position: absolute; left: 1434px; top: 776px; font-size: 20px; white-space: nowrap; translate: -50% 0; }
 
@@ -28,7 +28,7 @@
 
 /* Screen only: Hamilton fills the panel, then Ontario, then the default. */
 @media screen {
-  #s08 { --pct: 4.507; }
+  #s08 { --pct: 4.16; }
   #s08[data-step="1"] { --pct: 1.311; }
   #s08[data-step="2"], #s08[data-step="3"] { --pct: 0; }
   /* Fully zoomed out, the Hamilton label would sit on the Ontario rim; the legend carries it. */
@@ -56,8 +56,8 @@
 /* Count-ups. --n holds the final value at rest, so anything without animation
    support still shows the right figure. */
 #s08 .fig { font-size: 62px; white-space: nowrap; font-variant-numeric: tabular-nums; }
-#s08 .tier.sam .fig { --n: 55; }
-#s08 .tier.tam .fig { --n: 18; }
+#s08 .tier.sam .fig { --n: 89; }
+#s08 .tier.tam .fig { --n: 30; }
 #s08 .tier.sam .fig::after { counter-reset: a var(--n); content: "C$" counter(a) "M"; }
 #s08 .tier.tam .fig::after { counter-reset: a calc(round(down, var(--n) / 10, 1)) b mod(var(--n), 10); content: "C$" counter(a) "." counter(b) "B"; }
 

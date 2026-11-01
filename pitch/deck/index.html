@@ -126,40 +126,8 @@ html:active-view-transition-type(back) { &::view-transition-old(slide) { animati
   [data-beat], [data-split] .w { opacity: 1 !important; translate: 0 0 !important; rotate: 0deg !important; animation: none !important; transition: none !important; }
 }
 
-/* s01 Title: the plate logo assembles on stage */
-#s01 { background: radial-gradient(760px 760px at 352px 540px, color-mix(in srgb, var(--green) 11%, transparent), transparent 72%) var(--ink); }
-
-#s01 .mark { position: absolute; left: 33px; top: 180px; width: 720px; height: 720px; overflow: visible; }
-
-/* The plate assembles: three white portions slide in, the gold one lands last */
-#s01 .piece { transform-box: view-box; transform-origin: 512px 512px; }
-#s01.is-active .piece { animation: s01-piece .9s var(--spring) both; animation-delay: calc(.3s + var(--o) * 140ms); }
-#s01.is-active .piece.gold { animation: s01-gold .9s var(--bounce) 1s both; }
-
-/* Wordmark */
-#s01 .words { position: absolute; left: 790px; right: var(--pad); top: 228px; }
-#s01 .domain { margin-bottom: 14px; }
-#s01 h1 { font-size: 216px; line-height: 1; white-space: nowrap; }
-#s01 h1 span { display: inline-block; }
-#s01.is-active h1 span { animation: s01-letter .8s var(--spring) both; animation-delay: calc(1.2s + var(--i, 1) * 55ms); }
-#s01 .line { margin-top: 34px; font-size: 38px; line-height: 1.32; max-width: 960px; color: var(--fog); }
-#s01 .line strong { display: block; margin-bottom: 12px; font-size: 64px; color: #fff; }
-#s01 .speakers { position: absolute; left: 790px; bottom: 104px; display: flex; flex-direction: column; gap: 12px; }
-#s01 .speakers .names { font-size: 30px; font-weight: 600; color: #fff; }
-#s01 .speakers .track { margin: 0; }
-
-#s01.is-active .domain { animation: s01-rise .8s var(--out) 1.1s both; }
-#s01.is-active .line { animation: s01-rise .9s var(--out) 2.1s both; }
-#s01.is-active .speakers { animation: s01-rise .9s var(--out) 2.9s both; }
-
-@keyframes s01-piece { from { opacity: 0; translate: calc(var(--dx) * 90px) calc(var(--dy) * 90px); scale: .8; } to { opacity: 1; translate: 0 0; scale: 1; } }
-@keyframes s01-gold { from { opacity: 0; translate: 140px -140px; rotate: 30deg; } to { opacity: 1; translate: 0 0; rotate: 0deg; } }
-@keyframes s01-letter { from { opacity: 0; translate: 0 .42em; rotate: 6deg; } to { opacity: 1; translate: 0 0; rotate: 0deg; } }
-@keyframes s01-rise { from { opacity: 0; translate: 0 22px; } to { opacity: 1; translate: 0 0; } }
-
-@media print {
-  #s01 * { animation: none !important; }
-}
+/* Blank start: black until the presenter clicks */
+#s-blank { background: #000; }
 
 /* s00 Opening question: the photo first, the audience guesses, then the weight lands. */
 #s00 .bleed { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; object-fit: cover; object-position: 50% 42%; }
@@ -263,6 +231,41 @@ html:active-view-transition-type(back) { &::view-transition-old(slide) { animati
 
 @media print {
   #s02 * { animation: none !important; }
+}
+
+/* s01 Title: the plate logo assembles on stage */
+#s01 { background: radial-gradient(760px 760px at 352px 540px, color-mix(in srgb, var(--green) 11%, transparent), transparent 72%) var(--ink); }
+
+#s01 .mark { position: absolute; left: 33px; top: 180px; width: 720px; height: 720px; overflow: visible; }
+
+/* The plate assembles: three white portions slide in, the gold one lands last */
+#s01 .piece { transform-box: view-box; transform-origin: 512px 512px; }
+#s01.is-active .piece { animation: s01-piece .9s var(--spring) both; animation-delay: calc(.3s + var(--o) * 140ms); }
+#s01.is-active .piece.gold { animation: s01-gold .9s var(--bounce) 1s both; }
+
+/* Wordmark */
+#s01 .words { position: absolute; left: 790px; right: var(--pad); top: 228px; }
+#s01 .domain { margin-bottom: 14px; }
+#s01 h1 { font-size: 216px; line-height: 1; white-space: nowrap; }
+#s01 h1 span { display: inline-block; }
+#s01.is-active h1 span { animation: s01-letter .8s var(--spring) both; animation-delay: calc(1.2s + var(--i, 1) * 55ms); }
+#s01 .line { margin-top: 34px; font-size: 38px; line-height: 1.32; max-width: 960px; color: var(--fog); }
+#s01 .line strong { display: block; margin-bottom: 12px; font-size: 64px; color: #fff; }
+#s01 .speakers { position: absolute; left: 790px; bottom: 104px; display: flex; flex-direction: column; gap: 12px; }
+#s01 .speakers .names { font-size: 30px; font-weight: 600; color: #fff; }
+#s01 .speakers .track { margin: 0; }
+
+#s01.is-active .domain { animation: s01-rise .8s var(--out) 1.1s both; }
+#s01.is-active .line { animation: s01-rise .9s var(--out) 2.1s both; }
+#s01.is-active .speakers { animation: s01-rise .9s var(--out) 2.9s both; }
+
+@keyframes s01-piece { from { opacity: 0; translate: calc(var(--dx) * 90px) calc(var(--dy) * 90px); scale: .8; } to { opacity: 1; translate: 0 0; scale: 1; } }
+@keyframes s01-gold { from { opacity: 0; translate: 140px -140px; rotate: 30deg; } to { opacity: 1; translate: 0 0; rotate: 0deg; } }
+@keyframes s01-letter { from { opacity: 0; translate: 0 .42em; rotate: 6deg; } to { opacity: 1; translate: 0 0; rotate: 0deg; } }
+@keyframes s01-rise { from { opacity: 0; translate: 0 22px; } to { opacity: 1; translate: 0 0; } }
+
+@media print {
+  #s01 * { animation: none !important; }
 }
 
 /* s03 Problem: two photos start apart, then a plate carries a line between them.
@@ -591,6 +594,8 @@ html:active-view-transition-type(back) { &::view-transition-old(slide) { animati
   #s07 .growth li { opacity: 1 !important; translate: 0 0 !important; }
   #s07 .wedge, #s07 .low, #s07 .costs, #s07 li, #s07 .fee-label { opacity: 1 !important; }
 }
+#s07 .price.wide { margin-left: -24px; }
+#s07 .price.wide b { font-size: .92em; letter-spacing: -.01em; }
 
 /* Slide 08: a to-scale zoom out. Circle area is proportional to business count,
    so Hamilton really is the dot. --pct holds a log zoom: each radius is
@@ -602,7 +607,7 @@ html:active-view-transition-type(back) { &::view-transition-old(slide) { animati
 #s08 .ring { translate: none; stroke-width: 2.5; }
 #s08 .ring.tam { --r: 390; fill: color-mix(in srgb, var(--green) 14%, transparent); stroke: color-mix(in srgb, var(--green) 70%, transparent); }
 #s08 .ring.sam { --r: 67.4; fill: color-mix(in srgb, var(--green) 46%, transparent); stroke: var(--green); }
-#s08 .ring.som { --r: 2.76; fill: var(--leaf); stroke: none; }
+#s08 .ring.som { --r: 3.9; fill: var(--leaf); stroke: none; }
 #s08 .halo { translate: none; fill: none; stroke: var(--leaf); stroke-width: 2; }
 #s08 .halo.on { animation: s08-halo 5s var(--inout) infinite alternate; }
 @keyframes s08-halo { to { stroke-opacity: .35; } }
@@ -611,7 +616,7 @@ html:active-view-transition-type(back) { &::view-transition-old(slide) { animati
 #s08 .tag { position: absolute; left: 1434px; top: 478px; font-size: 26px; font-weight: 600; line-height: 1; white-space: nowrap; translate: -50% calc((var(--off) - var(--r)) * 1px); }
 #s08 .tag.tam { --r: 390; --off: 24; }
 #s08 .tag.sam { --r: 67.4; --off: -40; }
-#s08 .tag.som { --r: 2.76; --off: -40; }
+#s08 .tag.som { --r: 3.9; --off: -40; }
 #s08 .inside { position: absolute; left: 1434px; top: 478px; translate: -50% -50%; font-size: 48px; color: var(--ink); white-space: nowrap; opacity: 0; transition: opacity .3s var(--out); }
 #s08 .scale { position: absolute; left: 1434px; top: 776px; font-size: 20px; white-space: nowrap; translate: -50% 0; }
 
@@ -622,7 +627,7 @@ html:active-view-transition-type(back) { &::view-transition-old(slide) { animati
 
 /* Screen only: Hamilton fills the panel, then Ontario, then the default. */
 @media screen {
-  #s08 { --pct: 4.507; }
+  #s08 { --pct: 4.16; }
   #s08[data-step="1"] { --pct: 1.311; }
   #s08[data-step="2"], #s08[data-step="3"] { --pct: 0; }
   /* Fully zoomed out, the Hamilton label would sit on the Ontario rim; the legend carries it. */
@@ -650,8 +655,8 @@ html:active-view-transition-type(back) { &::view-transition-old(slide) { animati
 /* Count-ups. --n holds the final value at rest, so anything without animation
    support still shows the right figure. */
 #s08 .fig { font-size: 62px; white-space: nowrap; font-variant-numeric: tabular-nums; }
-#s08 .tier.sam .fig { --n: 55; }
-#s08 .tier.tam .fig { --n: 18; }
+#s08 .tier.sam .fig { --n: 89; }
+#s08 .tier.tam .fig { --n: 30; }
 #s08 .tier.sam .fig::after { counter-reset: a var(--n); content: "C$" counter(a) "M"; }
 #s08 .tier.tam .fig::after { counter-reset: a calc(round(down, var(--n) / 10, 1)) b mod(var(--n), 10); content: "C$" counter(a) "." counter(b) "B"; }
 
@@ -898,25 +903,8 @@ html:active-view-transition-type(back) { &::view-transition-old(slide) { animati
 <div id="plate"><svg viewBox="-60 -60 120 120" aria-hidden="true"><g class="fan" fill="#fff" fill-opacity=".09">
 <rect x="-36" y="-36" width="72" height="72" rx="13" style="--i:0" transform="rotate(-24) translate(-12 -6)"/><rect x="-36" y="-36" width="72" height="72" rx="13" style="--i:1" transform="rotate(-12) translate(-6 0)"/><rect x="-36" y="-36" width="72" height="72" rx="13" style="--i:2" transform="rotate(0) translate(0 6)"/><rect x="-36" y="-36" width="72" height="72" rx="13" style="--i:3" transform="rotate(14) translate(6 -6)"/><rect x="-36" y="-36" width="72" height="72" rx="13" style="--i:4" transform="rotate(28) translate(12 0)"/>
 </g><circle r="56" fill="none" stroke="#fff" stroke-width=".9"/></svg></div>
-<section class="slide" id="s01" data-tone="bare" data-plate="2700 540 400 .15">
-  <svg class="mark" viewBox="0 0 1024 1024" role="img" aria-label="Full for Less logo">
-    <g stroke-width="40" stroke-linejoin="round">
-      <path class="piece" style="--o:0;--dx:-1;--dy:-1" fill="#fff" stroke="#fff" d="M473 473H184.8A329 329 0 0 1 473 184.8Z"/>
-      <path class="piece" style="--o:1;--dx:-1;--dy:1" fill="#fff" stroke="#fff" d="M473 550H184.8A329 329 0 0 0 473 838.2Z"/>
-      <path class="piece" style="--o:2;--dx:1;--dy:1" fill="#fff" stroke="#fff" d="M550 550H838.2A329 329 0 0 1 550 838.2Z"/>
-      <path class="piece gold" style="--o:3;--dx:1;--dy:-1" fill="#E8B04A" stroke="#E8B04A" d="M550 473H694.8A187.3 187.3 0 0 0 550 328.2Z"/>
-    </g>
-  </svg>
-
-  <div class="words">
-    <p class="kicker domain">Food waste · Hamilton, Ontario</p>
-    <h1 aria-label="Full4Less" data-stagger><span>F</span><span>u</span><span>l</span><span>l</span><span class="green">4</span><span>L</span><span>e</span><span>s</span><span>s</span></h1>
-    <p class="line"><strong class="display">Full meals, for less.</strong> A live marketplace for good food that would otherwise be thrown away.</p>
-  </div>
-
-  <p class="speakers"><span class="names">Ryan Mai · Milton Dai · Hurrdy Situ · Olawale Tijani</span><span class="track kicker">Sustainability &amp; Social Impact</span></p>
-
-  <aside class="notes">Hi, we're Ryan, Milton, Hurrdy and Olawale, and this is Full4Less. But first, a quick question.</aside>
+<section class="slide" id="s-blank" data-tone="bare" data-plate="2700 540 400 0">
+  <aside class="notes">Black screen until you start. Click to open on the elephant.</aside>
 </section>
 
 <section class="slide" id="s00" data-tone="bare" data-plate="2700 540 400 0">
@@ -961,6 +949,27 @@ html:active-view-transition-type(back) { &::view-transition-old(slide) { animati
   </div>
 
   <aside class="notes">46.5 percent of the food supply is wasted, the weight of 4.2 million elephants. Food service alone is 7 percent of that: 288,000 elephants of restaurant and cafeteria food. That's where we start.</aside>
+</section>
+
+<section class="slide" id="s01" data-tone="bare" data-plate="2700 540 400 .15">
+  <svg class="mark" viewBox="0 0 1024 1024" role="img" aria-label="Full for Less logo">
+    <g stroke-width="40" stroke-linejoin="round">
+      <path class="piece" style="--o:0;--dx:-1;--dy:-1" fill="#fff" stroke="#fff" d="M473 473H184.8A329 329 0 0 1 473 184.8Z"/>
+      <path class="piece" style="--o:1;--dx:-1;--dy:1" fill="#fff" stroke="#fff" d="M473 550H184.8A329 329 0 0 0 473 838.2Z"/>
+      <path class="piece" style="--o:2;--dx:1;--dy:1" fill="#fff" stroke="#fff" d="M550 550H838.2A329 329 0 0 1 550 838.2Z"/>
+      <path class="piece gold" style="--o:3;--dx:1;--dy:-1" fill="#E8B04A" stroke="#E8B04A" d="M550 473H694.8A187.3 187.3 0 0 0 550 328.2Z"/>
+    </g>
+  </svg>
+
+  <div class="words">
+    <p class="kicker domain">Food waste · Hamilton, Ontario</p>
+    <h1 aria-label="Full4Less" data-stagger><span>F</span><span>u</span><span>l</span><span>l</span><span class="green">4</span><span>L</span><span>e</span><span>s</span><span>s</span></h1>
+    <p class="line"><strong class="display">Full meals, for less.</strong> A live marketplace for good food that would otherwise be thrown away.</p>
+  </div>
+
+  <p class="speakers"><span class="names">Ryan Mai · Milton Dai · Hurrdy Situ · Olawale Tijani</span><span class="track kicker">Sustainability &amp; Social Impact</span></p>
+
+  <aside class="notes">Hi, we're Ryan, Milton, Hurrdy and Olawale, and this is Full4Less.</aside>
 </section>
 
 <section class="slide" id="s03" data-plate="960 505 380 .4">
@@ -1143,12 +1152,12 @@ Judges, give us any dish you like, and we'll list it right now.</aside>
   <div class="card panel costs" data-beat="3">
     <div class="tabs" aria-hidden="true"><span class="tab is-on">Why it works</span><span class="tab">How it scales</span></div>
     <h3 class="sr">Why it works for everyone</h3>
-    <p class="scale-note">Per restaurant: 6 surplus items and 1 cancelled order a day, 90% sold</p>
+    <p class="scale-note">Per restaurant: 6 surplus items and 1 cancelled order a day</p>
     <ul data-stagger>
       <li data-beat="3">
         <svg class="glyph" viewBox="0 0 48 48" aria-hidden="true"><path d="M10 40V20l14-12 14 12v20z"/><path d="M19 40V28h10v12"/></svg>
         <p><b>Restaurants</b><span>paid for food already made; owe nothing until it sells</span></p>
-        <p class="price"><b>+C$23</b><span>a day</span></p>
+        <p class="price"><b>+C$26</b><span>a day</span></p>
       </li>
       <li data-beat="3">
         <svg class="glyph" viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="16" r="8"/><path d="M8 40c0-9 7-14 16-14s16 5 16 14"/></svg>
@@ -1157,8 +1166,8 @@ Judges, give us any dish you like, and we'll list it right now.</aside>
       </li>
       <li data-beat="3">
         <svg class="glyph" viewBox="0 0 48 48" aria-hidden="true"><path d="M8 40V8M8 40h32"/><path d="M15 31l8-9 6 5 10-12"/></svg>
-        <p><b>Full4Less</b><span>about C$0.97 net per sale, after card fees</span></p>
-        <p class="price"><b>~C$150</b><span>a month each</span></p>
+        <p><b>Full4Less</b><span>about C$1.41 per sale, before card fees</span></p>
+        <p class="price"><b>~C$250</b><span>a month each</span></p>
       </li>
     </ul>
     <p class="total" data-beat="3"><b class="display">Break-even: about 1 restaurant</b><span>covers ~C$95/mo of running costs, before insurance</span></p>
@@ -1167,70 +1176,70 @@ Judges, give us any dish you like, and we'll list it right now.</aside>
   <div class="card panel growth" data-beat="4">
     <div class="tabs" aria-hidden="true"><span class="tab">Why it works</span><span class="tab is-on">How it scales</span></div>
     <h3 class="sr">How it scales</h3>
-    <p class="scale-note">Net revenue after card fees: C$1,830 per restaurant a year, at our 90% sell-through target</p>
+    <p class="scale-note">Revenue: C$2,970 per restaurant a year, before card fees, if every item sells</p>
     <ul data-stagger>
       <li>
         <svg class="glyph" viewBox="0 0 48 48" aria-hidden="true"><path d="M10 40V20l14-12 14 12v20z"/><path d="M19 40V28h10v12"/></svg>
-        <p><b>50 restaurants</b><span>our year-2 target in Hamilton</span></p>
-        <p class="price"><b>~C$91K</b><span>a year</span></p>
+        <p><b>75–125 restaurants</b><span>our years 1–2 target in Hamilton</span></p>
+        <p class="price wide"><b>C$220–370K</b><span>a year</span></p>
       </li>
       <li>
         <svg class="glyph" viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="24" r="17"/><path d="M24 15v18M15 24h18"/></svg>
         <p><b>250 restaurants</b><span>Hamilton plus other student cities</span></p>
-        <p class="price"><b>~C$457K</b><span>a year</span></p>
+        <p class="price"><b>~C$743K</b><span>a year</span></p>
       </li>
       <li>
         <svg class="glyph" viewBox="0 0 48 48" aria-hidden="true"><path d="M8 40V8M8 40h32"/><path d="M15 31l8-9 6 5 10-12"/></svg>
         <p><b>500 restaurants</b><span>under 2% of Ontario's 29,885</span></p>
-        <p class="price"><b>~C$914K</b><span>a year</span></p>
+        <p class="price"><b>~C$1.49M</b><span>a year</span></p>
       </li>
     </ul>
     <p class="total"><b class="display">Marketplace only</b><span>large orders, insights and boosts not counted</span></p>
   </div>
 
-  <aside class="notes">Who pays? Both sides, a little, and everyone comes out ahead. On a 10 dollar meal the restaurant keeps 8 dollars from food that was going in the bin, the student pays 10.50, and we keep about 1.90 after card fees. One restaurant covers our running costs, and 500 restaurants would be about 900 thousand dollars a year from the marketplace alone, before large cancelled orders and restaurant insights, which the pilot will test.</aside>
+  <aside class="notes">Who pays? Both sides, a little, and everyone comes out ahead. On a 10 dollar meal the restaurant keeps 8 dollars from food that was going in the bin, the student pays 10.50, and we keep about 1.90 after card fees. One restaurant covers our running costs, and 500 restaurants would be about 1.5 million dollars a year from the marketplace alone, before large cancelled orders and restaurant insights, which the pilot will test.</aside>
 </section>
 
 <section class="slide" id="s08" data-plate="40 1000 560 .15">
   <svg class="world" viewBox="0 0 1920 1080" aria-hidden="true">
     <circle class="ring tam" data-beat="2" cx="1434" cy="478" r="390"/>
     <circle class="ring sam" data-beat="1" cx="1434" cy="478" r="67.4"/>
-    <circle class="ring som" data-beat="0" cx="1434" cy="478" r="2.76"/>
+    <circle class="ring som" data-beat="0" cx="1434" cy="478" r="3.9"/>
     <circle class="halo" data-beat="2" cx="1434" cy="478" r="15"/>
   </svg>
   <span class="tag tam" data-beat="2">North America</span>
   <span class="tag sam" data-beat="1">Ontario</span>
   <span class="tag som" data-beat="0">Hamilton</span>
-  <span class="inside display">40–60 partners</span>
+  <span class="inside display">75–125 partners</span>
   <span class="scale note-small" data-beat="2">Circle areas to scale</span>
 
   <div class="col">
     <p class="kicker">Market opportunity</p>
     <h2 data-split>Hamilton first, then Ontario, then North America</h2>
 
-    <p class="formula display">C$6.09 a day × 300 = <span>C$1,830</span></p>
-    <p class="per muted">per partner per year, after card fees and 90% sell-through</p>
+    <p class="formula display">C$9.90 a day × 300 = <span>C$2,970</span></p>
+    <p class="per muted">per partner per year, bottom-up</p>
 
-    <p class="head note-small">Annual net revenue: commission + buyer fee, after card fees</p>
+    <p class="head note-small">Annual revenue: commission + buyer fee</p>
     <div class="tier som" data-beat="0">
-      <i></i><span class="fig display">C$73–110K</span>
-      <p><b>SOM: Hamilton</b><span>40–60 partners by end of year 2</span></p>
+      <i></i><span class="fig display">C$220–370K</span>
+      <p><b>SOM: Hamilton</b><span>75–125 partners in years 1–2</span></p>
     </div>
     <div class="tier sam" data-beat="1">
-      <i></i><span class="fig display" role="img" aria-label="C$55M"></span>
-      <p><b>SAM: Ontario</b><span>all 29,885 food establishments (ceiling)</span></p>
+      <i></i><span class="fig display" role="img" aria-label="C$89M"></span>
+      <p><b>SAM: Ontario</b><span>all 29,885 food establishments</span></p>
     </div>
     <div class="tier tam" data-beat="2">
-      <i></i><span class="fig display" role="img" aria-label="C$1.8B"></span>
+      <i></i><span class="fig display" role="img" aria-label="C$3.0B"></span>
       <p><b>TAM: North America</b><span>~1M food outlets, Canada and U.S.</span></p>
     </div>
 
     <p class="segment" data-beat="3">Hamilton first: McMaster students, then Westdale, Ainslie Wood and downtown. Toronto next.</p>
   </div>
 
-  <p class="assume note-small">Estimates, net of card fees. Per partner per day: 6 surplus items (~C$4) and 1 cancelled order (~C$8) listed, 90% sold (our target; the pilot will measure it), at 20% commission plus a C$0.50 buyer fee, less card fees (2.9% + 30¢). Before card fees and at 100% sold it would be C$9.90 a day. SAM assumes every food establishment has end-of-day surplus, so it is a ceiling. The North America outlet count is a rough estimate. Excludes subscriptions and boosts.</p>
+  <p class="assume note-small">Estimates. Per partner: about 6 surplus items (~C$4) and 1 cancelled order (~C$8) a day over 300 days, at 20% commission plus a C$0.50 buyer fee. Assumes every food establishment has end-of-day surplus; the North America outlet count is a rough estimate. Excludes subscriptions and boosts.</p>
 
-  <aside class="notes">Bottom-up, each partner earns us about 1,800 dollars a year after card fees, assuming 90 percent of listings sell, which is our target and the pilot will measure. Our first segment, 40 to 60 Hamilton restaurants by the end of year two, is 73 to 110 thousand dollars. Ontario is a ceiling of about 55 million, North America about 1.8 billion.</aside>
+  <aside class="notes">Bottom-up, each partner brings in about 2,970 dollars a year. Our first segment, 75 to 125 Hamilton partners in years one and two, is 220 to 370 thousand dollars. All of Ontario would be about 89 million, and North America about 3 billion.</aside>
 </section>
 
 <section class="slide light" id="s09" data-plate="1760 170 300 0">
@@ -1292,7 +1301,7 @@ Judges, give us any dish you like, and we'll list it right now.</aside>
     <li class="up" data-beat="1" style="--x:600px; --i:18"><span class="tag">Target</span><h3>Jan 2027</h3><p>Results: supply, sell-through, bidding</p></li>
     <li class="down" data-beat="2" style="--x:840px; --i:9"><span class="tag">Target</span><h3>Spring 2027</h3><p>10 to 15 outlets; <span class="nb">food-safety</span> protocol confirmed with Hamilton Public Health</p></li>
     <li class="up" data-beat="2" style="--x:1080px; --i:18"><span class="tag">Target</span><h3>Fall 2027</h3><p>Public app release; 20 to 30 outlets</p></li>
-    <li class="down" data-beat="3" style="--x:1320px; --w:400px; --i:9"><span class="tag">Target</span><h3>2028</h3><p>40 to 60 outlets; Toronto pilot</p></li>
+    <li class="down" data-beat="3" style="--x:1320px; --w:400px; --i:9"><span class="tag">Target</span><h3>2028</h3><p>75 to 125 outlets; Toronto pilot</p></li>
     <li class="up" data-beat="3" style="--x:1560px; --w:264px; --i:18"><span class="tag">Target</span><h3>Later</h3><p>Ontario-wide</p></li>
   </ol>
 
@@ -1301,7 +1310,7 @@ Judges, give us any dish you like, and we'll list it right now.</aside>
     <p class="partners"><b>Giving back:</b> 1% of net revenue plus optional buyer round-ups, to Hamilton Food Share <span class="todo">(to confirm)</span>.</p>
   </div>
 
-  <aside class="notes">The prototype is built. In early December we pilot with three to five Hamilton restaurants to measure supply and sell-through. By 2028 we aim for about 50 outlets, giving one percent of net revenue to Hamilton Food Share, to be confirmed.</aside>
+  <aside class="notes">The prototype is built. In early December we pilot with three to five Hamilton restaurants to measure supply and sell-through. By 2028 we aim for about 100 outlets, giving one percent of net revenue to Hamilton Food Share, to be confirmed.</aside>
 </section>
 
 <section class="slide light" id="s11" data-plate="1370 540 760 .2">
