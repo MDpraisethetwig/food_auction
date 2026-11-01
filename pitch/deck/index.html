@@ -909,7 +909,7 @@ html:active-view-transition-type(back) { &::view-transition-old(slide) { animati
 
   <p class="speakers"><span class="names">Ryan Mai · Milton Dai · Hurrdy Situ · Olawale Tijani</span><span class="track kicker">Sustainability &amp; Social Impact</span></p>
 
-  <aside class="notes">Hi, we're Ryan, Milton, Hurrdy and Olawale, and this is Full4Less. Full meals, for less: a live marketplace for good food that would otherwise be thrown away. But first, a quick question.</aside>
+  <aside class="notes">Hi, we're Ryan, Milton, Hurrdy and Olawale, and this is Full4Less. But first, a quick question.</aside>
 </section>
 
 <section class="slide" id="s00" data-tone="bare" data-plate="2700 540 400 0">
@@ -953,9 +953,7 @@ html:active-view-transition-type(back) { &::view-transition-old(slide) { animati
     </div>
   </div>
 
-  <aside class="notes">46.5 percent of the food supply is wasted. That's 21.18 million tonnes, the weight of 4.2 million African elephants.
-
-Food service alone is 7 percent of that waste: about 1.44 million tonnes, or 288,000 elephants. That's restaurants and cafeterias, and that's where we start, right here in Hamilton, at McMaster.</aside>
+  <aside class="notes">46.5 percent of the food supply is wasted, the weight of 4.2 million elephants. Food service alone is 7 percent of that: 288,000 elephants of restaurant and cafeteria food. That's where we start.</aside>
 </section>
 
 <section class="slide" id="s03" data-plate="960 505 380 .4">
@@ -990,9 +988,9 @@ Food service alone is 7 percent of that waste: about 1.44 million tonnes, or 288
     <p>McMaster students said they'd be willing to purchase cheaper food.</p>
   </div>
 
-  <aside class="notes">There are two problems. Restaurants make food that goes unsold or gets cancelled, and it ends up in the bin. Students want meals they can afford.
+  <aside class="notes">Our customers are two groups in one place. Restaurants near McMaster that throw out unsold food and cancelled orders every night, and McMaster students who want a full meal they can afford.
 
-We checked. 10 local restaurants told us food waste is a real problem for them, and 50 McMaster students said they'd buy cheaper food. Full4Less connects the two.</aside>
+This isn't our opinion. We spoke to 10 local restaurants, and all of them called food waste a real problem. And 50 McMaster students told us they would buy cheaper food.</aside>
 </section>
 
 <section class="slide" id="s05" data-plate="960 799 430 .5">
@@ -1012,7 +1010,7 @@ We checked. 10 local restaurants told us food waste is a real problem for them, 
     </div>
     <div class="pivot"></div>
   </div>
-  <aside class="notes">So the promise is simple: affordable meals, less food waste. Customers get good food for less. Businesses waste less and recover revenue they would have lost. The same plate solves both problems.</aside>
+  <aside class="notes">Today, that food goes in the bin. With Full4Less, the student eats for less, and the restaurant gets paid for food it already made.</aside>
 </section>
 
 <section class="slide" id="s06" data-plate="1548 532 960 .35">
@@ -1098,11 +1096,19 @@ We checked. 10 local restaurants told us food waste is a real problem for them, 
     </div>
   </div>
 
-  <aside class="notes">Here's how it works. Staff snap a photo of unsold food or a cancelled order. Our AI drafts the listing from the photo and a quick voice note, and staff confirm the allergens themselves, never the AI.
+  <aside class="notes">Too Good To Go already sells surprise bags. We do something it doesn't: you see the exact meal, and live bidding sets the price, which suits cancelled orders that have to move in minutes.
 
-Nearby customers bid live, or hit Buy Now. When the timer ends, the winner is charged automatically and picks up by scanning a QR code. Miss your pickup, and staff check the food is still safe, then put it back up for auction.
+AI matters here because staff have seconds, not minutes. They snap a photo and say a few words, and Gemini writes the listing. AI never decides allergens: staff confirm them every time. And a missed pickup goes back up for auction only after staff check it's still safe.
 
-Unlike a surprise bag, you see the exact meal, and demand sets the price. The prototype runs today in test mode.</aside>
+[Switch to the app for the live demo, about 60 seconds]
+
+Let's show you, live. One thing to disclose first: payments run in Stripe test mode, and auction timers are shortened to one minute.
+
+I'm the restaurant. I photograph this dish and describe it out loud, and the listing appears with a title, a description and a starting price. I confirm the allergens and post it.
+
+On the student's phone, it's live. I bid, my teammate outbids me, and I get the alert. The timer ends, the winner is charged, and the pickup QR code is ready. I scan it, and the restaurant's sale shows up in its dashboard.
+
+Judges, give us any dish you like, and we'll list it right now.</aside>
 </section>
 
 <section class="slide light" id="s07" data-plate="1560 540 700 .15">
@@ -1200,11 +1206,9 @@ Unlike a surprise bag, you see the exact meal, and demand sets the price. The pr
     <p class="total"><b class="display">None of these pay the 30¢ card fee</b></p>
   </div>
 
-  <aside class="notes">We earn on both sides of every sale, and restaurants pay nothing until something sells. On a 10 dollar meal, the buyer pays 10.50, the restaurant keeps 8, and we take 2.50: a 20 percent commission plus a 50 cent buyer fee. After about 60 cents in card fees, we keep about 1.90.
+  <aside class="notes">Who pays? Both sides, a little. On a 10 dollar meal, the restaurant keeps 8 dollars, and we take a 20 percent commission plus a 50 cent buyer fee. That makes sense because the alternative for the restaurant is zero. After card fees we keep about 1.90.
 
-At pilot scale, about ten restaurants, running costs are roughly 85 to 105 dollars a month for AI, hosting and app store fees.
-
-As volume grows, we add wallet credits, F4L+ for buyers, Restaurant Pro and paid boosts, and none of those pay the per-meal card fee.</aside>
+Running costs at pilot scale are about 85 to 105 dollars a month, including Gemini at 10 to 30 dollars for photo, voice and text. As volume grows, we add subscriptions and boosts that don't pay the card fee.</aside>
 </section>
 
 <section class="slide" id="s08" data-plate="40 1000 560 .15">
@@ -1246,9 +1250,7 @@ As volume grows, we add wallet credits, F4L+ for buyers, Restaurant Pro and paid
 
   <p class="assume note-small">Estimates. Per partner: about 6 surplus items (~C$4) and 1 cancelled order (~C$8) a day over 300 days, at 20% commission plus a C$0.50 buyer fee. Assumes every food establishment has end-of-day surplus; the North America outlet count is a rough estimate. Excludes subscriptions and boosts.</p>
 
-  <aside class="notes">We sized the market bottom-up. A partner listing about six surplus items and one cancelled order a day earns us about 2,970 dollars a year.
-
-In Hamilton, 75 to 125 partners is 220 to 370 thousand dollars a year. Across Ontario's 29,885 food establishments, 89 million. Across North America, about 3 billion.</aside>
+  <aside class="notes">Bottom-up, each partner earns us about 2,970 dollars a year. Our first segment, 75 to 125 Hamilton restaurants, is 220 to 370 thousand dollars. Ontario is 89 million, North America about 3 billion.</aside>
 </section>
 
 <section class="slide light" id="s09" data-plate="1760 170 300 0">
@@ -1278,9 +1280,7 @@ In Hamilton, 75 to 125 partners is 220 to 370 thousand dollars a year. Across On
     <div class="card partner" data-beat="3" style="--i:4"><p>Food rescue is a partner, not a rival: food that should be donated stays donated.</p></div>
   </div>
 
-  <aside class="notes">Too Good To Go sells surprise bags at a fixed price. Flashfood sells grocery surplus at a set discount. We're built for restaurant surplus and the cancelled order: the exact meal, priced live.
-
-Our moat is local density and data on what sells, and when. And food that should be donated stays donated.</aside>
+  <aside class="notes">Too Good To Go and Flashfood sell fixed discounts. We price live, on the exact meal. Our edge is local density and data on what sells, and when.</aside>
 </section>
 
 <section class="slide" id="s10" data-plate="1730 150 420 .22">
@@ -1315,7 +1315,7 @@ Our moat is local density and data on what sells, and when. And food that should
     <p class="partners">Partnerships with non-profits: <span class="todo">[3% of ... confirm]</span></p>
   </div>
 
-  <aside class="notes">The prototype is built. On November 14 we pilot with three to five Hamilton outlets and measure real supply. This winter we grow to 10 to 15 outlets around McMaster, Westdale and Ainslie Wood, with our food-safety protocol confirmed with Hamilton Public Health. Then a public launch next fall, and Toronto in 2028.</aside>
+  <aside class="notes">The prototype is built. On November 14 we pilot with three to five Hamilton restaurants. Our biggest unknown is how much each restaurant lists a day. The pilot measures it, and it tests live bidding against a fixed discount. Food safety is the other risk, so we're confirming our protocol with Hamilton Public Health.</aside>
 </section>
 
 <section class="slide light" id="s11" data-plate="1370 540 760 .2">
@@ -1403,7 +1403,7 @@ Our moat is local density and data on what sells, and when. And food that should
     <figcaption class="note-small">Schematic, not to scale</figcaption>
   </figure>
 
-  <aside class="notes">We grow locally, not with a big campaign. Student ambassadors on campus first, then the neighbourhoods next door, backed by social media, restaurant partners and posters where people already eat.</aside>
+  <aside class="notes">Our first restaurants come from the 10 we already interviewed. Our first students come from ambassadors on McMaster campus, then Westdale and Ainslie Wood.</aside>
 </section>
 
 <section class="slide" id="s12" data-plate="1850 90 380 .2">
@@ -1454,7 +1454,7 @@ Our moat is local density and data on what sells, and when. And food that should
 
   <p class="built display" data-beat="2">We built the working prototype ourselves.</p>
 
-  <aside class="notes">We're Ryan, Milton, Hurrdy and Olawale, with startup, AI, engineering and business experience between us. And we built the working prototype ourselves.</aside>
+  <aside class="notes">[Name] built the mobile app, [Name] built the AI listing pipeline, [Name] built the backend and payments, and [Name] ran the restaurant and student interviews. We built every part of this prototype ourselves.</aside>
 </section>
 
 <section class="slide" id="s13" data-tone="bare" data-plate="372 340 650 .35">
@@ -1472,7 +1472,7 @@ Our moat is local density and data on what sells, and when. And food that should
     <figcaption>See the code</figcaption>
   </figure>
 
-  <aside class="notes">No good meal should end the night in the bin. Thank you. Scan the code to see everything we've built.</aside>
+  <aside class="notes">Our ask: help us sign our first five pilot restaurants by November 14. If you know a Hamilton restaurant owner, introduce us. Because no good meal should end the night in the bin. Thank you.</aside>
 </section>
 
 <div id="progress"><img src="assets/f4l-icon.svg" alt=""><span class="count"></span><span class="track"><span class="fill" style="display:block"></span></span></div>
