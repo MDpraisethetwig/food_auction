@@ -1,118 +1,178 @@
-import { formatMoney, type Listing, minimumBid } from '@food-auction/shared';
-import { Link, Redirect, router, useFocusEffect } from 'expo-router';
-import { useCallback, useEffect, useState } from 'react';
-import { FlatList, Image, Pressable, RefreshControl, StyleSheet, Text, View } from 'react-native';
-import { get, photoSource } from '../api';
-import { timeLeft, useNow, useSession } from '../session';
-import { Button, colors } from '../ui';
+import { formatMoney } from '@food-auction/shared';
+import { Ionicons } from '@expo/vector-icons';
+import { Redirect, router } from 'expo-router';
+import { useState } from 'react';
+import { Image, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import {
+  CATEGORIES,
+  currentPrice,
+  type DemoListing,
+  percentOff,
+  timeLeft,
+  useDemo,
+  useNow,
+} from '../demo';
+import { ListingRow } from '../listing-row';
+import { colors, fonts, radius, softShadow, space, tabBarClearance, type } from '../theme';
+import { Chip, Eyebrow, Section, TabBar, Tag, TimerBadge } from '../ui';
 
-function ListingCard({ listing, now }: { listing: Listing; now: number }) {
-  const hasBid = listing.currentBidCents !== null;
+const open = (listing: DemoListing) => router.push(`/listing/${listing.id}`);
+
+function SpotlightCard({ listing, now }: { listing: DemoListing; now: number }) {
   return (
-    <Pressable style={styles.card} onPress={() => router.push(`/listing/${listing.id}`)}>
-      {listing.photoUrl
-        ? <Image source={photoSource(listing.photoUrl)} style={styles.photo} />
-        : <View style={[styles.photo, styles.noPhoto]}><Text style={styles.noPhotoText}>{listing.category}</Text></View>}
-      <View style={styles.body}>
-        <Text style={styles.title} numberOfLines={2}>{listing.title}</Text>
-        <Text style={styles.muted} numberOfLines={1}>{listing.restaurantName}</Text>
-        {listing.source === 'cancelled' && <Text style={styles.tag}>Cancelled order</Text>}
-        <View style={styles.footer}>
-          <Text style={styles.price}>{formatMoney(hasBid ? listing.currentBidCents! : minimumBid(listing))}</Text>
-          <Text style={styles.time}>{timeLeft(listing.endsAt, now)}</Text>
-        </View>
-        <Text style={styles.muted}>{hasBid ? 'Current bid' : 'Starting bid'}</Text>
+    <Pressable onPress={() => open(listing)} style={styles.spotlight}>
+      <Image source={listing.image} style={styles.spotlightPhoto} />
+      <View style={styles.spotlightTop}>
+        <TimerBadge label={`${timeLeft(listing.endsAt, now)} left`} large />
+        <Tag label={`${percentOff(listing)}% off`} tone="sun" />
+      </View>
+      <View style={styles.spotlightBody}>
+        <Text style={styles.spotlightTitle} numberOfLines={2}>{listing.title}</Text>
+        <Text style={styles.spotlightPlace} numberOfLines={1}>{listing.restaurant}</Text>
+        <Text style={styles.spotlightPrice}>{formatMoney(currentPrice(listing))}</Text>
       </View>
     </Pressable>
   );
 }
 
-export default function Home() {
-  const { user, ready, signOut, subscribe } = useSession();
-  const [listings, setListings] = useState<Listing[]>([]);
-  const [error, setError] = useState('');
-  const [refreshing, setRefreshing] = useState(false);
+export default function Discover() {
+  const { role, listings, impact } = useDemo();
+  const [category, setCategory] = useState('All');
+  const insets = useSafeAreaInsets();
   const now = useNow();
 
-  const load = useCallback(async () => {
-    try {
-      setListings(await get<Listing[]>('/listings'));
-      setError('');
-    } catch {
-      setError("Can't reach the server. Pull down to retry.");
-    }
-  }, []);
+  if (role === null) return <Redirect href="/login" />;
+  if (role === 'restaurant') return <Redirect href="/kitchen" />;
 
-  useFocusEffect(useCallback(() => { void load(); }, [load]));
-  useEffect(() => subscribe((event) => {
-    if (event.type === 'listing.updated') void load();
-  }), [subscribe, load]);
-
-  if (!ready) return null;
-  if (!user) return <Redirect href="/login" />;
+  const live = listings
+    .filter((listing) => !listing.settled)
+    .sort((a, b) => a.endsAt - b.endsAt);
+  const nearby = live.filter((listing) => category === 'All' || listing.category === category);
 
   return (
-    <FlatList
-      contentContainerStyle={styles.page}
-      data={listings}
-      keyExtractor={(listing) => listing.id}
-      refreshControl={
-        <RefreshControl
-          refreshing={refreshing}
-          onRefresh={async () => {
-            setRefreshing(true);
-            await load();
-            setRefreshing(false);
-          }}
-        />
-      }
-      ListHeaderComponent={
-        <View style={styles.header}>
-          <Text style={styles.heading}>Hi {user.name}</Text>
-          {user.role === 'restaurant'
-            ? <Button label="Photograph food to list" onPress={() => router.push('/new-listing')} />
-            : (
-              <View style={styles.links}>
-                <Link href="/orders" style={styles.link}>My orders</Link>
-                <Link href="/scan" style={styles.link}>Scan pickup</Link>
-                <Link href="/card" style={styles.link}>Card</Link>
+    <View style={styles.flex}>
+      <ScrollView
+        contentContainerStyle={[styles.page, { paddingTop: insets.top + space.md }]}
+        showsVerticalScrollIndicator={false}
+      >
+        <View style={styles.padded}>
+          <View style={styles.header}>
+            <View>
+              <Eyebrow>Pickup near</Eyebrow>
+              <View style={styles.location}>
+                <Ionicons name="location" size={16} color={colors.forest} />
+                <Text style={styles.locationText}>Westdale, Hamilton</Text>
               </View>
-            )}
-          {!!error && <Text style={styles.error}>{error}</Text>}
+            </View>
+            <Pressable onPress={() => router.replace('/impact')} style={styles.impactPill}>
+              <Ionicons name="leaf" size={14} color={colors.forest} />
+              <Text style={styles.impactPillText}>{impact.meals} meals</Text>
+            </Pressable>
+          </View>
+          <Text style={styles.title}>Rescue something good tonight.</Text>
+          <Pressable
+            accessibilityRole="button"
+            onPress={() => router.push('/assistant')}
+            style={styles.ask}
+          >
+            <Ionicons name="sparkles" size={18} color={colors.forest} />
+            <Text style={styles.askText}>Tell us what you're craving</Text>
+            <Ionicons name="mic" size={18} color={colors.forest} />
+          </Pressable>
         </View>
-      }
-      ListEmptyComponent={!error ? <Text style={styles.muted}>No food up for auction right now.</Text> : undefined}
-      ListFooterComponent={<Text style={styles.signOut} onPress={signOut}>Sign out</Text>}
-      renderItem={({ item }) => <ListingCard listing={item} now={now} />}
-    />
+
+        <Section title="Closing soon">
+          <ScrollView
+            contentContainerStyle={styles.carousel}
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            style={styles.bleed}
+          >
+            {live.slice(0, 3).map((listing) => <SpotlightCard key={listing.id} listing={listing} now={now} />)}
+          </ScrollView>
+        </Section>
+
+        <Section title="Near you">
+          <ScrollView
+            contentContainerStyle={styles.carousel}
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            style={styles.bleed}
+          >
+            {CATEGORIES.map((item) => (
+              <Chip key={item} label={item} selected={category === item} onPress={() => setCategory(item)} />
+            ))}
+          </ScrollView>
+          <View style={styles.list}>
+            {nearby.map((listing) => <ListingRow key={listing.id} listing={listing} now={now} />)}
+            {nearby.length === 0 && <Text style={styles.empty}>Nothing here right now. Try another category.</Text>}
+          </View>
+        </Section>
+      </ScrollView>
+      <TabBar active="discover" />
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  page: { padding: 16 },
-  header: { marginBottom: 14, gap: 10 },
-  heading: { fontSize: 24, fontWeight: '700', color: colors.ink },
-  links: { flexDirection: 'row', gap: 18 },
-  link: { color: colors.accent, fontSize: 16, fontWeight: '600', paddingVertical: 6 },
-  card: {
+  flex: { flex: 1 },
+  page: { paddingBottom: tabBarClearance, paddingHorizontal: space.xl },
+  padded: {},
+  bleed: { marginHorizontal: -space.xl },
+  header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
+  location: { flexDirection: 'row', alignItems: 'center', gap: space.xs, marginTop: 2 },
+  locationText: { fontFamily: fonts.bold, fontSize: 15, color: colors.ink },
+  impactPill: {
     flexDirection: 'row',
+    alignItems: 'center',
+    gap: space.xs,
+    backgroundColor: colors.sprout,
+    borderRadius: radius.pill,
+    paddingHorizontal: space.md,
+    paddingVertical: 7,
+  },
+  impactPillText: { fontFamily: fonts.bold, fontSize: 13, color: colors.forest },
+  title: { ...type.h1, fontSize: 30, lineHeight: 37, color: colors.ink, marginTop: space.xl },
+  ask: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: space.sm,
+    backgroundColor: colors.field,
+    borderRadius: radius.pill,
+    paddingHorizontal: space.lg,
+    minHeight: 52,
+    marginTop: space.lg,
+  },
+  askText: { flex: 1, fontFamily: fonts.medium, fontSize: 15, color: colors.muted },
+  carousel: { paddingHorizontal: space.xl, gap: space.md, paddingBottom: space.xs },
+  spotlight: {
+    ...softShadow,
+    width: 256,
+    borderRadius: radius.lg,
     backgroundColor: colors.surface,
-    borderRadius: 12,
     borderWidth: 1,
     borderColor: colors.line,
-    marginBottom: 12,
-    overflow: 'hidden',
   },
-  photo: { width: 112, alignSelf: 'stretch', minHeight: 124 },
-  noPhoto: { backgroundColor: '#e7efe9', alignItems: 'center', justifyContent: 'center' },
-  noPhotoText: { color: colors.accent, fontWeight: '600' },
-  body: { flex: 1, padding: 12 },
-  title: { fontSize: 16, fontWeight: '600', color: colors.ink },
-  muted: { color: colors.muted, fontSize: 13 },
-  tag: { color: colors.warn, fontSize: 12, fontWeight: '600', marginTop: 2 },
-  footer: { flexDirection: 'row', justifyContent: 'space-between', marginTop: 8 },
-  price: { fontSize: 18, fontWeight: '700', color: colors.ink },
-  time: { fontSize: 16, color: colors.warn, fontVariant: ['tabular-nums'] },
-  error: { color: colors.warn },
-  signOut: { color: colors.muted, textAlign: 'center', padding: 16 },
+  spotlightPhoto: {
+    width: '100%',
+    height: 168,
+    borderTopLeftRadius: radius.lg - 1,
+    borderTopRightRadius: radius.lg - 1,
+  },
+  spotlightTop: {
+    position: 'absolute',
+    top: space.md,
+    left: space.md,
+    right: space.md,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  spotlightBody: { padding: space.lg },
+  spotlightTitle: { ...type.h3, fontSize: 17, lineHeight: 24, minHeight: 48, color: colors.ink },
+  spotlightPlace: { ...type.small, color: colors.muted, marginTop: 2 },
+  spotlightPrice: { ...type.price, fontSize: 24, lineHeight: 31, color: colors.forest, marginTop: space.xs },
+  list: { marginTop: space.md, gap: space.md },
+  empty: { ...type.body, color: colors.muted },
 });

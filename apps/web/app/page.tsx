@@ -1,264 +1,223 @@
 'use client';
 
-import { formatMoney, type Listing, type Order } from '@food-auction/shared';
+import { formatMoney } from '@food-auction/shared';
 import QRCode from 'qrcode';
-import { type FormEvent, useCallback, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
+  Area,
+  AreaChart,
   Bar,
   BarChart,
   CartesianGrid,
   Legend,
-  Line,
-  LineChart,
   ResponsiveContainer,
   Tooltip,
   XAxis,
   YAxis,
 } from 'recharts';
+import {
+  byCategory,
+  daily,
+  hero,
+  liveAuctions,
+  missedPickups,
+  orders,
+  restaurant,
+  statusText,
+  unsoldByHour,
+} from './demo-data';
 
-const API = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:4000';
-const TOKEN_KEY = 'lastcall-token';
+const chart = { forest: '#1e4d3b', clay: '#b4472a', sun: '#e8b04a', line: '#e4dccb', muted: '#5e6b60' };
+const axis = { fontSize: 12, stroke: chart.muted, tickLine: false, axisLine: false };
 
-interface Dashboard {
-  restaurant: { id: string; name: string; pickupToken: string };
-  listings: Listing[];
-  orders: Order[];
-  analytics: {
-    listed: number;
-    sold: number;
-    unsold: number;
-    noShows: number;
-    recoveredCents: number;
-    sellThrough: number;
-    daily: { label: string; cents: number; sold: number }[];
-    byCategory: { category: string; sold: number; unsold: number }[];
-    unsoldByHour: { hour: number; unsold: number }[];
-  };
-}
+const opened = Date.now();
 
-async function api<T>(path: string, token: string | null, body?: object): Promise<T> {
-  const response = await fetch(`${API}${path}`, {
-    method: body ? 'POST' : 'GET',
-    headers: {
-      ...(body ? { 'Content-Type': 'application/json' } : {}),
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
-    },
-    body: body ? JSON.stringify(body) : undefined,
-  });
-  const data = await response.json();
-  if (!response.ok) throw new Error(data.error ?? 'Request failed');
-  return data;
-}
-
-function Login({ onToken }: { onToken: (token: string) => void }) {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
-
-  async function submit(event: FormEvent) {
-    event.preventDefault();
-    try {
-      const { token } = await api<{ token: string }>('/auth/login', null, { email, password });
-      onToken(token);
-    } catch (failure) {
-      setError((failure as Error).message);
-    }
-  }
-
-  return (
-    <form className="login" onSubmit={submit}>
-      <h1>LastCall</h1>
-      <p className="muted">Sign in to your restaurant.</p>
-      {error && <p className="error">{error}</p>}
-      <input placeholder="Email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} />
-      <input placeholder="Password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} />
-      <button type="submit">Sign in</button>
-    </form>
-  );
-}
-
-const statusText: Record<Order['status'], string> = {
-  awaiting_pickup: 'Awaiting pickup',
-  picked_up: 'Picked up',
-  no_show: 'No-show',
-  payment_failed: 'Payment failed',
+const timeLeft = (minutes: number, now: number) => {
+  const seconds = Math.max(0, Math.floor((opened + minutes * 60000 - now) / 1000));
+  return `${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, '0')}`;
 };
 
-function DashboardView({ token, onSignOut }: { token: string; onSignOut: () => void }) {
-  const [data, setData] = useState<Dashboard | null>(null);
-  const [qr, setQr] = useState('');
-  const [error, setError] = useState('');
-
-  const load = useCallback(async () => {
-    try {
-      setData(await api<Dashboard>('/restaurant/dashboard', token));
-      setError('');
-    } catch (failure) {
-      setError((failure as Error).message);
-    }
-  }, [token]);
-
-  useEffect(() => {
-    void load();
-    const socket = new WebSocket(`${API.replace(/^http/, 'ws')}/ws?token=${token}`);
-    socket.onmessage = () => void load();
-    const timer = setInterval(() => void load(), 5000);
-    return () => {
-      socket.close();
-      clearInterval(timer);
-    };
-  }, [load, token]);
-
-  const pickupToken = data?.restaurant.pickupToken;
-  useEffect(() => {
-    if (pickupToken) void QRCode.toDataURL(pickupToken, { width: 360, margin: 1 }).then(setQr);
-  }, [pickupToken]);
-
-  async function review(id: string, stillSafe: boolean) {
-    await api(`/listings/${id}/review`, token, { stillSafe });
-    await load();
-  }
-
-  if (!data) return <div className="page">{error ? <p className="error">{error}</p> : 'Loading...'}</div>;
-  const { analytics } = data;
-  const reviews = data.listings.filter((listing) => listing.status === 'no_show_review');
-  const live = data.listings.filter((listing) => listing.status !== 'no_show_review');
-
+function Sidebar() {
   return (
-    <main className="page">
-      <div className="topbar">
-        <div>
-          <h1>{data.restaurant.name}</h1>
-          <span className="muted">Live dashboard</span>
-        </div>
-        <button className="secondary" onClick={onSignOut}>Sign out</button>
+    <aside className="sidebar">
+      <img className="wordmark" src="/logo-reversed.svg" alt="Full for Less" />
+      <nav className="nav">
+        <a className="active" href="#overview">Overview</a>
+        <a href="#auctions">Live auctions</a>
+        <a href="#orders">Orders</a>
+        <a href="#pickup">Pickup code</a>
+      </nav>
+      <div className="kitchen">
+        <strong>{restaurant.name}</strong>
+        <span>{restaurant.address}</span>
       </div>
-
-      {reviews.length > 0 && (
-        <section className="card" style={{ marginBottom: 16 }}>
-          <h2>Missed pickups</h2>
-          {reviews.map((listing) => (
-            <div className="row" key={listing.id}>
-              <div>
-                <strong>{listing.title}</strong>
-                <div className="warning">Is this food still safe to sell?</div>
-              </div>
-              <div className="actions">
-                <button onClick={() => review(listing.id, true)}>Re-auction</button>
-                <button className="secondary" onClick={() => review(listing.id, false)}>Discard</button>
-              </div>
-            </div>
-          ))}
-        </section>
-      )}
-
-      <section className="grid stats">
-        <div className="card"><span className="muted">Money recovered</span><div className="stat">{formatMoney(analytics.recoveredCents)}</div></div>
-        <div className="card"><span className="muted">Sell-through</span><div className="stat">{Math.round(analytics.sellThrough * 100)}%</div></div>
-        <div className="card"><span className="muted">Items sold</span><div className="stat">{analytics.sold}</div></div>
-        <div className="card"><span className="muted">Unsold</span><div className="stat">{analytics.unsold}</div></div>
-        <div className="card"><span className="muted">No-shows</span><div className="stat">{analytics.noShows}</div></div>
-      </section>
-
-      <section className="grid two">
-        <div className="card">
-          <h2>Money recovered, last 14 days</h2>
-          <ResponsiveContainer width="100%" height={240}>
-            <LineChart data={analytics.daily.map((day) => ({ ...day, dollars: day.cents / 100 }))}>
-              <CartesianGrid stroke="#e2dfd6" vertical={false} />
-              <XAxis dataKey="label" fontSize={12} minTickGap={24} />
-              <YAxis fontSize={12} tickFormatter={(value) => `$${value}`} width={44} />
-              <Tooltip formatter={(value) => [`$${Number(value).toFixed(2)}`, 'Recovered']} />
-              <Line dataKey="dollars" stroke="#1f7a55" strokeWidth={2} dot={false} />
-            </LineChart>
-          </ResponsiveContainer>
-        </div>
-        <div className="card">
-          <h2>What sells and what doesn't</h2>
-          <ResponsiveContainer width="100%" height={240}>
-            <BarChart data={analytics.byCategory}>
-              <CartesianGrid stroke="#e2dfd6" vertical={false} />
-              <XAxis dataKey="category" fontSize={12} />
-              <YAxis fontSize={12} allowDecimals={false} width={32} />
-              <Tooltip />
-              <Legend />
-              <Bar dataKey="sold" name="Sold" stackId="items" fill="#1f7a55" />
-              <Bar dataKey="unsold" name="Unsold" stackId="items" fill="#c98a5e" />
-            </BarChart>
-          </ResponsiveContainer>
-        </div>
-      </section>
-
-      <section className="grid two">
-        <div className="card">
-          <h2>Live auctions</h2>
-          {live.length === 0 && <p className="muted">Nothing live right now.</p>}
-          {live.map((listing) => (
-            <div className="row" key={listing.id}>
-              <span>{listing.title}</span>
-              <span className="badge">
-                {listing.currentBidCents === null ? 'No bids yet' : formatMoney(listing.currentBidCents)}
-              </span>
-            </div>
-          ))}
-          <h2 style={{ marginTop: 20 }}>Recent orders</h2>
-          {data.orders.slice(0, 8).map((order) => (
-            <div className="row" key={order.id}>
-              <span>{order.title}</span>
-              <span className="badge">{formatMoney(order.amountCents)} · {statusText[order.status]}</span>
-            </div>
-          ))}
-        </div>
-        <div className="grid">
-          <div className="card">
-            <h2>Pickup QR code</h2>
-            {qr && <img className="qr" src={qr} alt="Pickup QR code" />}
-            <p className="muted">Keep this at the counter. Customers scan it to confirm pickup.</p>
-          </div>
-          <div className="card">
-            <h2>When food goes unsold</h2>
-            <ResponsiveContainer width="100%" height={170}>
-              <BarChart data={analytics.unsoldByHour.map((row) => ({ ...row, label: `${row.hour}:00` }))}>
-                <XAxis dataKey="label" fontSize={12} />
-                <YAxis fontSize={12} allowDecimals={false} width={32} />
-                <Tooltip />
-                <Bar dataKey="unsold" name="Unsold" fill="#c98a5e" />
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
-        </div>
-      </section>
-    </main>
+    </aside>
   );
 }
 
 export default function Home() {
-  const [token, setToken] = useState<string | null>(null);
-  const [ready, setReady] = useState(false);
+  const [qr, setQr] = useState('');
+  const [reviews, setReviews] = useState(missedPickups);
+  const [now, setNow] = useState(opened);
 
   useEffect(() => {
-    setToken(localStorage.getItem(TOKEN_KEY));
-    setReady(true);
+    void QRCode.toDataURL('lastcall-demo-pickup', {
+      width: 360,
+      margin: 1,
+      color: { dark: chart.forest, light: '#fffcf5' },
+    }).then(setQr);
+    const timer = setInterval(() => setNow(Date.now()), 1000);
+    return () => clearInterval(timer);
   }, []);
 
-  if (!ready) return null;
-  if (!token) {
-    return (
-      <Login
-        onToken={(value) => {
-          localStorage.setItem(TOKEN_KEY, value);
-          setToken(value);
-        }}
-      />
-    );
-  }
+  const dismiss = (id: string) => setReviews((current) => current.filter((listing) => listing.id !== id));
+
   return (
-    <DashboardView
-      token={token}
-      onSignOut={() => {
-        localStorage.removeItem(TOKEN_KEY);
-        setToken(null);
-      }}
-    />
+    <div className="shell">
+      <Sidebar />
+      <main className="page" id="overview">
+        <div className="topbar">
+          <div>
+            <div className="eyebrow">Tonight's kitchen</div>
+            <h1>{restaurant.name}</h1>
+          </div>
+          <span className="live">{liveAuctions.length} auctions live</span>
+        </div>
+
+        <section className="hero">
+          <div className="hero-main">
+            <div className="eyebrow">Money recovered, last 30 days</div>
+            <div className="hero-value">
+              ${(hero.recoveredCents / 100).toLocaleString('en-CA', { minimumFractionDigits: 2 })}
+            </div>
+            <div className="hero-note">{hero.sellThrough}% of listed food sold instead of binned</div>
+          </div>
+          <div className="hero-stat"><strong>{hero.meals}</strong><span>Meals rescued</span></div>
+          <div className="hero-stat"><strong>{hero.kgSaved} kg</strong><span>Food saved</span></div>
+          <div className="hero-stat"><strong>{hero.co2Kg} kg</strong><span>CO₂e avoided</span></div>
+        </section>
+
+        {reviews.length > 0 && (
+          <section className="card attention">
+            <h2>Needs you</h2>
+            {reviews.map((listing) => (
+              <div className="row" key={listing.id}>
+                <div className="grow">
+                  <div className="title">{listing.title}</div>
+                  <div className="warning">{listing.buyer} missed pickup. Is this food still safe to sell?</div>
+                </div>
+                <div className="actions">
+                  <button onClick={() => dismiss(listing.id)}>Re-auction</button>
+                  <button className="secondary" onClick={() => dismiss(listing.id)}>Discard</button>
+                </div>
+              </div>
+            ))}
+          </section>
+        )}
+
+        <section className="grid two">
+          <div className="card">
+            <h2>Money recovered, last 14 days</h2>
+            <ResponsiveContainer width="100%" height={240}>
+              <AreaChart data={daily}>
+                <defs>
+                  <linearGradient id="recovered" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor={chart.forest} stopOpacity={0.28} />
+                    <stop offset="100%" stopColor={chart.forest} stopOpacity={0} />
+                  </linearGradient>
+                </defs>
+                <CartesianGrid stroke={chart.line} vertical={false} />
+                <XAxis dataKey="label" minTickGap={28} {...axis} />
+                <YAxis tickFormatter={(value) => `$${value}`} width={44} {...axis} />
+                <Tooltip formatter={(value) => [`$${Number(value).toFixed(2)}`, 'Recovered']} />
+                <Area
+                  dataKey="dollars"
+                  fill="url(#recovered)"
+                  isAnimationActive={false}
+                  stroke={chart.forest}
+                  strokeWidth={2.5}
+                />
+              </AreaChart>
+            </ResponsiveContainer>
+          </div>
+          <div className="card">
+            <h2>What sells and what doesn't</h2>
+            <ResponsiveContainer width="100%" height={240}>
+              <BarChart data={byCategory}>
+                <CartesianGrid stroke={chart.line} vertical={false} />
+                <XAxis dataKey="category" {...axis} />
+                <YAxis allowDecimals={false} width={32} {...axis} />
+                <Tooltip cursor={{ fill: 'rgba(30,77,59,0.06)' }} />
+                <Legend iconType="circle" wrapperStyle={{ fontSize: 13 }} />
+                <Bar dataKey="sold" name="Sold" stackId="items" fill={chart.forest} isAnimationActive={false} />
+                <Bar
+                  dataKey="unsold"
+                  name="Unsold"
+                  stackId="items"
+                  fill={chart.clay}
+                  isAnimationActive={false}
+                  radius={[6, 6, 0, 0]}
+                />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        </section>
+
+        <section className="grid split">
+          <div className="card">
+            <h2 id="auctions">Live auctions</h2>
+            {liveAuctions.map((listing) => (
+              <div className="row" key={listing.id}>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img alt="" className="thumb" src={listing.image} />
+                <div className="grow">
+                  <div className="title">{listing.title}</div>
+                  <div className="muted">{listing.bids === 0 ? 'No bids yet' : `${listing.bids} bids`}</div>
+                </div>
+                <div className="center">
+                  <div className="price">{formatMoney(listing.priceCents)}</div>
+                  <div className="timer">{timeLeft(listing.minutes, now)}</div>
+                </div>
+              </div>
+            ))}
+            <h2 className="section-gap" id="orders">Recent orders</h2>
+            {orders.map((order) => (
+              <div className="row" key={order.id}>
+                <div className="grow">
+                  <div className="title">{order.title}</div>
+                  <div className="muted">{order.buyer} · {formatMoney(order.amountCents)}</div>
+                </div>
+                <span className={`badge ${order.status}`}>{statusText[order.status]}</span>
+              </div>
+            ))}
+          </div>
+          <div className="stack">
+            <div className="card" id="pickup">
+              <h2>Pickup code</h2>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              {qr && <img className="qr" src={qr} alt="Pickup QR code" />}
+              <p className="muted center">Keep this at the counter. Customers scan it to confirm pickup.</p>
+            </div>
+            <div className="card">
+              <h2>When food goes unsold</h2>
+              <ResponsiveContainer width="100%" height={170}>
+                <BarChart data={unsoldByHour}>
+                  <XAxis dataKey="label" minTickGap={16} {...axis} />
+                  <YAxis allowDecimals={false} width={28} {...axis} />
+                  <Tooltip cursor={{ fill: 'rgba(30,77,59,0.06)' }} />
+                  <Bar
+                    dataKey="unsold"
+                    name="Unsold"
+                    fill={chart.sun}
+                    isAnimationActive={false}
+                    radius={[6, 6, 0, 0]}
+                  />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          </div>
+        </section>
+      </main>
+    </div>
   );
 }

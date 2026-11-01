@@ -5,9 +5,8 @@ import { join, resolve } from 'node:path';
 import pg from 'pg';
 import { serverRoot } from './config.js';
 
-// Runs the x64 PostgreSQL binaries directly: the embedded-postgres wrapper rejects Windows on ARM.
-const packageDir = resolve(serverRoot, '../../node_modules/@embedded-postgres/windows-x64');
-const bin = (name: string) => join(packageDir, 'native', 'bin', `${name}.exe`);
+const packageDir = resolve(serverRoot, '../../node_modules/@embedded-postgres/darwin-arm64');
+const bin = (name: string) => join(packageDir, 'native', 'bin', name);
 
 async function waitForServer(port: number) {
   for (let attempt = 0; attempt < 100; attempt += 1) {
@@ -50,8 +49,13 @@ export async function startEmbedded(folder: string, port: number, database: stri
   return {
     stop: () =>
       new Promise<void>((done) => {
+        if (child.exitCode !== null || child.signalCode !== null) return done();
         child.once('exit', () => done());
-        execFileSync(bin('pg_ctl'), ['stop', '-D', dataDir, '-m', 'fast'], { stdio: 'ignore' });
+        try {
+          execFileSync(bin('pg_ctl'), ['stop', '-D', dataDir, '-m', 'fast'], { stdio: 'ignore' });
+        } catch {
+          // Ctrl+C also reaches PostgreSQL directly, so it may already be shutting down.
+        }
       }),
   };
 }
