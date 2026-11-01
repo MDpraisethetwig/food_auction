@@ -1,5 +1,5 @@
 /* Slide 08: a to-scale zoom out. Circle area is proportional to business count,
-   so the pilot really is the dot. --pct holds a log zoom: each radius is
+   so Hamilton really is the dot. --pct holds a log zoom: each radius is
    r * exp(--pct), which makes the zoom feel even from step to step.
    Final state (--pct 0) is the default, so print shows the whole picture. */
 #s08 { --pct: 0; transition: --pct 1.5s var(--inout); }
@@ -7,8 +7,8 @@
 #s08 .world { position: absolute; inset: 0; width: 1920px; height: 1080px; }
 #s08 .ring { translate: none; stroke-width: 2.5; }
 #s08 .ring.tam { --r: 390; fill: color-mix(in srgb, var(--green) 14%, transparent); stroke: color-mix(in srgb, var(--green) 70%, transparent); }
-#s08 .ring.sam { --r: 67.15; fill: color-mix(in srgb, var(--green) 46%, transparent); stroke: var(--green); }
-#s08 .ring.som { --r: 1.6; fill: var(--leaf); stroke: none; }
+#s08 .ring.sam { --r: 67.4; fill: color-mix(in srgb, var(--green) 46%, transparent); stroke: var(--green); }
+#s08 .ring.som { --r: 2.76; fill: var(--leaf); stroke: none; }
 #s08 .halo { translate: none; fill: none; stroke: var(--leaf); stroke-width: 2; }
 #s08 .halo.on { animation: s08-halo 5s var(--inout) infinite alternate; }
 @keyframes s08-halo { to { stroke-opacity: .35; } }
@@ -16,8 +16,8 @@
 /* Rim labels ride along with their circles */
 #s08 .tag { position: absolute; left: 1434px; top: 478px; font-size: 26px; font-weight: 600; line-height: 1; white-space: nowrap; translate: -50% calc((var(--off) - var(--r)) * 1px); }
 #s08 .tag.tam { --r: 390; --off: 24; }
-#s08 .tag.sam { --r: 67.15; --off: -40; }
-#s08 .tag.som { --r: 1.6; --off: -40; }
+#s08 .tag.sam { --r: 67.4; --off: -40; }
+#s08 .tag.som { --r: 2.76; --off: -40; }
 #s08 .inside { position: absolute; left: 1434px; top: 478px; translate: -50% -50%; font-size: 48px; color: var(--ink); white-space: nowrap; opacity: 0; transition: opacity .3s var(--out); }
 #s08 .scale { position: absolute; left: 1434px; top: 776px; font-size: 20px; white-space: nowrap; translate: -50% 0; }
 
@@ -26,11 +26,13 @@
   #s08 .tag { translate: -50% calc((var(--off) - var(--r) * exp(var(--pct))) * 1px); }
 }
 
-/* Screen only: z-pilot fills the panel, then z-Hamilton, then the default. */
+/* Screen only: Hamilton fills the panel, then Ontario, then the default. */
 @media screen {
-  #s08 { --pct: 5.05; }
-  #s08[data-step="1"] { --pct: 1.314; }
+  #s08 { --pct: 4.507; }
+  #s08[data-step="1"] { --pct: 1.311; }
   #s08[data-step="2"], #s08[data-step="3"] { --pct: 0; }
+  /* Fully zoomed out, the Hamilton label would sit on the Ontario rim; the legend carries it. */
+  #s08[data-step="2"] .tag.som, #s08[data-step="3"] .tag.som { opacity: 0 !important; transition: opacity .4s var(--out); }
   #s08:not([data-step="1"], [data-step="2"], [data-step="3"]) .inside { opacity: 1; transition-delay: .3s; }
 }
 
@@ -42,7 +44,7 @@
 #s08 .per { font-size: 26px; margin-top: 4px; }
 #s08 .head { margin-top: 22px; }
 
-#s08 .tier { display: grid; grid-template-columns: 22px 348px 1fr; align-items: center; column-gap: 16px; height: 98px; }
+#s08 .tier { display: grid; grid-template-columns: 22px 410px 1fr; align-items: center; column-gap: 16px; height: 98px; }
 #s08 .tier i { width: 22px; height: 22px; border-radius: 50%; }
 #s08 .tier.som i { background: var(--leaf); }
 #s08 .tier.sam i { background: color-mix(in srgb, var(--green) 46%, var(--ink)); border: 2px solid var(--green); }
@@ -54,15 +56,12 @@
 /* Count-ups. --n holds the final value at rest, so anything without animation
    support still shows the right figure. */
 #s08 .fig { font-size: 62px; white-space: nowrap; font-variant-numeric: tabular-nums; }
-#s08 .tier.som .fig { --n: 11250; }
-#s08 .tier.sam .fig { --n: 199; }
-#s08 .tier.tam .fig { --n: 6724; }
-#s08 .tier.som .fig::after { counter-reset: a calc(round(down, var(--n) / 1000, 1)) b mod(var(--n), 1000); content: "C$" counter(a) "," counter(b, s08-pad3); }
-#s08 .tier.sam .fig::after,
-#s08 .tier.tam .fig::after { counter-reset: a calc(round(down, var(--n) / 100, 1)) b mod(var(--n), 100); content: "C$" counter(a) "." counter(b, decimal-leading-zero) "M"; }
-@counter-style s08-pad3 { system: extends decimal; pad: 3 "0"; }
+#s08 .tier.sam .fig { --n: 55; }
+#s08 .tier.tam .fig { --n: 18; }
+#s08 .tier.sam .fig::after { counter-reset: a var(--n); content: "C$" counter(a) "M"; }
+#s08 .tier.tam .fig::after { counter-reset: a calc(round(down, var(--n) / 10, 1)) b mod(var(--n), 10); content: "C$" counter(a) "." counter(b) "B"; }
 
-#s08 .tier.on .fig { animation: s08-count 1.5s var(--out) both; }
+#s08 .tier.sam.on .fig, #s08 .tier.tam.on .fig { animation: s08-count 1.5s var(--out) both; }
 @keyframes s08-count { from { --n: 0; } }
 
 #s08 .segment { font-size: 30px; line-height: 1.3; margin-top: 18px; }
@@ -75,4 +74,5 @@
   /* The engine forces translate: 0 0 in print; these labels need theirs back. */
   #s08 .tag { translate: -50% calc((var(--off) - var(--r)) * 1px) !important; }
   #s08 .scale { translate: -50% 0 !important; }
+  #s08 .tag.som { opacity: 0 !important; }
 }

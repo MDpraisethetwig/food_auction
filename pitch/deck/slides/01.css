@@ -1,90 +1,12 @@
-/* s02 Hook. Base styles are the finished slide (beat 3, and print).
-   data-step rules wind it back: hero pie on the plate, then a clear look at the photo. */
-
-/* Photo moment */
-#s02 .bleed { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; object-fit: cover; object-position: 50% 42%; translate: 0 0; transition: opacity .9s var(--out); }
-#s02[data-step="2"] .bleed, #s02[data-step="3"] .bleed { animation: s02-burns 16s linear both; }
-#s02 .scrim { position: absolute; inset: 0; opacity: .9; background: linear-gradient(90deg, rgb(16 22 27 / .97), rgb(16 22 27 / .8)); transition: opacity 1s var(--out); }
-#s02[data-step="0"] .scrim, #s02[data-step="1"] .scrim { opacity: 0; transition: none; }
-#s02[data-step="2"] .scrim { opacity: .78; transition: opacity 1s var(--inout) 1.5s; }
-
-#s02 .kicker, #s02 .lead, #s02 .pie, #s02 .num, #s02 .cap, #s02 .src, #s02 .right { position: absolute; }
-#s02 .kicker { left: var(--pad); top: 88px; }
-
-/* Arrival question */
-#s02 .lead { left: var(--pad); top: 340px; width: 760px; font-size: 92px; opacity: 0; transition: opacity .4s; }
-#s02[data-step="0"] .lead { opacity: 1; }
-
-/* Pies. --angle draws them; both share the same whole */
-#s02 .pie { width: 220px; height: 220px; border-radius: 50%; left: var(--pad); box-shadow: 0 0 0 2px var(--line); }
-#s02 .pie-a { top: 196px; --angle: 167.4deg; background: conic-gradient(var(--red) var(--angle), rgb(255 255 255 / .12) 0); }
-#s02 .pie-b { top: 556px; --angle: 25.2deg; translate: 0 0; background: conic-gradient(var(--red) var(--angle), color-mix(in srgb, var(--red) 28%, transparent) 0); }
-
-#s02 .num { left: 348px; font-size: 104px; line-height: 1; }
-#s02 .num::before { color: var(--red); }
-#s02 .num-a { top: 196px; --n: 465; counter-reset: w round(down, var(--n) / 10, 1) t mod(var(--n), 10); }
-#s02 .num-a::before { content: counter(w) "." counter(t) "%"; }
-#s02 .num-b { top: 556px; --n: 7; counter-reset: x var(--n); }
-#s02 .num-b::before { content: counter(x) "%"; }
-#s02 .cap { left: 348px; width: 390px; font-size: 28px; line-height: 1.28; }
-#s02 .cap-a { top: 312px; }
-#s02 .cap-b { top: 672px; }
-#s02 .src { left: var(--pad); top: 938px; }
-
-/* Hero layout for beats 0 and 1: --hero maps each piece from its finished spot */
-#s02 .pie-a { --hero: translate(1084px, 214px) scale(2.91); }
-#s02 .num-a { --hero: translate(-252px, 84px) scale(2.45); transform-origin: 0 0; }
-#s02 .cap-a { --hero: translate(-252px, 248px) scale(1.5); transform-origin: 0 0; }
-#s02 .src { --hero: none; }
-#s02 .kicker { --hero: none; }
-#s02:is([data-step="0"], [data-step="1"]) :is(.pie-a, .num-a, .cap-a) { transform: var(--hero); }
-#s02[data-step="0"] .pie-a { --angle: 0deg; }
-#s02[data-step="1"] .pie-a { animation: s02-pie-a 1.9s var(--out) both; }
-#s02[data-step="1"] .num-a { animation: s02-467 1.9s var(--out) both; }
-/* On beat 2 the hero clears out so the photo stands alone, then each piece returns home */
-#s02[data-step="2"] :is(.pie-a, .num-a, .cap-a, .kicker, .src) { animation: s02-home 2.5s linear both; }
-
-/* Elephant count */
-#s02 .right { left: 790px; top: 92px; width: 1034px; }
-#s02 .right.on { transition-delay: 1.5s; }
-#s02 .elc { font-size: 168px; line-height: 1; --n: 42; counter-reset: w round(down, var(--n) / 10, 1) t mod(var(--n), 10); }
-#s02 .elc::before { content: counter(w) "." counter(t) " million"; }
-#s02[data-step="2"] .elc { animation: s02-42 1.9s linear 1.6s both; }
-#s02 .els { margin-top: 6px; font-size: 34px; }
-
-/* The herd */
-#s02 .herd { margin-top: 26px; padding: 28px 32px 22px; background: color-mix(in srgb, var(--ink) 62%, transparent); backdrop-filter: blur(14px) saturate(.7); }
-#s02 .field { display: block; width: 100%; height: auto; }
-#s02 .field use { fill: var(--red); transform-box: fill-box; transform-origin: center; }
-#s02 .field use:nth-child(n+30) { opacity: .26; }
-#s02:is([data-step="0"], [data-step="1"]) .field use:nth-child(n) { opacity: 0; scale: .3; }
-#s02[data-step="2"] .field use:nth-child(n) { opacity: 1; transition: opacity .25s linear, scale .4s var(--spring); transition-delay: calc(1.6s + var(--i, 1) * 4.5ms); }
-#s02[data-step="3"] .field use { transition: opacity .8s var(--out); }
-
-#s02 .legend { display: flex; justify-content: space-between; gap: 32px; margin-top: 18px; color: var(--fog); }
-#s02 .legend .fs { color: #fff; translate: 0 0; }
-#s02 .eln { --n: 288; counter-reset: x var(--n); color: var(--red); font-weight: 700; }
-#s02 .eln::before { content: counter(x) ",000"; }
-#s02[data-step="3"] .eln { animation: s02-638 1.6s var(--out) both; }
-
-/* Beat 3 */
-#s02[data-step="3"] .pie-b { animation: s02-pie-b 1.5s var(--out) both; }
-#s02[data-step="3"] .num-b { animation: s02-7 1.2s var(--out) both; }
-
-@keyframes s02-burns { from { scale: 1.07; } to { scale: 1; } }
-@keyframes s02-pie-a { from { --angle: 0deg; } to { --angle: 167.4deg; } }
-@keyframes s02-pie-b { from { --angle: 0deg; } to { --angle: 25.2deg; } }
-@keyframes s02-467 { from { --n: 0; } to { --n: 465; } }
-@keyframes s02-42 { from { --n: 0; } to { --n: 42; } }
-@keyframes s02-638 { from { --n: 0; } to { --n: 288; } }
-@keyframes s02-7 { from { --n: 0; } to { --n: 7; } }
-@keyframes s02-home {
-  0% { opacity: 1; transform: var(--hero); }
-  12% { opacity: 0; transform: var(--hero); }
-  60% { opacity: 0; transform: none; }
-  84%, 100% { opacity: 1; transform: none; }
-}
-
-@media print {
-  #s02 * { animation: none !important; }
-}
+/* s00 Opening question: the photo first, the audience guesses, then the weight lands. */
+#s00 .bleed { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; object-fit: cover; object-position: 50% 42%; }
+#s00.is-active .bleed { animation: s00-push 24s linear both; }
+#s00 .scrim { position: absolute; inset: 0; background: linear-gradient(to top, rgb(16 22 27 / .94) 8%, rgb(16 22 27 / .45) 46%, rgb(16 22 27 / .05) 72%); }
+#s00 h1 { position: absolute; left: var(--pad); bottom: 96px; width: 1180px; font-size: 112px; }
+#s00 .answer { position: absolute; right: var(--pad); bottom: 96px; font-size: 76px; line-height: 1.05; text-align: right; color: var(--amber); --n: 5; counter-reset: x var(--n); }
+#s00 .answer::before { content: "About"; display: block; font-size: 40px; color: #fff; }
+#s00 .answer::after { content: counter(x) " tonnes"; font-size: 132px; }
+#s00 .answer.on { animation: s00-count 1s var(--out) both; }
+@keyframes s00-push { from { scale: 1; } to { scale: 1.09; } }
+@keyframes s00-count { from { --n: 0; } }
+@media print { #s00 * { animation: none !important; } }

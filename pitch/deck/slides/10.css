@@ -46,7 +46,8 @@
 #s10 .foot { position: absolute; left: var(--pad); right: var(--pad); top: 862px; display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 44px; }
 #s10 .risk { padding: 22px 32px; font-size: 30px; line-height: 1.25; border-radius: 26px; }
 #s10 .risk b { color: var(--amber); font-weight: 600; }
-#s10 .partners { font-size: 26px; line-height: 1.3; width: 420px; }
+#s10 .partners { font-size: 24px; line-height: 1.3; width: 600px; }
+#s10 .partners b { color: var(--amber); font-weight: 600; }
 #s10 .todo { color: var(--amber); white-space: nowrap; }
 
 @media print {
