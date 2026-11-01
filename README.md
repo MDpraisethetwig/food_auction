@@ -1,4 +1,4 @@
-# LastCall
+# Full for Less
 
 Restaurants photograph unsold food or cancelled orders, AI drafts a listing, and nearby customers bid on it. Winners are charged automatically and confirm pickup with a QR code.
 
@@ -8,6 +8,8 @@ Restaurants photograph unsold food or cancelled orders, AI drafts a listing, and
 - `packages/shared`: shared types and rules
 
 ## Run it
+
+This runs on Macs. The bundled PostgreSQL is the macOS build.
 
 ```bash
 npm install
@@ -41,12 +43,22 @@ The site is at http://localhost:3000. Demo accounts use the password `demo1234`:
 | `alex@demo.test`, `sam@demo.test` | Customers with a working mock card |
 | `casey@demo.test` | Customer whose card is declined |
 
+## AI listing drafts
+
+Add `OPENAI_API_KEY` to `.env` and restart the server. Staff photograph the food in the app and OpenAI drafts the title, description, category and ingredients to check. Without a key, or if the call fails, staff fill the listing in by hand. Allergens are always confirmed by staff.
+
+Customers can tap **Tell us what you're craving** on Discover to type or say what they want. Speech goes through OpenAI transcription, and the assistant recommends only from food listed right now. The server removes anything listing an allergen the customer mentioned, but restaurants' allergen lists are all it can check, so the app tells customers to confirm with the restaurant.
+
+Try voice on a real phone. The microphone froze the iOS Simulator in testing.
+
+The app uses the same address for the API as Expo, so a phone on the same network needs `HOST=0.0.0.0` in `.env`. Use `127.0.0.1` on public Wi-Fi.
+
 ## Reach it from phones
 
 Install cloudflared once:
 
 ```bash
-winget install Cloudflare.cloudflared
+brew install cloudflared
 ```
 
 Start a tunnel for the API and copy the `https://...trycloudflare.com` URL it prints:

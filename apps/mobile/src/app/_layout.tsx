@@ -1,53 +1,64 @@
-import { formatMoney } from '@food-auction/shared';
+import {
+  Poppins_400Regular,
+  Poppins_500Medium,
+  Poppins_600SemiBold,
+  Poppins_700Bold,
+} from '@expo-google-fonts/poppins';
+import { useFonts } from 'expo-font';
+import * as Notifications from 'expo-notifications';
 import { router, Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect } from 'react';
-import { Alert } from 'react-native';
-import { SessionProvider, useSession } from '../session';
-import { colors } from '../ui';
+import { DemoProvider, useDemo } from '../demo';
+import { colors } from '../theme';
+import { ToastHost } from '../ui';
 
-function Navigator() {
-  const { subscribe } = useSession();
+const noAnimation = { animation: 'none' } as const;
 
-  useEffect(() => subscribe((event) => {
-    if (event.type === 'bid.outbid') {
-      Alert.alert('You were outbid', event.title, [
-        { text: 'Later' },
-        { text: 'Bid again', onPress: () => router.push(`/listing/${event.listingId}`) },
-      ]);
-    } else if (event.type === 'auction.won') {
-      Alert.alert('You won!', `${event.title} for ${formatMoney(event.amountCents)}. Pick it up soon.`, [
-        { text: 'View order', onPress: () => router.push('/orders') },
-      ]);
-    } else if (event.type === 'payment.failed') {
-      Alert.alert('Payment failed', `Your card was declined for ${event.title}.`);
-    }
-  }), [subscribe]);
+// Tapping an alert always lands on the listing as a customer, even mid-demo in the kitchen view.
+function AlertRouter() {
+  const { setRole } = useDemo();
 
-  return (
-    <Stack
-      screenOptions={{
-        headerStyle: { backgroundColor: colors.bg },
-        headerTintColor: colors.ink,
-        contentStyle: { backgroundColor: colors.bg },
-      }}
-    >
-      <Stack.Screen name="index" options={{ title: 'LastCall' }} />
-      <Stack.Screen name="login" options={{ title: 'Sign in' }} />
-      <Stack.Screen name="listing/[id]" options={{ title: 'Auction' }} />
-      <Stack.Screen name="new-listing" options={{ title: 'New listing' }} />
-      <Stack.Screen name="orders" options={{ title: 'My orders' }} />
-      <Stack.Screen name="card" options={{ title: 'Payment card' }} />
-      <Stack.Screen name="scan" options={{ title: 'Scan pickup code' }} />
-    </Stack>
-  );
+  useEffect(() => {
+    const subscription = Notifications.addNotificationResponseReceivedListener((response) => {
+      const listingId = response.notification.request.content.data?.listingId;
+      if (typeof listingId !== 'string') return;
+      setRole('customer');
+      router.replace('/');
+      router.push(`/listing/${listingId}`);
+    });
+    return () => subscription.remove();
+  }, [setRole]);
+
+  return null;
 }
 
 export default function RootLayout() {
+  const [loaded] = useFonts({
+    Poppins_400Regular,
+    Poppins_500Medium,
+    Poppins_600SemiBold,
+    Poppins_700Bold,
+  });
+  if (!loaded) return null;
+
   return (
-    <SessionProvider>
+    <DemoProvider>
       <StatusBar style="dark" />
-      <Navigator />
-    </SessionProvider>
+      <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: colors.paper } }}>
+        <Stack.Screen name="index" options={noAnimation} />
+        <Stack.Screen name="login" options={{ animation: 'fade' }} />
+        <Stack.Screen name="kitchen" options={noAnimation} />
+        <Stack.Screen name="orders" options={noAnimation} />
+        <Stack.Screen name="impact" options={noAnimation} />
+        <Stack.Screen name="profile" options={noAnimation} />
+        <Stack.Screen name="preferences" options={{ animation: 'fade' }} />
+        <Stack.Screen name="assistant" options={{ animation: 'slide_from_bottom' }} />
+        <Stack.Screen name="scan" options={{ presentation: 'fullScreenModal' }} />
+        <Stack.Screen name="new-listing" options={{ presentation: 'modal' }} />
+      </Stack>
+      <AlertRouter />
+      <ToastHost />
+    </DemoProvider>
   );
 }

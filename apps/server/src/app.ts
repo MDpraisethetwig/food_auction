@@ -10,7 +10,7 @@ import bcrypt from 'bcryptjs';
 import Fastify, { type FastifyRequest } from 'fastify';
 import jwt from 'jsonwebtoken';
 import { z, ZodError } from 'zod';
-import { draftListing } from './ai.js';
+import { draftListing, recommendFood, transcribeSpeech } from './ai.js';
 import { restaurantAnalytics } from './analytics.js';
 import { AuctionError, buyNow, confirmPickup, placeBid, reviewNoShow } from './auction.js';
 import { config } from './config.js';
@@ -73,6 +73,29 @@ const listingBody = z.object({
 }).refine((body) => body.buyNowCents === null || body.buyNowCents > body.reserveCents, {
   message: 'Buy Now must be above the starting price',
 });
+
+const recommendBody = z.object({
+  messages: z.array(z.object({
+    role: z.enum(['user', 'assistant']),
+    text: z.string().min(1).max(1000),
+  })).min(1).max(20),
+  listings: z.array(z.object({
+    id: z.string().max(80),
+    title: z.string().max(80),
+    description: z.string().max(300),
+    category: z.string().max(40),
+    restaurant: z.string().max(80),
+    allergens: z.array(z.string().max(20)).max(12),
+    priceCents: z.number().int().nonnegative(),
+    distanceKm: z.number().nonnegative(),
+    minutesLeft: z.number().nonnegative(),
+  })).max(100),
+  likes: z.array(z.string().max(40)).max(20).default([]),
+});
+
+function requireAi() {
+  if (!config.openaiApiKey) throw new AuctionError('AI is not set up', 503);
+}
 
 export async function buildApp() {
   const app = Fastify({ logger: false });
@@ -206,6 +229,21 @@ export async function buildApp() {
     const filename = `${randomUUID()}.${extension}`;
     writeFileSync(resolve(config.uploadsDir, filename), image);
     return { photoUrl: `/uploads/${filename}`, draft: await draftListing(image, file.mimetype) };
+  });
+
+  // The demo keeps its listings in the app, so the app sends what is available right now.
+  app.post('/ai/recommend', async (request) => {
+    userId(request);
+    requireAi();
+    return recommendFood(recommendBody.parse(request.body));
+  });
+
+  app.post('/ai/transcribe', async (request) => {
+    userId(request);
+    requireAi();
+    const file = await request.file();
+    if (!file) throw new AuctionError('Upload a voice recording');
+    return { text: await transcribeSpeech(await file.toBuffer()) };
   });
 
   app.post('/listings', async (request) => {

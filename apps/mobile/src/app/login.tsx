@@ -1,77 +1,58 @@
-import type { Role, User } from '@food-auction/shared';
 import { router } from 'expo-router';
-import { useState } from 'react';
-import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, View } from 'react-native';
-import { post } from '../api';
-import { useSession } from '../session';
-import { Button, Chip, colors, Field } from '../ui';
+import { StatusBar } from 'expo-status-bar';
+import { Image, StyleSheet, Text, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { food, type Role, useDemo } from '../demo';
+import { colors, space, type } from '../theme';
+import { Button } from '../ui';
 
-export default function Login() {
-  const { signIn } = useSession();
-  const [registering, setRegistering] = useState(false);
-  const [role, setRole] = useState<Role>('customer');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [name, setName] = useState('');
-  const [restaurantName, setRestaurantName] = useState('');
-  const [error, setError] = useState('');
-  const [busy, setBusy] = useState(false);
+export default function Welcome() {
+  const { setRole, interests } = useDemo();
+  const insets = useSafeAreaInsets();
 
-  async function submit() {
-    setBusy(true);
-    setError('');
-    try {
-      const { token, user } = await post<{ token: string; user: User }>(
-        registering ? '/auth/register' : '/auth/login',
-        registering
-          ? { email, password, name, role, restaurantName: role === 'restaurant' ? restaurantName : undefined }
-          : { email, password },
-      );
-      await signIn(token, user);
-      router.replace('/');
-    } catch (failure) {
-      setError((failure as Error).message);
-    } finally {
-      setBusy(false);
-    }
+  function enter(role: Role) {
+    setRole(role);
+    if (role === 'restaurant') router.replace('/kitchen');
+    else router.replace(interests.length ? '/' : '/preferences?onboarding=1');
   }
 
   return (
-    <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={styles.flex}>
-      <ScrollView contentContainerStyle={styles.page} keyboardShouldPersistTaps="handled">
-        <Text style={styles.title}>{registering ? 'Create an account' : 'Welcome back'}</Text>
-        {registering && (
-          <>
-            <View style={styles.chips}>
-              <Chip label="I'm hungry" selected={role === 'customer'} onPress={() => setRole('customer')} />
-              <Chip label="I run a restaurant" selected={role === 'restaurant'} onPress={() => setRole('restaurant')} />
-            </View>
-            <Field label="Your name" value={name} onChangeText={setName} />
-            {role === 'restaurant' && (
-              <Field label="Restaurant name" value={restaurantName} onChangeText={setRestaurantName} />
-            )}
-          </>
-        )}
-        <Field label="Email" autoCapitalize="none" keyboardType="email-address" value={email} onChangeText={setEmail} />
-        <Field label="Password" secureTextEntry value={password} onChangeText={setPassword} />
-        {!!error && <Text style={styles.error}>{error}</Text>}
-        <Button label={registering ? 'Create account' : 'Sign in'} busy={busy} onPress={submit} />
-        <View style={styles.gap} />
-        <Button
-          secondary
-          label={registering ? 'I already have an account' : 'Create an account'}
-          onPress={() => setRegistering(!registering)}
+    <View style={styles.page}>
+      <StatusBar style="light" />
+      <Image source={food.hero} style={styles.photo} />
+      <View style={[styles.content, { paddingBottom: insets.bottom + space.lg }]}>
+        <Image
+          source={require('../../assets/logo-reversed.png')}
+          style={styles.logo}
+          resizeMode="contain"
+          accessibilityRole="image"
+          accessibilityLabel="Full for Less"
         />
-      </ScrollView>
-    </KeyboardAvoidingView>
+        <Text style={styles.title}>Get full for less.</Text>
+        <Text style={styles.subtitle}>
+          Bid on tonight's unsold meals from kitchens nearby, and keep them out of the bin.
+        </Text>
+        <Button label="Find food near me" variant="sun" icon="compass" onPress={() => enter('customer')} />
+        <View style={styles.gap} />
+        <Button label="I run a kitchen" variant="paper" icon="restaurant" onPress={() => enter('restaurant')} />
+      </View>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  flex: { flex: 1 },
-  page: { padding: 16 },
-  title: { fontSize: 24, fontWeight: '700', color: colors.ink, marginBottom: 16 },
-  chips: { flexDirection: 'row', gap: 8, marginBottom: 14 },
-  error: { color: colors.warn, marginBottom: 10 },
-  gap: { height: 10 },
+  page: { flex: 1, backgroundColor: colors.forestDeep },
+  photo: { flex: 1, width: '100%' },
+  content: {
+    marginTop: -28,
+    backgroundColor: colors.forestDeep,
+    borderTopLeftRadius: 28,
+    borderTopRightRadius: 28,
+    paddingHorizontal: space.xl,
+    paddingTop: space.xl,
+  },
+  logo: { width: 176, height: 35, marginBottom: space.lg },
+  title: { ...type.hero, color: colors.paper, marginBottom: space.md },
+  subtitle: { ...type.body, color: colors.sprout, marginBottom: space.xl },
+  gap: { height: space.md },
 });

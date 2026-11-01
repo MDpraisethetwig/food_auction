@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "LastCall",
+    "name": "Full for Less",
     "slug": "lastcall",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -11,7 +11,7 @@
     },
     "android": {
       "adaptiveIcon": {
-        "backgroundColor": "#E6F4FE",
+        "backgroundColor": "#1E4D3B",
         "foregroundImage": "./assets/android-icon-foreground.png",
         "backgroundImage": "./assets/android-icon-background.png",
         "monochromeImage": "./assets/android-icon-monochrome.png"
@@ -28,16 +28,17 @@
       [
         "expo-camera",
         {
-          "cameraPermission": "LastCall uses the camera to scan pickup codes and photograph food."
+          "cameraPermission": "Full for Less uses the camera to scan pickup codes and photograph food."
         }
       ],
       [
         "expo-image-picker",
         {
-          "cameraPermission": "LastCall uses the camera to photograph food for listings.",
-          "photosPermission": "LastCall uses your photos for food listings."
+          "cameraPermission": "Full for Less uses the camera to photograph food for listings.",
+          "photosPermission": "Full for Less uses your photos for food listings."
         }
-      ]
+      ],
+      "expo-audio"
     ],
     "scheme": "lastcall"
   }

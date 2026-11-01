@@ -14,6 +14,8 @@ export const ALLERGENS = [
 
 export const CATEGORIES = [
   'pizza',
+  'burger',
+  'wrap',
   'sandwich',
   'bowl',
   'bakery',
@@ -77,6 +79,33 @@ export interface ListingDraft {
   category: string;
   ingredientsToCheck: string[];
   aiGenerated: boolean;
+}
+
+export interface ChatMessage {
+  role: 'user' | 'assistant';
+  text: string;
+}
+
+export interface RecommendationRequest {
+  messages: ChatMessage[];
+  listings: {
+    id: string;
+    title: string;
+    description: string;
+    category: string;
+    restaurant: string;
+    allergens: string[];
+    priceCents: number;
+    distanceKm: number;
+    minutesLeft: number;
+  }[];
+  likes: string[];
+}
+
+export interface Recommendation {
+  reply: string;
+  listingIds: string[];
+  avoidAllergens: string[];
 }
 
 export type ServerEvent =
