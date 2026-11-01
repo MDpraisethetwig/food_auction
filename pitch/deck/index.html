@@ -126,6 +126,41 @@ html:active-view-transition-type(back) { &::view-transition-old(slide) { animati
   [data-beat], [data-split] .w { opacity: 1 !important; translate: 0 0 !important; rotate: 0deg !important; animation: none !important; transition: none !important; }
 }
 
+/* s01 Title: the plate logo assembles on stage */
+#s01 { background: radial-gradient(760px 760px at 352px 540px, color-mix(in srgb, var(--green) 11%, transparent), transparent 72%) var(--ink); }
+
+#s01 .mark { position: absolute; left: 33px; top: 180px; width: 720px; height: 720px; overflow: visible; }
+
+/* The plate assembles: three white portions slide in, the gold one lands last */
+#s01 .piece { transform-box: view-box; transform-origin: 512px 512px; }
+#s01.is-active .piece { animation: s01-piece .9s var(--spring) both; animation-delay: calc(.3s + var(--o) * 140ms); }
+#s01.is-active .piece.gold { animation: s01-gold .9s var(--bounce) 1s both; }
+
+/* Wordmark */
+#s01 .words { position: absolute; left: 790px; right: var(--pad); top: 228px; }
+#s01 .domain { margin-bottom: 14px; }
+#s01 h1 { font-size: 216px; line-height: 1; white-space: nowrap; }
+#s01 h1 span { display: inline-block; }
+#s01.is-active h1 span { animation: s01-letter .8s var(--spring) both; animation-delay: calc(1.2s + var(--i, 1) * 55ms); }
+#s01 .line { margin-top: 34px; font-size: 38px; line-height: 1.32; max-width: 960px; color: var(--fog); }
+#s01 .line strong { display: block; margin-bottom: 12px; font-size: 64px; color: #fff; }
+#s01 .speakers { position: absolute; left: 790px; bottom: 104px; display: flex; flex-direction: column; gap: 12px; }
+#s01 .speakers .names { font-size: 30px; font-weight: 600; color: #fff; }
+#s01 .speakers .track { margin: 0; }
+
+#s01.is-active .domain { animation: s01-rise .8s var(--out) 1.1s both; }
+#s01.is-active .line { animation: s01-rise .9s var(--out) 2.1s both; }
+#s01.is-active .speakers { animation: s01-rise .9s var(--out) 2.9s both; }
+
+@keyframes s01-piece { from { opacity: 0; translate: calc(var(--dx) * 90px) calc(var(--dy) * 90px); scale: .8; } to { opacity: 1; translate: 0 0; scale: 1; } }
+@keyframes s01-gold { from { opacity: 0; translate: 140px -140px; rotate: 30deg; } to { opacity: 1; translate: 0 0; rotate: 0deg; } }
+@keyframes s01-letter { from { opacity: 0; translate: 0 .42em; rotate: 6deg; } to { opacity: 1; translate: 0 0; rotate: 0deg; } }
+@keyframes s01-rise { from { opacity: 0; translate: 0 22px; } to { opacity: 1; translate: 0 0; } }
+
+@media print {
+  #s01 * { animation: none !important; }
+}
+
 /* s00 Opening question: the photo first, the audience guesses, then the weight lands. */
 #s00 .bleed { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; object-fit: cover; object-position: 50% 42%; }
 #s00.is-active .bleed { animation: s00-push 24s linear both; }
@@ -228,54 +263,6 @@ html:active-view-transition-type(back) { &::view-transition-old(slide) { animati
 
 @media print {
   #s02 * { animation: none !important; }
-}
-
-/* s01 Title: the logo builds itself on stage */
-#s01 { background: radial-gradient(760px 760px at 352px 540px, color-mix(in srgb, var(--green) 11%, transparent), transparent 72%) var(--ink); }
-
-#s01 .mark { position: absolute; left: 13px; top: 160px; width: 760px; height: 760px; overflow: visible; }
-
-/* Ring draws on */
-#s01 .ring { stroke-linecap: round; stroke-dasharray: 1 2; stroke-dashoffset: 0; }
-#s01.is-active .ring { animation: s01-draw 1.1s var(--inout) .15s both; }
-
-/* Containers fan out of a single stack */
-#s01 .glow { opacity: .5; }
-#s01.is-active .glow { animation: s01-glow 1.2s var(--out) .7s both; }
-#s01 .fan rect { rotate: var(--r); }
-#s01.is-active .fan rect { animation: s01-fan .95s var(--spring) both; animation-delay: calc(.75s + var(--o) * 90ms); }
-
-/* F, 4, L written stroke by stroke */
-#s01 .strokes path { stroke-dasharray: 1 2; stroke-dashoffset: 0; }
-#s01.is-active .strokes path { animation: s01-draw .42s var(--inout) both; animation-delay: calc(1.45s + var(--o) * 280ms); }
-
-/* Leaf pops into the counter of the 4 */
-#s01 .leaf { transform-box: fill-box; transform-origin: 20% 95%; }
-#s01.is-active .leaf { animation: s01-leaf .85s var(--bounce) 2.8s both; }
-
-/* Wordmark */
-#s01 .words { position: absolute; left: 790px; right: var(--pad); top: 228px; }
-#s01 .domain { margin-bottom: 14px; }
-#s01 h1 { font-size: 216px; line-height: 1; white-space: nowrap; }
-#s01 h1 span { display: inline-block; }
-#s01.is-active h1 span { animation: s01-letter .8s var(--spring) both; animation-delay: calc(1.2s + var(--i, 1) * 55ms); }
-#s01 .line { margin-top: 34px; font-size: 38px; line-height: 1.32; max-width: 960px; color: var(--fog); }
-#s01 .line strong { display: block; margin-bottom: 12px; font-size: 64px; color: #fff; }
-#s01 .speakers { position: absolute; left: 790px; bottom: 112px; font-size: 28px; }
-
-#s01.is-active .domain { animation: s01-rise .8s var(--out) 1.1s both; }
-#s01.is-active .line { animation: s01-rise .9s var(--out) 2.1s both; }
-#s01.is-active .speakers { animation: s01-rise .9s var(--out) 2.9s both; }
-
-@keyframes s01-draw { from { stroke-dashoffset: 1.002; } to { stroke-dashoffset: 0; } }
-@keyframes s01-glow { from { opacity: 0; } to { opacity: .5; } }
-@keyframes s01-fan { from { rotate: 0deg; scale: .72; opacity: 0; } to { rotate: var(--r); scale: 1; opacity: 1; } }
-@keyframes s01-leaf { from { scale: 0; rotate: -38deg; } to { scale: 1; rotate: 0deg; } }
-@keyframes s01-letter { from { opacity: 0; translate: 0 .42em; rotate: 6deg; } to { opacity: 1; translate: 0 0; rotate: 0deg; } }
-@keyframes s01-rise { from { opacity: 0; translate: 0 22px; } to { opacity: 1; translate: 0 0; } }
-
-@media print {
-  #s01 * { animation: none !important; }
 }
 
 /* s03 Problem: two photos start apart, then a plate carries a line between them.
@@ -516,7 +503,7 @@ html:active-view-transition-type(back) { &::view-transition-old(slide) { animati
   #s06 .won svg > * { stroke-dashoffset: 0; }
 }
 
-/* Slide 07: one $8 meal comes apart, then the commission opens up into its own bar.
+/* Slide 07: what the buyer pays comes apart, then the commission opens up into its own bar.
    Default rules are the final state, so print shows everything. The earlier
    steps are screen-only overrides keyed off data-step, which the engine sets. */
 #s07 { --deep: color-mix(in oklab, var(--green) 58%, var(--ink)); }
@@ -526,69 +513,86 @@ html:active-view-transition-type(back) { &::view-transition-old(slide) { animati
 #s07 .meal { position: absolute; left: var(--pad); top: 306px; width: 1034px; transition: width .9s var(--inout); }
 #s07 .fee-label { height: 42px; font-size: 26px; text-align: right; white-space: nowrap; }
 
-#s07 .bar { display: flex; gap: 12px; height: 196px; transition: gap .7s var(--spring); }
+#s07 .bar { display: flex; gap: 12px; height: 172px; transition: gap .7s var(--spring); }
 #s07 .seg { display: flex; flex-direction: column; justify-content: center; min-width: 0; border-radius: 28px; corner-shape: squircle; padding: 0 36px; line-height: 1.15; transition: background-color .6s var(--out), border-radius .6s var(--out), color .6s var(--out); }
 #s07 .seg b { font-weight: 700; }
 
-#s07 .rest { flex: 85 1 0; position: relative; background: var(--ink); color: #fff; }
-#s07 .fee { flex: 15 1 0; align-items: center; padding: 0; background: var(--green); color: var(--ink); }
+#s07 .rest { flex: 80 1 0; position: relative; background: var(--ink); color: #fff; }
+#s07 .fee { flex: 25 1 0; align-items: center; padding: 0; background: var(--green); color: var(--ink); }
 #s07 .fee b { font-size: 50px; transition: opacity .5s var(--out) .15s; }
 
 #s07 .whole { position: absolute; left: 44px; top: 50%; translate: 0 -50%; font-size: 84px; white-space: nowrap; opacity: 0; transition: opacity .35s var(--out); }
 #s07 .kept { display: flex; align-items: baseline; gap: 20px; font-size: 30px; transition: opacity .5s var(--out) .15s; }
 #s07 .kept b { font-size: 84px; }
 
-#s07 .wedge { height: 118px; background: linear-gradient(color-mix(in srgb, var(--green) 48%, transparent), color-mix(in srgb, var(--green) 16%, transparent)); clip-path: polygon(85% 0, 100% 0, 100% 100%, 0 100%); translate: none; transition: opacity .4s var(--out), clip-path .9s var(--inout); }
+#s07 .wedge { height: 66px; background: linear-gradient(color-mix(in srgb, var(--green) 48%, transparent), color-mix(in srgb, var(--green) 16%, transparent)); clip-path: polygon(76.2% 0, 100% 0, 100% 100%, 0 100%); translate: none; transition: opacity .4s var(--out), clip-path .9s var(--inout); }
 
-#s07 .low { display: flex; gap: 12px; height: 196px; translate: none; clip-path: inset(0 0 0 0 round 28px); transition: opacity .4s var(--out), clip-path .9s var(--inout); }
+#s07 .low { display: flex; gap: 12px; height: 172px; translate: none; clip-path: inset(0 0 0 0 round 28px); transition: opacity .4s var(--out), clip-path .9s var(--inout); }
 #s07 .low .seg { padding: 0 32px; }
 #s07 .low b { font-size: 54px; white-space: nowrap; }
 #s07 .low span { font-size: 26px; margin-top: 6px; }
-#s07 .processing { flex: 59 1 0; background: #DCE3DD; color: var(--ink); }
-#s07 .left { flex: 91 1 0; background: var(--green); color: var(--ink); }
+#s07 .processing { flex: 60 1 0; background: #DCE3DD; color: var(--ink); }
+#s07 .left { flex: 190 1 0; background: var(--green); color: var(--ink); }
 
-#s07 .basis { margin-top: 20px; display: flex; flex-wrap: wrap; column-gap: 26px; }
+#s07 .basis { margin-top: 16px; display: flex; flex-wrap: wrap; column-gap: 26px; }
 
 /* Running costs */
-#s07 .costs { position: absolute; left: 1180px; top: 296px; width: 644px; padding: 30px 36px 32px; }
-#s07 .costs h3 { font-size: 38px; }
-#s07 ul { list-style: none; padding: 0; margin-top: 10px; }
-#s07 li { display: grid; grid-template-columns: 48px 1fr 190px; align-items: center; column-gap: 18px; min-height: 96px; padding: 10px 0; border-bottom: 1px solid rgb(27 36 43 / .1); line-height: 1.2; }
+#s07 .panel { position: absolute; left: 1150px; top: 278px; width: 674px; height: 676px; padding: 22px 32px 26px; display: flex; flex-direction: column; }
+#s07 .panel .total { margin-top: auto; }
+#s07 .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
+
+/* Tab strip: both panels carry it, so the slide-over reads as switching tabs */
+#s07 .tabs { display: flex; gap: 6px; padding: 5px; border-radius: 18px; background: #EEF2EC; align-self: flex-start; }
+#s07 .tab { font-size: 24px; font-weight: 600; padding: 8px 18px; border-radius: 14px; color: #55636C; white-space: nowrap; }
+#s07 .tab.is-on { background: #fff; color: var(--ink); box-shadow: 0 2px 8px rgb(27 36 43 / .12); }
+#s07 .scale-note { margin-top: 10px; }
+
+/* Beat 4: "As volume grows" slides in over the cost panel, which steps back like a card underneath */
+#s07 .costs { transform-origin: 50% 100%; transition: opacity var(--beat-d) var(--out), translate var(--beat-d) var(--spring), scale .7s var(--out), filter .7s var(--out); }
+#s07 .growth { z-index: 2; translate: 120px 0; rotate: 2deg; transition: opacity .45s var(--out), translate .9s var(--spring), rotate .9s var(--spring); }
+#s07 .growth.on { translate: 0 0; rotate: 0deg; }
+#s07[data-step="4"] .costs { translate: 0 16px; scale: .95; filter: brightness(.93); }
+#s07 .growth li { opacity: 0; translate: 24px 0; transition: opacity .5s var(--out), translate .6s var(--spring); transition-delay: calc(.25s + var(--i, 0) * 80ms); }
+#s07 .growth.on li { opacity: 1; translate: 0 0; }
+#s07 .scale-note { font-size: 20px; color: #55636C; }
+#s07 ul { list-style: none; padding: 0; margin-top: 4px; }
+#s07 li { display: grid; grid-template-columns: 40px 1fr 150px; align-items: center; column-gap: 16px; min-height: 76px; padding: 6px 0; border-bottom: 1px solid rgb(27 36 43 / .1); line-height: 1.2; }
 #s07 li:last-child { border-bottom: 0; }
-#s07 li .logo { height: 44px; max-width: 48px; justify-self: center; }
-#s07 li .glyph { width: 44px; height: 44px; justify-self: center; fill: none; stroke: var(--ink); stroke-width: 3.5; }
+#s07 li .logo { height: 36px; max-width: 40px; justify-self: center; }
+#s07 li .glyph { width: 38px; height: 38px; justify-self: center; fill: none; stroke: var(--ink); stroke-width: 3.5; }
 #s07 li b { font-size: 26px; font-weight: 600; }
 #s07 li span { display: block; font-size: 20px; color: #55636C; margin-top: 2px; }
 #s07 .price { text-align: right; }
 #s07 .price b { font-weight: 700; white-space: nowrap; }
-#s07 .total { display: flex; align-items: baseline; justify-content: space-between; flex-wrap: wrap; gap: 0 18px; margin-top: 8px; padding: 16px 24px; border-radius: 22px; corner-shape: squircle; background: var(--green); color: var(--ink); }
-#s07 .total b { font-size: 38px; white-space: nowrap; }
+#s07 .total { display: flex; align-items: baseline; justify-content: space-between; flex-wrap: wrap; gap: 0 18px; margin-top: 6px; padding: 12px 22px; border-radius: 22px; corner-shape: squircle; background: var(--green); color: var(--ink); }
+#s07 .total b { font-size: 34px; white-space: nowrap; }
 #s07 .total span { font-size: 22px; font-weight: 600; }
 
 /* Earlier steps. Screen only, so print falls through to the final state above. */
 @media screen {
   /* Before the running costs arrive, the meal has the whole stage. */
-  #s07:not([data-step="3"]) .meal { width: 1728px; }
+  #s07:not([data-step="3"], [data-step="4"]) .meal { width: 1728px; }
 
   /* Before the split: one solid bar. */
-  #s07:not([data-step="1"], [data-step="2"], [data-step="3"]) .bar { gap: 0; }
-  #s07:not([data-step="1"], [data-step="2"], [data-step="3"]) .rest { border-radius: 28px 0 0 28px; }
-  #s07:not([data-step="1"], [data-step="2"], [data-step="3"]) .fee { border-radius: 0 28px 28px 0; background: var(--ink); color: transparent; }
-  #s07:not([data-step="1"], [data-step="2"], [data-step="3"]) .fee b,
-  #s07:not([data-step="1"], [data-step="2"], [data-step="3"]) .kept { opacity: 0; transition-delay: 0s; }
-  #s07:not([data-step="1"], [data-step="2"], [data-step="3"]) .whole { opacity: 1; }
+  #s07:not([data-step="1"], [data-step="2"], [data-step="3"], [data-step="4"]) .bar { gap: 0; }
+  #s07:not([data-step="1"], [data-step="2"], [data-step="3"], [data-step="4"]) .rest { border-radius: 28px 0 0 28px; }
+  #s07:not([data-step="1"], [data-step="2"], [data-step="3"], [data-step="4"]) .fee { border-radius: 0 28px 28px 0; background: var(--ink); color: transparent; }
+  #s07:not([data-step="1"], [data-step="2"], [data-step="3"], [data-step="4"]) .fee b,
+  #s07:not([data-step="1"], [data-step="2"], [data-step="3"], [data-step="4"]) .kept { opacity: 0; transition-delay: 0s; }
+  #s07:not([data-step="1"], [data-step="2"], [data-step="3"], [data-step="4"]) .whole { opacity: 1; }
 
   /* Before the commission opens up: wedge and lower bar are folded under the fee. */
-  #s07 .wedge:not(.on) { clip-path: polygon(85% 0, 100% 0, 100% 0, 85% 0); }
-  #s07 .low:not(.on) { clip-path: inset(0 0 0 85% round 28px); }
+  #s07 .wedge:not(.on) { clip-path: polygon(76.2% 0, 100% 0, 100% 0, 76.2% 0); }
+  #s07 .low:not(.on) { clip-path: inset(0 0 0 76.2% round 28px); }
 }
 
 @media print {
+  #s07 .growth li { opacity: 1 !important; translate: 0 0 !important; }
   #s07 .wedge, #s07 .low, #s07 .costs, #s07 li, #s07 .fee-label { opacity: 1 !important; }
 }
 
 /* Slide 08: a to-scale zoom out. Circle area is proportional to business count,
-   so the pilot really is the dot. --pct holds a log zoom: each radius is
+   so Hamilton really is the dot. --pct holds a log zoom: each radius is
    r * exp(--pct), which makes the zoom feel even from step to step.
    Final state (--pct 0) is the default, so print shows the whole picture. */
 #s08 { --pct: 0; transition: --pct 1.5s var(--inout); }
@@ -596,8 +600,8 @@ html:active-view-transition-type(back) { &::view-transition-old(slide) { animati
 #s08 .world { position: absolute; inset: 0; width: 1920px; height: 1080px; }
 #s08 .ring { translate: none; stroke-width: 2.5; }
 #s08 .ring.tam { --r: 390; fill: color-mix(in srgb, var(--green) 14%, transparent); stroke: color-mix(in srgb, var(--green) 70%, transparent); }
-#s08 .ring.sam { --r: 67.15; fill: color-mix(in srgb, var(--green) 46%, transparent); stroke: var(--green); }
-#s08 .ring.som { --r: 1.6; fill: var(--leaf); stroke: none; }
+#s08 .ring.sam { --r: 67.4; fill: color-mix(in srgb, var(--green) 46%, transparent); stroke: var(--green); }
+#s08 .ring.som { --r: 3.9; fill: var(--leaf); stroke: none; }
 #s08 .halo { translate: none; fill: none; stroke: var(--leaf); stroke-width: 2; }
 #s08 .halo.on { animation: s08-halo 5s var(--inout) infinite alternate; }
 @keyframes s08-halo { to { stroke-opacity: .35; } }
@@ -605,8 +609,8 @@ html:active-view-transition-type(back) { &::view-transition-old(slide) { animati
 /* Rim labels ride along with their circles */
 #s08 .tag { position: absolute; left: 1434px; top: 478px; font-size: 26px; font-weight: 600; line-height: 1; white-space: nowrap; translate: -50% calc((var(--off) - var(--r)) * 1px); }
 #s08 .tag.tam { --r: 390; --off: 24; }
-#s08 .tag.sam { --r: 67.15; --off: -40; }
-#s08 .tag.som { --r: 1.6; --off: -40; }
+#s08 .tag.sam { --r: 67.4; --off: -40; }
+#s08 .tag.som { --r: 3.9; --off: -40; }
 #s08 .inside { position: absolute; left: 1434px; top: 478px; translate: -50% -50%; font-size: 48px; color: var(--ink); white-space: nowrap; opacity: 0; transition: opacity .3s var(--out); }
 #s08 .scale { position: absolute; left: 1434px; top: 776px; font-size: 20px; white-space: nowrap; translate: -50% 0; }
 
@@ -615,11 +619,13 @@ html:active-view-transition-type(back) { &::view-transition-old(slide) { animati
   #s08 .tag { translate: -50% calc((var(--off) - var(--r) * exp(var(--pct))) * 1px); }
 }
 
-/* Screen only: z-pilot fills the panel, then z-Hamilton, then the default. */
+/* Screen only: Hamilton fills the panel, then Ontario, then the default. */
 @media screen {
-  #s08 { --pct: 5.05; }
-  #s08[data-step="1"] { --pct: 1.314; }
+  #s08 { --pct: 4.16; }
+  #s08[data-step="1"] { --pct: 1.311; }
   #s08[data-step="2"], #s08[data-step="3"] { --pct: 0; }
+  /* Fully zoomed out, the Hamilton label would sit on the Ontario rim; the legend carries it. */
+  #s08[data-step="2"] .tag.som, #s08[data-step="3"] .tag.som { opacity: 0 !important; transition: opacity .4s var(--out); }
   #s08:not([data-step="1"], [data-step="2"], [data-step="3"]) .inside { opacity: 1; transition-delay: .3s; }
 }
 
@@ -631,7 +637,7 @@ html:active-view-transition-type(back) { &::view-transition-old(slide) { animati
 #s08 .per { font-size: 26px; margin-top: 4px; }
 #s08 .head { margin-top: 22px; }
 
-#s08 .tier { display: grid; grid-template-columns: 22px 348px 1fr; align-items: center; column-gap: 16px; height: 98px; }
+#s08 .tier { display: grid; grid-template-columns: 22px 410px 1fr; align-items: center; column-gap: 16px; height: 98px; }
 #s08 .tier i { width: 22px; height: 22px; border-radius: 50%; }
 #s08 .tier.som i { background: var(--leaf); }
 #s08 .tier.sam i { background: color-mix(in srgb, var(--green) 46%, var(--ink)); border: 2px solid var(--green); }
@@ -643,15 +649,12 @@ html:active-view-transition-type(back) { &::view-transition-old(slide) { animati
 /* Count-ups. --n holds the final value at rest, so anything without animation
    support still shows the right figure. */
 #s08 .fig { font-size: 62px; white-space: nowrap; font-variant-numeric: tabular-nums; }
-#s08 .tier.som .fig { --n: 11250; }
-#s08 .tier.sam .fig { --n: 199; }
-#s08 .tier.tam .fig { --n: 6724; }
-#s08 .tier.som .fig::after { counter-reset: a calc(round(down, var(--n) / 1000, 1)) b mod(var(--n), 1000); content: "C$" counter(a) "," counter(b, s08-pad3); }
-#s08 .tier.sam .fig::after,
-#s08 .tier.tam .fig::after { counter-reset: a calc(round(down, var(--n) / 100, 1)) b mod(var(--n), 100); content: "C$" counter(a) "." counter(b, decimal-leading-zero) "M"; }
-@counter-style s08-pad3 { system: extends decimal; pad: 3 "0"; }
+#s08 .tier.sam .fig { --n: 89; }
+#s08 .tier.tam .fig { --n: 30; }
+#s08 .tier.sam .fig::after { counter-reset: a var(--n); content: "C$" counter(a) "M"; }
+#s08 .tier.tam .fig::after { counter-reset: a calc(round(down, var(--n) / 10, 1)) b mod(var(--n), 10); content: "C$" counter(a) "." counter(b) "B"; }
 
-#s08 .tier.on .fig { animation: s08-count 1.5s var(--out) both; }
+#s08 .tier.sam.on .fig, #s08 .tier.tam.on .fig { animation: s08-count 1.5s var(--out) both; }
 @keyframes s08-count { from { --n: 0; } }
 
 #s08 .segment { font-size: 30px; line-height: 1.3; margin-top: 18px; }
@@ -664,35 +667,33 @@ html:active-view-transition-type(back) { &::view-transition-old(slide) { animati
   /* The engine forces translate: 0 0 in print; these labels need theirs back. */
   #s08 .tag { translate: -50% calc((var(--off) - var(--r)) * 1px) !important; }
   #s08 .scale { translate: -50% 0 !important; }
+  #s08 .tag.som { opacity: 0 !important; }
 }
 
 /* Slide 09: competitor table. Beats: 1 rows fill, 2 F4L row lifts, 3 edge, moat and partner line. */
 #s09 .kicker { color: color-mix(in srgb, var(--green) 62%, var(--ink)); }
 #s09 h2 { font-size: 72px; margin-top: 8px; }
 
-#s09 .fan { position: absolute; right: -50px; top: -80px; width: 310px; height: 310px; pointer-events: none; }
-#s09 .fan rect { fill: var(--green); fill-opacity: .1; }
-#s09 .fan circle { fill: none; stroke: var(--ink); stroke-opacity: .12; stroke-width: .9; }
 
-#s09 .matrix { display: block; width: 1728px; margin-top: 14px; border-collapse: collapse; }
+#s09 .matrix { display: block; width: 1728px; margin-top: 30px; border-collapse: collapse; }
 #s09 .matrix thead, #s09 .matrix tbody { display: block; }
-#s09 .matrix tr { display: grid; grid-template-columns: 340px 1fr 1fr 340px; align-items: center; column-gap: 24px; min-height: 68px; padding: 0 24px; border-radius: 18px; corner-shape: squircle; position: relative; font-size: 27px; line-height: 1.15; }
+#s09 .matrix tr { display: grid; grid-template-columns: 330px 1fr 1fr 290px 1fr; align-items: center; column-gap: 28px; min-height: 128px; padding: 0 28px; border-radius: 18px; corner-shape: squircle; position: relative; font-size: 30px; line-height: 1.2; }
 #s09 thead tr { min-height: 40px; }
 #s09 thead th { font-size: 24px; font-weight: 600; text-align: left; color: #55636C; }
 #s09 tbody tr { box-shadow: inset 0 -1px 0 rgb(27 36 43 / .12); }
-#s09 tbody th { font-weight: 600; text-align: left; }
-#s09 tr.f4l { min-height: 80px; font-weight: 600; }
+#s09 tbody th { font-weight: 600; text-align: left; font-size: 34px; }
+#s09 tr.f4l { min-height: 140px; font-weight: 600; }
 #s09 tr.f4l th { display: flex; align-items: center; gap: 14px; }
-#s09 tr.f4l th img { height: 50px; border-radius: 12px; }
-#s09 tr.f4l th b { font-family: "Display", "Body", sans-serif; font-size: 34px; letter-spacing: -.02em; }
+#s09 tr.f4l th img { height: 60px; border-radius: 12px; }
+#s09 tr.f4l th b { font-family: "Display", "Body", sans-serif; font-size: 38px; letter-spacing: -.02em; }
 
 /* The F4L row lifts and glows on beat 2 and stays lifted */
 #s09 tr.f4l { transition: opacity var(--beat-d) var(--out), background-color .6s var(--out), color .6s var(--out), translate .8s var(--spring), box-shadow .8s var(--out); }
 #s09:is([data-step="2"], [data-step="3"]) tr.f4l { background: var(--ink); color: #fff; translate: 0 -4px; z-index: 1; box-shadow: 0 0 0 2px var(--green), 0 18px 44px rgb(27 36 43 / .28), 0 0 64px color-mix(in srgb, var(--green) 60%, transparent); }
 #s09:is([data-step="2"], [data-step="3"]) .live { color: var(--amber); }
 
-#s09 .why { display: grid; grid-template-columns: 1fr 1.28fr 1.12fr; gap: 22px; margin-top: 18px; }
-#s09 .why .card { padding: 14px 26px 16px; border-radius: 24px; font-size: 27px; line-height: 1.3; }
+#s09 .why { display: grid; grid-template-columns: 1fr 1.28fr 1.12fr; gap: 22px; margin-top: 44px; }
+#s09 .why .card { padding: 22px 28px 24px; border-radius: 24px; font-size: 27px; line-height: 1.3; }
 #s09 .why h3 { font-size: 30px; margin-bottom: 4px; }
 #s09 .why .partner { display: flex; align-items: center; background: color-mix(in srgb, var(--leaf) 45%, #fff); box-shadow: none; }
 
@@ -890,17 +891,34 @@ html:active-view-transition-type(back) { &::view-transition-old(slide) { animati
 <div id="plate"><svg viewBox="-60 -60 120 120" aria-hidden="true"><g class="fan" fill="#fff" fill-opacity=".09">
 <rect x="-36" y="-36" width="72" height="72" rx="13" style="--i:0" transform="rotate(-24) translate(-12 -6)"/><rect x="-36" y="-36" width="72" height="72" rx="13" style="--i:1" transform="rotate(-12) translate(-6 0)"/><rect x="-36" y="-36" width="72" height="72" rx="13" style="--i:2" transform="rotate(0) translate(0 6)"/><rect x="-36" y="-36" width="72" height="72" rx="13" style="--i:3" transform="rotate(14) translate(6 -6)"/><rect x="-36" y="-36" width="72" height="72" rx="13" style="--i:4" transform="rotate(28) translate(12 0)"/>
 </g><circle r="56" fill="none" stroke="#fff" stroke-width=".9"/></svg></div>
+<section class="slide" id="s01" data-tone="bare" data-plate="2700 540 400 .15">
+  <svg class="mark" viewBox="0 0 1024 1024" role="img" aria-label="Full for Less logo">
+    <g stroke-width="40" stroke-linejoin="round">
+      <path class="piece" style="--o:0;--dx:-1;--dy:-1" fill="#fff" stroke="#fff" d="M473 473H184.8A329 329 0 0 1 473 184.8Z"/>
+      <path class="piece" style="--o:1;--dx:-1;--dy:1" fill="#fff" stroke="#fff" d="M473 550H184.8A329 329 0 0 0 473 838.2Z"/>
+      <path class="piece" style="--o:2;--dx:1;--dy:1" fill="#fff" stroke="#fff" d="M550 550H838.2A329 329 0 0 1 550 838.2Z"/>
+      <path class="piece gold" style="--o:3;--dx:1;--dy:-1" fill="#E8B04A" stroke="#E8B04A" d="M550 473H694.8A187.3 187.3 0 0 0 550 328.2Z"/>
+    </g>
+  </svg>
+
+  <div class="words">
+    <p class="kicker domain">Food waste · Hamilton, Ontario</p>
+    <h1 aria-label="Full4Less" data-stagger><span>F</span><span>u</span><span>l</span><span>l</span><span class="green">4</span><span>L</span><span>e</span><span>s</span><span>s</span></h1>
+    <p class="line"><strong class="display">Full meals, for less.</strong> A live marketplace for good food that would otherwise be thrown away.</p>
+  </div>
+
+  <p class="speakers"><span class="names">Ryan Mai · Milton Dai · Hurrdy Situ · Olawale Tijani</span><span class="track kicker">Sustainability &amp; Social Impact</span></p>
+
+  <aside class="notes">Hi, we're Ryan, Milton, Hurrdy and Olawale, and this is Full4Less. But first, a quick question.</aside>
+</section>
+
 <section class="slide" id="s00" data-tone="bare" data-plate="2700 540 400 0">
   <img class="bleed" src="assets/elephants.jpg" alt="An African elephant walking through green grass with its calves">
   <div class="scrim"></div>
   <h1 data-split>How much does an African elephant weigh?</h1>
   <p class="answer display" data-beat="1" aria-label="About 5 tonnes"></p>
 
-  <aside class="notes">Quick question before we start. How much do you think an African elephant weighs? Shout out a number.
-
-[Take two or three guesses.]
-
-About 5 tonnes. Hold on to that number.</aside>
+  <aside class="notes">How much does an African elephant weigh? About five tonnes. Hold on to that number.</aside>
 </section>
 
 <section class="slide" id="s02" data-plate="1290 520 860 .3">
@@ -935,63 +953,7 @@ About 5 tonnes. Hold on to that number.</aside>
     </div>
   </div>
 
-  <aside class="notes">Now, why am I asking about elephants? Because 46.5% of the food supply is wasted. That is nearly half.
-
-That equals 21.18 million tonnes, which is quite frankly an astonishing amount. At 5 tonnes each, that's the same weight as 4.2 million African elephants.
-
-Every silhouette you see here stands for 10,000 of them.
-
-And here's the piece we care about. Food service alone accounts for 7% of that waste, about 1.44 million tonnes, or 288,000 elephants. That's restaurants and cafeterias, and that's where we start.</aside>
-</section>
-
-<section class="slide" id="s01" data-tone="bare" data-plate="2700 540 400 .15">
-  <svg class="mark" viewBox="0 0 512 512" role="img" aria-label="Full4Less logo">
-    <defs>
-      <radialGradient id="s01-glow" cx="38%" cy="70%" r="75%">
-        <stop offset="0" stop-color="#ffffff" stop-opacity=".55"/>
-        <stop offset="1" stop-color="#ffffff" stop-opacity="0"/>
-      </radialGradient>
-      <clipPath id="s01-clip"><circle cx="256" cy="256" r="200"/></clipPath>
-    </defs>
-    <g clip-path="url(#s01-clip)">
-      <circle class="glow" cx="256" cy="256" r="200" fill="url(#s01-glow)"/>
-      <g class="fan" fill="#fff" fill-opacity=".09">
-        <rect x="112" y="150" width="210" height="210" rx="36" style="--r:-24deg;--o:0;transform-origin:217px 255px"/>
-        <rect x="146" y="118" width="210" height="210" rx="36" style="--r:-12deg;--o:1;transform-origin:251px 223px"/>
-        <rect x="182" y="146" width="210" height="210" rx="36" style="--r:0deg;--o:2;transform-origin:287px 251px"/>
-        <rect x="196" y="190" width="200" height="200" rx="36" style="--r:14deg;--o:3;transform-origin:296px 290px"/>
-        <rect x="104" y="196" width="210" height="210" rx="36" style="--r:28deg;--o:4;transform-origin:209px 301px"/>
-      </g>
-    </g>
-    <circle class="ring" pathLength="1" cx="256" cy="256" r="200" fill="none" stroke="#fff" stroke-width="8" transform="rotate(-90 256 256)"/>
-    <g class="strokes" fill="none" stroke="#72C14A" stroke-width="30" stroke-linecap="round" stroke-linejoin="round">
-      <path pathLength="1" style="--o:0" d="M116 334 V178 H176"/>
-      <path pathLength="1" style="--o:1" d="M116 254 H164"/>
-      <path pathLength="1" style="--o:2" d="M284 178 L204 288 H318"/>
-      <path pathLength="1" style="--o:3" d="M284 178 V334"/>
-      <path pathLength="1" style="--o:4" d="M348 178 V334 H402"/>
-    </g>
-    <g class="leaf">
-      <path d="M250 269 C243 252 250 236 266 224 C271 242 267 259 250 269 Z" fill="#C4EDA0"/>
-      <path d="M251 266 C255 253 260 241 264 230" fill="none" stroke="#1B242B" stroke-width="2.5" stroke-linecap="round"/>
-    </g>
-  </svg>
-
-  <div class="words">
-    <p class="kicker domain">Food waste · Hamilton, Ontario</p>
-    <h1 aria-label="Full4Less" data-stagger><span>F</span><span>u</span><span>l</span><span>l</span><span class="green">4</span><span>L</span><span>e</span><span>s</span><span>s</span></h1>
-    <p class="line"><strong class="display">Full meals, for less.</strong> A live marketplace for good food that would otherwise be thrown away.</p>
-  </div>
-
-  <p class="speakers muted">[Name], [Title] · [email]</p>
-
-  <aside class="notes">I'm [Name], and this is Full4Less.
-
-Full meals, for less. We're building a live marketplace for good food that would otherwise be thrown away.
-
-Restaurants and cafeterias list what they can't sell, nearby customers bid on it or buy it right away, and they pick it up with a QR code. We're starting right here in Hamilton, Ontario, at McMaster.
-
-Over the next few minutes I'll show you why this problem matters, how the product works, and why we think it can work.</aside>
+  <aside class="notes">46.5 percent of the food supply is wasted, the weight of 4.2 million elephants. Food service alone is 7 percent of that: 288,000 elephants of restaurant and cafeteria food. That's where we start.</aside>
 </section>
 
 <section class="slide" id="s03" data-plate="960 505 380 .4">
@@ -1017,22 +979,18 @@ Over the next few minutes I'll show you why this problem matters, how the produc
   <img class="hub" data-beat="3" src="assets/f4l-icon.svg" alt="Full4Less logo">
 
   <div class="card proof p-rest" data-beat="3">
-    <b class="display">5</b>
+    <b class="display">10</b>
     <p>local restaurants told us they throw away food waste, and that it's a problem.</p>
   </div>
 
   <div class="card proof p-stud" data-beat="3" style="--i:3">
-    <b class="display">20+</b>
+    <b class="display">50</b>
     <p>McMaster students said they'd be willing to purchase cheaper food.</p>
   </div>
 
-  <aside class="notes">On one side, restaurants prepare food that sometimes goes unsold or gets cancelled, and it ends up in the garbage.
+  <aside class="notes">Our customers are two groups in one place. Restaurants near McMaster that throw out unsold food and cancelled orders every night, and McMaster students who want a full meal they can afford.
 
-On the other side, students are looking for affordable meals.
-
-Full4Less connects these two problems.
-
-We checked this ourselves. Five local restaurants told us they throw away food waste and that it's a problem, and more than 20 McMaster students said they'd be willing to purchase cheaper food.</aside>
+This isn't our opinion. We spoke to 10 local restaurants, and all of them called food waste a real problem. And 50 McMaster students told us they would buy cheaper food.</aside>
 </section>
 
 <section class="slide" id="s05" data-plate="960 799 430 .5">
@@ -1052,13 +1010,7 @@ We checked this ourselves. Five local restaurants told us they throw away food w
     </div>
     <div class="pivot"></div>
   </div>
-  <aside class="notes">Full4Less comes down to one line: affordable meals, less food waste.
-
-On one side, customers get food for cheaper. Good food, at a price they can actually manage.
-
-On the other side, businesses waste less of the quality food they already made, and they recover revenue they would have lost.
-
-Most deals ask one side to give something up. This one balances, because the same plate solves both problems at once. The food gets eaten, the customer saves money, and the restaurant gets paid. That balance is the whole idea behind what we built.</aside>
+  <aside class="notes">Today, that food goes in the bin. With Full4Less, the student eats for less, and the restaurant gets paid for food it already made.</aside>
 </section>
 
 <section class="slide" id="s06" data-plate="1548 532 960 .35">
@@ -1144,151 +1096,181 @@ Most deals ask one side to give something up. This one balances, because the sam
     </div>
   </div>
 
-  <aside class="notes">Here's how it works. A restaurant has unsold food, so staff snap a photo.
+  <aside class="notes">Too Good To Go already sells surprise bags. We do something it doesn't: you see the exact meal, and live bidding sets the price, which suits cancelled orders that have to move in minutes.
 
-AI drafts the listing, and staff confirm the allergens. Allergens are always entered by staff, never by AI.
+AI matters here because staff have seconds, not minutes. They snap a photo and say a few words, and Gemini writes the listing. AI never decides allergens: staff confirm them every time. And a missed pickup goes back up for auction only after staff check it's still safe.
 
-Nearby customers see a live auction, and they can bid or just hit Buy Now. The bid climbs. Get outbid, you get an alert, and you can bid again.
+[Switch to the app for the live demo, about 60 seconds]
 
-When the timer ends, the winner is charged automatically and picks up by scanning a QR code.
+Let's show you, live. One thing to disclose first: payments run in Stripe test mode, and auction timers are shortened to one minute.
 
-If someone misses pickup, staff check it's still safe, then it goes back up for auction.
+I'm the restaurant. I photograph this dish and describe it out loud, and the listing appears with a title, a description and a starting price. I confirm the allergens and post it.
 
-What makes this ours: live bidding on individually described meals, so every portion finds its price. The demo runs in test mode, with simulated cards and shortened timers.</aside>
+On the student's phone, it's live. I bid, my teammate outbids me, and I get the alert. The timer ends, the winner is charged, and the pickup QR code is ready. I scan it, and the restaurant's sale shows up in its dashboard.
+
+Judges, give us any dish you like, and we'll list it right now.</aside>
 </section>
 
 <section class="slide light" id="s07" data-plate="1560 540 700 .15">
   <p class="kicker">Business model</p>
-  <h2 data-split>B2B2C: we earn 15% of each completed sale.</h2>
-  <p class="sub muted">Restaurants pay nothing until something sells.</p>
+  <h2 data-split>We earn on both sides of every sale.</h2>
+  <p class="sub muted">Restaurants pay nothing until something sells. Minimum commission $0.75 a sale.</p>
 
   <div class="meal">
-    <p class="fee-label" data-beat="1"><b>Full4Less commission</b>, 15%</p>
+    <p class="fee-label" data-beat="1"><b>Full4Less</b>: 20% commission + $0.50 buyer fee</p>
     <div class="bar">
       <div class="seg rest">
-        <span class="whole display">One $10 meal</span>
-        <span class="kept"><b class="display">$8.50</b> restaurant keeps</span>
+        <span class="whole display">Buyer pays $10.50</span>
+        <span class="kept"><b class="display">$8.00</b> restaurant keeps</span>
       </div>
-      <div class="seg fee"><b class="display">$1.50</b></div>
+      <div class="seg fee"><b class="display">$2.50</b></div>
     </div>
     <div class="wedge" data-beat="2"></div>
     <div class="low" data-beat="2">
-      <div class="seg processing"><b class="display">about $0.59</b><span>card processing</span></div>
-      <div class="seg left"><b class="display">about $0.91</b><span>left per meal, before fixed costs</span></div>
+      <div class="seg processing"><b class="display">~$0.60</b><span>card fee</span></div>
+      <div class="seg left"><b class="display">about $1.90</b><span>left per meal, before fixed costs</span></div>
     </div>
-    <p class="basis note-small">Illustrative meal; card fee estimate about 2.9% + 30¢<span>All figures in Canadian dollars.</span></p>
+    <p class="basis note-small">Illustrative $10 meal; card fee estimate about 2.9% + 30¢<span>Estimates in Canadian dollars.</span></p>
   </div>
 
-  <div class="card costs" data-beat="3">
-    <h3>Running costs</h3>
+  <div class="card panel costs" data-beat="3">
+    <div class="tabs" aria-hidden="true"><span class="tab is-on">Monthly costs</span><span class="tab">As volume grows</span></div>
+    <h3 class="sr">Monthly running costs</h3>
+    <p class="scale-note">Pilot scale: about 10 restaurants, 2,100 listings a month</p>
     <ul data-stagger>
       <li data-beat="3">
-        <img class="logo" src="assets/logos/expo.svg" alt="Expo">
-        <p><b>Expo</b></p>
-        <p class="price"><b>$0</b><span>free tier</span></p>
-      </li>
-      <li data-beat="3">
-        <img class="logo" src="assets/logos/apple.svg" alt="Apple">
-        <p><b>Apple Developer</b></p>
-        <p class="price"><b>about C$139</b><span>a year</span></p>
+        <img class="logo" src="assets/logos/googlegemini.svg" alt="Google Gemini">
+        <p><b>Gemini AI</b><span>photo, voice and text per listing</span></p>
+        <p class="price"><b>C$10–30</b><span>by model</span></p>
       </li>
       <li data-beat="3">
         <svg class="glyph" viewBox="0 0 48 48" aria-hidden="true"><rect x="7" y="9" width="34" height="12" rx="4"/><rect x="7" y="27" width="34" height="12" rx="4"/></svg>
-        <p><b>Hosting and database</b><span>planning estimate</span></p>
-        <p class="price"><b>about C$63</b><span>a month</span></p>
+        <p><b>Hosting</b><span>API, database and restaurant site</span></p>
+        <p class="price"><b>~C$63</b><span>team estimate</span></p>
       </li>
       <li data-beat="3">
-        <img class="logo" src="assets/logos/googlegemini.svg" alt="Google Gemini">
-        <p><b>AI (Gemini)</b><span>estimate based on comparable API pricing</span></p>
-        <p class="price"><b>about C$3</b><span>per 1,000 listings</span></p>
+        <img class="logo" src="assets/logos/apple.svg" alt="Apple">
+        <p><b>App stores</b><span>Apple US$99/yr, Google US$25 once</span></p>
+        <p class="price"><b>~C$12</b><span>a month</span></p>
+      </li>
+      <li data-beat="3">
+        <img class="logo" src="assets/logos/expo.svg" alt="Expo">
+        <p><b>Expo builds</b><span>free tier at this scale</span></p>
+        <p class="price"><b>$0</b></p>
+      </li>
+      <li data-beat="3">
+        <img class="logo" src="assets/logos/stripe.svg" alt="Stripe">
+        <p><b>Restaurant payouts</b><span>Stripe Connect, once payouts go live</span></p>
+        <p class="price"><b>~C$5</b><span>per restaurant</span></p>
+      </li>
+      <li data-beat="3">
+        <svg class="glyph" viewBox="0 0 48 48" aria-hidden="true"><path d="M24 6l15 6v11c0 9-6.5 16-15 19C15.5 39 9 32 9 23V12z"/></svg>
+        <p><b>Liability insurance</b><span>food marketplace cover</span></p>
+        <p class="price"><b>[quote]</b></p>
       </li>
     </ul>
-    <p class="total" data-beat="3"><b class="display">About C$78 a month</b><span>plus payment fees</span></p>
+    <p class="total" data-beat="3"><b class="display">About C$85–105/mo</b><span>plus card fees</span></p>
   </div>
 
-  <aside class="notes">We're B2B2C: restaurants list, customers buy, and we earn 15% of each completed sale. A restaurant pays nothing until something sells.
+  <div class="card panel growth" data-beat="4">
+    <div class="tabs" aria-hidden="true"><span class="tab">Monthly costs</span><span class="tab is-on">As volume grows</span></div>
+    <h3 class="sr">Added as volume grows</h3>
+    <p class="scale-note">New revenue, added once buyers and restaurants come back</p>
+    <ul data-stagger>
+      <li>
+        <svg class="glyph" viewBox="0 0 48 48" aria-hidden="true"><rect x="6" y="12" width="36" height="26" rx="5"/><path d="M30 22h12v8H30z"/></svg>
+        <p><b>Wallet credits</b><span>one card fee per top-up, not per meal</span></p>
+        <p class="price"><b>~$2.10</b><span>left per meal</span></p>
+      </li>
+      <li>
+        <svg class="glyph" viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="24" r="17"/><path d="M24 15v18M15 24h18"/></svg>
+        <p><b>F4L+ for buyers</b><span>no buyer fee, early access to cancelled meals</span></p>
+        <p class="price"><b>$4.99</b><span>a month</span></p>
+      </li>
+      <li>
+        <svg class="glyph" viewBox="0 0 48 48" aria-hidden="true"><path d="M8 40V8M8 40h32"/><path d="M15 31l8-9 6 5 10-12"/></svg>
+        <p><b>Restaurant Pro</b><span>12% commission, waste analytics, free boosts</span></p>
+        <p class="price"><b>$19</b><span>a month</span></p>
+      </li>
+      <li>
+        <svg class="glyph" viewBox="0 0 48 48" aria-hidden="true"><path d="M24 40V10M12 22l12-12 12 12"/></svg>
+        <p><b>Boosted listings</b><span>a meal featured at the top of the feed</span></p>
+        <p class="price"><b>~$2</b><span>per boost</span></p>
+      </li>
+      <li>
+        <svg class="glyph" viewBox="0 0 48 48" aria-hidden="true"><path d="M10 40V20l14-12 14 12v20z"/><path d="M19 40V28h10v12"/></svg>
+        <p><b>Sponsorships</b><span>campus and local partners sponsor a category</span></p>
+        <p class="price"><b>later</b></p>
+      </li>
+    </ul>
+    <p class="total"><b class="display">None of these pay the 30¢ card fee</b></p>
+  </div>
 
-Take one illustrative $10 meal, in Canadian dollars like everything on this slide. The restaurant keeps $8.50 and our commission is $1.50. Card processing takes about 59 cents on our estimate, which leaves about 91 cents per meal before fixed costs.
+  <aside class="notes">Who pays? Both sides, a little. On a 10 dollar meal, the restaurant keeps 8 dollars, and we take a 20 percent commission plus a 50 cent buyer fee. That makes sense because the alternative for the restaurant is zero. After card fees we keep about 1.90.
 
-Running costs stay small: Expo's free tier, Apple at about C$139 a year, hosting and database at about C$63 a month, and AI at about C$3 per 1,000 listings. That's about C$78 a month plus payment fees.
-
-To be plain, these numbers are illustrative until the pilot measures real supply.</aside>
+Running costs at pilot scale are about 85 to 105 dollars a month, including Gemini at 10 to 30 dollars for photo, voice and text. As volume grows, we add subscriptions and boosts that don't pay the card fee.</aside>
 </section>
 
 <section class="slide" id="s08" data-plate="40 1000 560 .15">
   <svg class="world" viewBox="0 0 1920 1080" aria-hidden="true">
     <circle class="ring tam" data-beat="2" cx="1434" cy="478" r="390"/>
-    <circle class="ring sam" data-beat="1" cx="1434" cy="478" r="67.15"/>
-    <circle class="ring som" data-beat="0" cx="1434" cy="478" r="1.6"/>
+    <circle class="ring sam" data-beat="1" cx="1434" cy="478" r="67.4"/>
+    <circle class="ring som" data-beat="0" cx="1434" cy="478" r="3.9"/>
     <circle class="halo" data-beat="2" cx="1434" cy="478" r="15"/>
   </svg>
-  <span class="tag tam" data-beat="2">Ontario</span>
-  <span class="tag sam" data-beat="1">Hamilton</span>
-  <span class="tag som" data-beat="0">Pilot</span>
-  <span class="inside display">5 businesses</span>
+  <span class="tag tam" data-beat="2">North America</span>
+  <span class="tag sam" data-beat="1">Ontario</span>
+  <span class="tag som" data-beat="0">Hamilton</span>
+  <span class="inside display">75–125 partners</span>
   <span class="scale note-small" data-beat="2">Circle areas to scale</span>
 
   <div class="col">
     <p class="kicker">Market opportunity</p>
-    <h2 data-split>Five businesses first, then Hamilton, then Ontario</h2>
+    <h2 data-split>Hamilton first, then Ontario, then North America</h2>
 
-    <p class="formula display">5 × C$10 × 15% × 300 = <span>C$2,250</span></p>
-    <p class="per muted">per business per year, bottom-up</p>
+    <p class="formula display">C$9.90 a day × 300 = <span>C$2,970</span></p>
+    <p class="per muted">per partner per year, bottom-up</p>
 
-    <p class="head note-small">Annual commission revenue</p>
+    <p class="head note-small">Annual revenue: commission + buyer fee</p>
     <div class="tier som" data-beat="0">
-      <i></i><span class="fig display" role="img" aria-label="C$11,250"></span>
-      <p><b>SOM: initial pilot</b><span>5 businesses</span></p>
+      <i></i><span class="fig display">C$220–370K</span>
+      <p><b>SOM: Hamilton</b><span>75–125 partners in years 1–2</span></p>
     </div>
     <div class="tier sam" data-beat="1">
-      <i></i><span class="fig display" role="img" aria-label="C$1.99M"></span>
-      <p><b>SAM: Hamilton</b><span>886 small food and beverage businesses</span></p>
+      <i></i><span class="fig display" role="img" aria-label="C$89M"></span>
+      <p><b>SAM: Ontario</b><span>all 29,885 food establishments</span></p>
     </div>
     <div class="tier tam" data-beat="2">
-      <i></i><span class="fig display" role="img" aria-label="C$67.24M"></span>
-      <p><b>TAM: Ontario</b><span>29,885 employer establishments</span></p>
+      <i></i><span class="fig display" role="img" aria-label="C$3.0B"></span>
+      <p><b>TAM: North America</b><span>~1M food outlets, Canada and U.S.</span></p>
     </div>
 
     <p class="segment" data-beat="3">Hamilton first: McMaster students, then Westdale, Ainslie Wood and downtown. Toronto next.</p>
   </div>
 
-  <p class="assume note-small">Illustrative scenario; assumes 5 eligible meals per business per day, average C$10 sale, 15% commission on transaction value and 300 operating days. Counts include businesses that may not qualify or participate.</p>
+  <p class="assume note-small">Estimates. Per partner: about 6 surplus items (~C$4) and 1 cancelled order (~C$8) a day over 300 days, at 20% commission plus a C$0.50 buyer fee. Assumes every food establishment has end-of-day surplus; the North America outlet count is a rough estimate. Excludes subscriptions and boosts.</p>
 
-  <aside class="notes">We sized this bottom-up. Five eligible meals a day, an average C$10 sale, 15% commission and 300 operating days gives C$2,250 per business per year.
-
-Our initial pilot is five businesses, so C$11,250. Apply the same figure to Hamilton's 886 small food and beverage businesses and you get C$1.99 million. Across Ontario's 29,885 employer establishments, C$67.24 million. All of that is annual commission revenue.
-
-We go Hamilton first: McMaster students, then Westdale, Ainslie Wood and downtown, with Toronto next.
-
-I want to be plain: these numbers are illustrative until the pilot measures real supply, and the counts include businesses that may not qualify or participate.</aside>
+  <aside class="notes">Bottom-up, each partner earns us about 2,970 dollars a year. Our first segment, 75 to 125 Hamilton restaurants, is 220 to 370 thousand dollars. Ontario is 89 million, North America about 3 billion.</aside>
 </section>
 
-<section class="slide light" id="s09" data-plate="1760 170 300 .2">
-  <svg class="fan" viewBox="-60 -60 120 120" aria-hidden="true">
-    <rect x="-36" y="-36" width="72" height="72" rx="13" transform="rotate(-18)"/>
-    <rect x="-36" y="-36" width="72" height="72" rx="13" transform="rotate(14)"/>
-    <circle r="56"/>
-  </svg>
+<section class="slide light" id="s09" data-plate="1760 170 300 0">
   <p class="kicker">Competitive analysis</p>
   <h2 data-split>Built for the cancelled order</h2>
 
   <table class="matrix">
     <thead>
-      <tr><td></td><th scope="col">Focus</th><th scope="col">What you get</th><th scope="col">How price is set</th></tr>
+      <tr><td></td><th scope="col">Focus</th><th scope="col">What you get</th><th scope="col">How price is set</th><th scope="col">How they earn</th></tr>
     </thead>
     <tbody>
       <tr class="f4l" data-beat="1">
         <th scope="row"><img src="assets/f4l-icon.svg" alt=""><b>Full4Less</b></th>
-        <td>Restaurant meals and cancelled orders</td>
+        <td>Restaurant surplus and cancelled orders</td>
         <td>The exact meal, photographed</td>
         <td class="live">Live bidding or Buy Now</td>
+        <td>Commission plus a small buyer fee</td>
       </tr>
-      <tr data-beat="1" style="--i:1"><th scope="row">Too Good To Go</th><td>Discounted surplus food</td><td>Surprise Bag</td><td>Fixed price</td></tr>
-      <tr data-beat="1" style="--i:2"><th scope="row">Flashfood</th><td>Grocery store surplus</td><td>The exact item</td><td>Up to 50% off</td></tr>
-      <tr data-beat="1" style="--i:4"><th scope="row">Olio</th><td>Neighbours sharing surplus</td><td>Listed items</td><td>Free</td></tr>
-      <tr data-beat="1" style="--i:5"><th scope="row">FoodHero</th><td>Grocery surplus, mainly Canada/Quebec</td><td>Specific items</td><td>25% to 60% off</td></tr>
-      <tr data-beat="1" style="--i:6"><th scope="row">Phenix</th><td>Regional surplus, Europe</td><td>Filtered baskets</td><td>Surprise-bag model</td></tr>
-      <tr data-beat="1" style="--i:7"><th scope="row">Goodie Bag</th><td>US restaurant surplus</td><td>Restaurant and bakery leftovers</td><td>Up to 70% off</td></tr>
+      <tr data-beat="1" style="--i:1"><th scope="row">Too Good To Go</th><td>Discounted surplus food</td><td>Surprise Bag</td><td>Fixed price</td><td>Per-bag fee plus an annual fee from stores</td></tr>
+      <tr data-beat="1" style="--i:2"><th scope="row">Flashfood</th><td>Grocery store surplus</td><td>The exact item</td><td>Up to 50% off</td><td>Revenue share with grocers</td></tr>
     </tbody>
   </table>
 
@@ -1298,13 +1280,7 @@ I want to be plain: these numbers are illustrative until the pilot measures real
     <div class="card partner" data-beat="3" style="--i:4"><p>Food rescue is a partner, not a rival: food that should be donated stays donated.</p></div>
   </div>
 
-  <aside class="notes">We're not the first people to go after food waste, so here's the field. Flashfood, FoodHero and Olio focus on groceries or neighbours sharing. Too Good To Go and Phenix sell surprise-style bags and baskets. Goodie Bag is closest on restaurant food, at a set discount.
-
-Here's what's different about us. We're built for the cancelled order, in the moment: you see the exact meal, and demand sets the price live.
-
-Our moat is local density, restaurants and students on one platform, plus data on what sells, and when.
-
-And food rescue groups are partners, not rivals. Food that should be donated stays donated.</aside>
+  <aside class="notes">Too Good To Go and Flashfood sell fixed discounts. We price live, on the exact meal. Our edge is local density and data on what sells, and when.</aside>
 </section>
 
 <section class="slide" id="s10" data-plate="1730 150 420 .22">
@@ -1339,13 +1315,7 @@ And food rescue groups are partners, not rivals. Food that should be donated sta
     <p class="partners">Partnerships with non-profits: <span class="todo">[3% of ... confirm]</span></p>
   </div>
 
-  <aside class="notes">Here is where we are and where we're headed. The working prototype is built, that part is done. Everything after it is a target, not a promise.
-
-On November 14 we want our first pilot with three to five Hamilton outlets, and by December we want results: real supply, and bidding tested against fixed discounts. Winter 2027 is ten to fifteen outlets around McMaster, Westdale and Ainslie Wood, with our food-safety protocol confirmed with Hamilton Public Health. Fall 2027 is the public iOS and Android release, real restaurant payouts, and downtown Hamilton. Then Toronto in 2028, and Ontario-wide from 2029 to 2031.
-
-Our biggest risk is that supply per outlet is still unmeasured, so the pilot answers that first.
-
-[Team: confirm what the 3% for non-profit partnerships refers to before presenting.]</aside>
+  <aside class="notes">The prototype is built. On November 14 we pilot with three to five Hamilton restaurants. Our biggest unknown is how much each restaurant lists a day. The pilot measures it, and it tests live bidding against a fixed discount. Food safety is the other risk, so we're confirming our protocol with Hamilton Public Health.</aside>
 </section>
 
 <section class="slide light" id="s11" data-plate="1370 540 760 .2">
@@ -1433,13 +1403,7 @@ Our biggest risk is that supply per outlet is still unmeasured, so the pilot ans
     <figcaption class="note-small">Schematic, not to scale</figcaption>
   </figure>
 
-  <aside class="notes">We're not starting with a big marketing campaign. We're starting in one city, Hamilton, and in one spot inside it.
-
-Our first channel is student ambassadors on McMaster campus. People talking to people. That's where our effort goes first.
-
-From campus it spreads to the neighbourhoods right beside it, Westdale and Ainslie Wood. Think of it as pings from one pin, not a national launch.
-
-Around that we add social media, restaurant partnerships, and posters in the restaurants themselves, so people meet Full4Less where they already eat.</aside>
+  <aside class="notes">Our first restaurants come from the 10 we already interviewed. Our first students come from ambassadors on McMaster campus, then Westdale and Ainslie Wood.</aside>
 </section>
 
 <section class="slide" id="s12" data-plate="1850 90 380 .2">
@@ -1490,17 +1454,7 @@ Around that we add social media, restaurant partnerships, and posters in the res
 
   <p class="built display" data-beat="2">We built the working prototype ourselves.</p>
 
-  <aside class="notes">We're Milton, Ryan, Olawale and Hurrdy.
-
-Milton co-founded the Psychology Students' Youth Competition, partnered with YorkU, co-founded PeerPrism, and is a prize winner at the LIL Venture Fund.
-
-Ryan was previously CTO of BioBuddy AI and took part in the SpurHack Accelerator Program.
-
-Olawale has diplomas in Business Management and Business Finance, with three years of experience in software and mobile engineering.
-
-Hurrdy is the technical founder of a local robotics organization.
-
-What matters most is the last line. We built the working prototype ourselves.</aside>
+  <aside class="notes">[Name] built the mobile app, [Name] built the AI listing pipeline, [Name] built the backend and payments, and [Name] ran the restaurant and student interviews. We built every part of this prototype ourselves.</aside>
 </section>
 
 <section class="slide" id="s13" data-tone="bare" data-plate="372 340 650 .35">
@@ -1518,11 +1472,7 @@ What matters most is the last line. We built the working prototype ourselves.</a
     <figcaption>See the code</figcaption>
   </figure>
 
-  <aside class="notes">We started this for one simple reason.
-
-No good meal ends the night in the bin.
-
-Thank you. And if you want proof, scan the code. It's all there.</aside>
+  <aside class="notes">Our ask: help us sign our first five pilot restaurants by November 14. If you know a Hamilton restaurant owner, introduce us. Because no good meal should end the night in the bin. Thank you.</aside>
 </section>
 
 <div id="progress"><img src="assets/f4l-icon.svg" alt=""><span class="count"></span><span class="track"><span class="fill" style="display:block"></span></span></div>
