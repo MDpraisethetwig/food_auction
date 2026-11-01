@@ -511,7 +511,7 @@ html:active-view-transition-type(back) { &::view-transition-old(slide) { animati
 #s07 .meal { position: absolute; left: var(--pad); top: 306px; width: 1034px; transition: width .9s var(--inout); }
 #s07 .fee-label { height: 42px; font-size: 26px; text-align: right; white-space: nowrap; }
 
-#s07 .bar { display: flex; gap: 12px; height: 196px; transition: gap .7s var(--spring); }
+#s07 .bar { display: flex; gap: 12px; height: 172px; transition: gap .7s var(--spring); }
 #s07 .seg { display: flex; flex-direction: column; justify-content: center; min-width: 0; border-radius: 28px; corner-shape: squircle; padding: 0 36px; line-height: 1.15; transition: background-color .6s var(--out), border-radius .6s var(--out), color .6s var(--out); }
 #s07 .seg b { font-weight: 700; }
 
@@ -523,45 +523,48 @@ html:active-view-transition-type(back) { &::view-transition-old(slide) { animati
 #s07 .kept { display: flex; align-items: baseline; gap: 20px; font-size: 30px; transition: opacity .5s var(--out) .15s; }
 #s07 .kept b { font-size: 84px; }
 
-#s07 .wedge { height: 118px; background: linear-gradient(color-mix(in srgb, var(--green) 48%, transparent), color-mix(in srgb, var(--green) 16%, transparent)); clip-path: polygon(76.2% 0, 100% 0, 100% 100%, 0 100%); translate: none; transition: opacity .4s var(--out), clip-path .9s var(--inout); }
+#s07 .wedge { height: 66px; background: linear-gradient(color-mix(in srgb, var(--green) 48%, transparent), color-mix(in srgb, var(--green) 16%, transparent)); clip-path: polygon(76.2% 0, 100% 0, 100% 100%, 0 100%); translate: none; transition: opacity .4s var(--out), clip-path .9s var(--inout); }
 
-#s07 .low { display: flex; gap: 12px; height: 196px; translate: none; clip-path: inset(0 0 0 0 round 28px); transition: opacity .4s var(--out), clip-path .9s var(--inout); }
+#s07 .low { display: flex; gap: 12px; height: 172px; translate: none; clip-path: inset(0 0 0 0 round 28px); transition: opacity .4s var(--out), clip-path .9s var(--inout); }
 #s07 .low .seg { padding: 0 32px; }
 #s07 .low b { font-size: 54px; white-space: nowrap; }
 #s07 .low span { font-size: 26px; margin-top: 6px; }
 #s07 .processing { flex: 60 1 0; background: #DCE3DD; color: var(--ink); }
 #s07 .left { flex: 190 1 0; background: var(--green); color: var(--ink); }
 
-#s07 .basis { margin-top: 20px; display: flex; flex-wrap: wrap; column-gap: 26px; }
+#s07 .basis { margin-top: 16px; display: flex; flex-wrap: wrap; column-gap: 26px; }
+#s07 .later { margin-top: 22px; font-size: 26px; line-height: 1.35; color: var(--ink); }
+#s07 .later b { font-weight: 700; }
 
 /* Running costs */
-#s07 .costs { position: absolute; left: 1180px; top: 296px; width: 644px; padding: 30px 36px 32px; }
-#s07 .costs h3 { font-size: 38px; }
-#s07 ul { list-style: none; padding: 0; margin-top: 10px; }
-#s07 li { display: grid; grid-template-columns: 48px 1fr 190px; align-items: center; column-gap: 18px; min-height: 96px; padding: 10px 0; border-bottom: 1px solid rgb(27 36 43 / .1); line-height: 1.2; }
+#s07 .costs { position: absolute; left: 1150px; top: 292px; width: 674px; padding: 24px 32px 26px; }
+#s07 .costs h3 { font-size: 34px; }
+#s07 .scale-note { font-size: 20px; color: #55636C; margin-top: 2px; }
+#s07 ul { list-style: none; padding: 0; margin-top: 4px; }
+#s07 li { display: grid; grid-template-columns: 40px 1fr 150px; align-items: center; column-gap: 16px; min-height: 76px; padding: 6px 0; border-bottom: 1px solid rgb(27 36 43 / .1); line-height: 1.2; }
 #s07 li:last-child { border-bottom: 0; }
-#s07 li .logo { height: 44px; max-width: 48px; justify-self: center; }
-#s07 li .glyph { width: 44px; height: 44px; justify-self: center; fill: none; stroke: var(--ink); stroke-width: 3.5; }
+#s07 li .logo { height: 36px; max-width: 40px; justify-self: center; }
+#s07 li .glyph { width: 38px; height: 38px; justify-self: center; fill: none; stroke: var(--ink); stroke-width: 3.5; }
 #s07 li b { font-size: 26px; font-weight: 600; }
 #s07 li span { display: block; font-size: 20px; color: #55636C; margin-top: 2px; }
 #s07 .price { text-align: right; }
 #s07 .price b { font-weight: 700; white-space: nowrap; }
-#s07 .total { display: flex; align-items: baseline; justify-content: space-between; flex-wrap: wrap; gap: 0 18px; margin-top: 8px; padding: 16px 24px; border-radius: 22px; corner-shape: squircle; background: var(--green); color: var(--ink); }
-#s07 .total b { font-size: 38px; white-space: nowrap; }
+#s07 .total { display: flex; align-items: baseline; justify-content: space-between; flex-wrap: wrap; gap: 0 18px; margin-top: 6px; padding: 12px 22px; border-radius: 22px; corner-shape: squircle; background: var(--green); color: var(--ink); }
+#s07 .total b { font-size: 34px; white-space: nowrap; }
 #s07 .total span { font-size: 22px; font-weight: 600; }
 
 /* Earlier steps. Screen only, so print falls through to the final state above. */
 @media screen {
   /* Before the running costs arrive, the meal has the whole stage. */
-  #s07:not([data-step="3"]) .meal { width: 1728px; }
+  #s07:not([data-step="3"], [data-step="4"]) .meal { width: 1728px; }
 
   /* Before the split: one solid bar. */
-  #s07:not([data-step="1"], [data-step="2"], [data-step="3"]) .bar { gap: 0; }
-  #s07:not([data-step="1"], [data-step="2"], [data-step="3"]) .rest { border-radius: 28px 0 0 28px; }
-  #s07:not([data-step="1"], [data-step="2"], [data-step="3"]) .fee { border-radius: 0 28px 28px 0; background: var(--ink); color: transparent; }
-  #s07:not([data-step="1"], [data-step="2"], [data-step="3"]) .fee b,
-  #s07:not([data-step="1"], [data-step="2"], [data-step="3"]) .kept { opacity: 0; transition-delay: 0s; }
-  #s07:not([data-step="1"], [data-step="2"], [data-step="3"]) .whole { opacity: 1; }
+  #s07:not([data-step="1"], [data-step="2"], [data-step="3"], [data-step="4"]) .bar { gap: 0; }
+  #s07:not([data-step="1"], [data-step="2"], [data-step="3"], [data-step="4"]) .rest { border-radius: 28px 0 0 28px; }
+  #s07:not([data-step="1"], [data-step="2"], [data-step="3"], [data-step="4"]) .fee { border-radius: 0 28px 28px 0; background: var(--ink); color: transparent; }
+  #s07:not([data-step="1"], [data-step="2"], [data-step="3"], [data-step="4"]) .fee b,
+  #s07:not([data-step="1"], [data-step="2"], [data-step="3"], [data-step="4"]) .kept { opacity: 0; transition-delay: 0s; }
+  #s07:not([data-step="1"], [data-step="2"], [data-step="3"], [data-step="4"]) .whole { opacity: 1; }
 
   /* Before the commission opens up: wedge and lower bar are folded under the fee. */
   #s07 .wedge:not(.on) { clip-path: polygon(76.2% 0, 100% 0, 100% 0, 76.2% 0); }
@@ -569,7 +572,7 @@ html:active-view-transition-type(back) { &::view-transition-old(slide) { animati
 }
 
 @media print {
-  #s07 .wedge, #s07 .low, #s07 .costs, #s07 li, #s07 .fee-label { opacity: 1 !important; }
+  #s07 .wedge, #s07 .low, #s07 .costs, #s07 li, #s07 .fee-label, #s07 .later { opacity: 1 !important; }
 }
 
 /* Slide 08: a to-scale zoom out. Circle area is proportional to business count,
@@ -656,25 +659,25 @@ html:active-view-transition-type(back) { &::view-transition-old(slide) { animati
 #s09 h2 { font-size: 72px; margin-top: 8px; }
 
 
-#s09 .matrix { display: block; width: 1728px; margin-top: 14px; border-collapse: collapse; }
+#s09 .matrix { display: block; width: 1728px; margin-top: 30px; border-collapse: collapse; }
 #s09 .matrix thead, #s09 .matrix tbody { display: block; }
-#s09 .matrix tr { display: grid; grid-template-columns: 340px 1fr 1fr 340px; align-items: center; column-gap: 24px; min-height: 68px; padding: 0 24px; border-radius: 18px; corner-shape: squircle; position: relative; font-size: 27px; line-height: 1.15; }
+#s09 .matrix tr { display: grid; grid-template-columns: 330px 1fr 1fr 290px 1fr; align-items: center; column-gap: 28px; min-height: 128px; padding: 0 28px; border-radius: 18px; corner-shape: squircle; position: relative; font-size: 30px; line-height: 1.2; }
 #s09 thead tr { min-height: 40px; }
 #s09 thead th { font-size: 24px; font-weight: 600; text-align: left; color: #55636C; }
 #s09 tbody tr { box-shadow: inset 0 -1px 0 rgb(27 36 43 / .12); }
-#s09 tbody th { font-weight: 600; text-align: left; }
-#s09 tr.f4l { min-height: 80px; font-weight: 600; }
+#s09 tbody th { font-weight: 600; text-align: left; font-size: 34px; }
+#s09 tr.f4l { min-height: 140px; font-weight: 600; }
 #s09 tr.f4l th { display: flex; align-items: center; gap: 14px; }
-#s09 tr.f4l th img { height: 50px; border-radius: 12px; }
-#s09 tr.f4l th b { font-family: "Display", "Body", sans-serif; font-size: 34px; letter-spacing: -.02em; }
+#s09 tr.f4l th img { height: 60px; border-radius: 12px; }
+#s09 tr.f4l th b { font-family: "Display", "Body", sans-serif; font-size: 38px; letter-spacing: -.02em; }
 
 /* The F4L row lifts and glows on beat 2 and stays lifted */
 #s09 tr.f4l { transition: opacity var(--beat-d) var(--out), background-color .6s var(--out), color .6s var(--out), translate .8s var(--spring), box-shadow .8s var(--out); }
 #s09:is([data-step="2"], [data-step="3"]) tr.f4l { background: var(--ink); color: #fff; translate: 0 -4px; z-index: 1; box-shadow: 0 0 0 2px var(--green), 0 18px 44px rgb(27 36 43 / .28), 0 0 64px color-mix(in srgb, var(--green) 60%, transparent); }
 #s09:is([data-step="2"], [data-step="3"]) .live { color: var(--amber); }
 
-#s09 .why { display: grid; grid-template-columns: 1fr 1.28fr 1.12fr; gap: 22px; margin-top: 18px; }
-#s09 .why .card { padding: 14px 26px 16px; border-radius: 24px; font-size: 27px; line-height: 1.3; }
+#s09 .why { display: grid; grid-template-columns: 1fr 1.28fr 1.12fr; gap: 22px; margin-top: 44px; }
+#s09 .why .card { padding: 22px 28px 24px; border-radius: 24px; font-size: 27px; line-height: 1.3; }
 #s09 .why h3 { font-size: 30px; margin-bottom: 4px; }
 #s09 .why .partner { display: flex; align-items: center; background: color-mix(in srgb, var(--leaf) 45%, #fff); box-shadow: none; }
 
@@ -976,12 +979,12 @@ Over the next few minutes I'll show you why this problem matters, how the produc
   <img class="hub" data-beat="3" src="assets/f4l-icon.svg" alt="Full4Less logo">
 
   <div class="card proof p-rest" data-beat="3">
-    <b class="display">5</b>
+    <b class="display">10</b>
     <p>local restaurants told us they throw away food waste, and that it's a problem.</p>
   </div>
 
   <div class="card proof p-stud" data-beat="3" style="--i:3">
-    <b class="display">20+</b>
+    <b class="display">50</b>
     <p>McMaster students said they'd be willing to purchase cheaper food.</p>
   </div>
 
@@ -991,7 +994,7 @@ On the other side, students are looking for affordable meals.
 
 Full4Less connects these two problems.
 
-We checked this ourselves. Five local restaurants told us they throw away food waste and that it's a problem, and more than 20 McMaster students said they'd be willing to purchase cheaper food.</aside>
+We checked this ourselves. Ten local restaurants told us they throw away food waste and that it's a problem, and 50 McMaster students said they'd be willing to purchase cheaper food.</aside>
 </section>
 
 <section class="slide" id="s05" data-plate="960 799 430 .5">
@@ -1136,42 +1139,56 @@ What makes this ours: live bidding on individually described meals, so every por
       <div class="seg left"><b class="display">about $1.90</b><span>left per meal, before fixed costs</span></div>
     </div>
     <p class="basis note-small">Illustrative $10 meal; card fee estimate about 2.9% + 30¢<span>Estimates in Canadian dollars.</span></p>
+    <p class="later" data-beat="4"><b>Added as volume grows:</b> wallet credits (one card fee per top-up), F4L+ for buyers at $4.99/mo, Restaurant Pro at $19/mo, and paid boosts.</p>
   </div>
 
   <div class="card costs" data-beat="3">
-    <h3>Added as volume grows</h3>
+    <h3>Monthly running costs</h3>
+    <p class="scale-note">Pilot scale: about 10 restaurants, 2,100 listings a month</p>
     <ul data-stagger>
       <li data-beat="3">
-        <svg class="glyph" viewBox="0 0 48 48" aria-hidden="true"><rect x="6" y="12" width="36" height="26" rx="5"/><path d="M30 22h12v8H30z"/></svg>
-        <p><b>Wallet credits</b><span>one card fee per top-up</span></p>
-        <p class="price"><b>about $2.10</b><span>left per meal</span></p>
+        <img class="logo" src="assets/logos/googlegemini.svg" alt="Google Gemini">
+        <p><b>Gemini AI</b><span>photo, voice and text per listing</span></p>
+        <p class="price"><b>C$10–30</b><span>by model</span></p>
       </li>
       <li data-beat="3">
-        <svg class="glyph" viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="24" r="17"/><path d="M24 15v18M15 24h18"/></svg>
-        <p><b>F4L+ for buyers</b><span>no buyer fee, early access</span></p>
-        <p class="price"><b>$4.99</b><span>a month</span></p>
+        <svg class="glyph" viewBox="0 0 48 48" aria-hidden="true"><rect x="7" y="9" width="34" height="12" rx="4"/><rect x="7" y="27" width="34" height="12" rx="4"/></svg>
+        <p><b>Hosting</b><span>API, database and restaurant site</span></p>
+        <p class="price"><b>~C$63</b><span>team estimate</span></p>
       </li>
       <li data-beat="3">
-        <svg class="glyph" viewBox="0 0 48 48" aria-hidden="true"><path d="M8 40V8M8 40h32"/><path d="M15 31l8-9 6 5 10-12"/></svg>
-        <p><b>Restaurant Pro</b><span>12% commission, waste analytics</span></p>
-        <p class="price"><b>$19</b><span>a month</span></p>
+        <img class="logo" src="assets/logos/apple.svg" alt="Apple">
+        <p><b>App stores</b><span>Apple US$99/yr, Google US$25 once</span></p>
+        <p class="price"><b>~C$12</b><span>a month</span></p>
       </li>
       <li data-beat="3">
-        <svg class="glyph" viewBox="0 0 48 48" aria-hidden="true"><path d="M24 40V10M12 22l12-12 12 12"/></svg>
-        <p><b>Boosted listings</b><span>top of the feed</span></p>
-        <p class="price"><b>about $2</b><span>per boost</span></p>
+        <img class="logo" src="assets/logos/expo.svg" alt="Expo">
+        <p><b>Expo builds</b><span>free tier at this scale</span></p>
+        <p class="price"><b>$0</b></p>
+      </li>
+      <li data-beat="3">
+        <img class="logo" src="assets/logos/stripe.svg" alt="Stripe">
+        <p><b>Restaurant payouts</b><span>Stripe Connect, once payouts go live</span></p>
+        <p class="price"><b>~C$5</b><span>per restaurant</span></p>
+      </li>
+      <li data-beat="3">
+        <svg class="glyph" viewBox="0 0 48 48" aria-hidden="true"><path d="M24 6l15 6v11c0 9-6.5 16-15 19C15.5 39 9 32 9 23V12z"/></svg>
+        <p><b>Liability insurance</b><span>food marketplace cover</span></p>
+        <p class="price"><b>[quote]</b></p>
       </li>
     </ul>
-    <p class="total" data-beat="3"><b class="display">Running costs ~C$75/mo</b><span>plus AI and card fees</span></p>
+    <p class="total" data-beat="3"><b class="display">About C$85–105/mo</b><span>plus card fees</span></p>
   </div>
 
   <aside class="notes">We earn on both sides of every sale. Restaurants pay nothing until something sells, and every sale earns us at least 75 cents.
 
-Take one illustrative $10 meal, in Canadian dollars. The buyer pays $10.50, the restaurant keeps $8.00, and we take $2.50: a 20% commission plus a 50-cent buyer fee. The card fee is about 60 cents on our estimate, which leaves about $1.90 per meal before fixed costs, roughly double a plain 15% commission.
+Take one illustrative $10 meal, in Canadian dollars. The buyer pays $10.50, the restaurant keeps $8.00, and we take $2.50: a 20% commission plus a 50-cent buyer fee. The card fee is about 60 cents on our estimate, which leaves about $1.90 per meal before fixed costs.
 
-As volume grows we add more: wallet credits, so we pay one card fee per top-up instead of per meal; F4L+ for buyers at $4.99 a month; Restaurant Pro at $19 a month with a lower 12% commission and waste analytics; and paid boosts. None of those depend on the per-meal card fee.
+Here's what it costs to run at pilot scale, about ten restaurants and 2,100 listings a month. Gemini reads the photo and the voice note and writes the listing, for about 10 to 30 dollars a month depending on the model. Hosting for our API, database and restaurant site is about 63 dollars. The app stores work out to about 12 dollars a month: Apple charges 99 US dollars a year, Google 25 once. Expo builds are free at this size. That's roughly 85 to 105 dollars a month plus card fees.
 
-Running costs stay small, about C$75 a month plus AI and card fees. To be plain, these numbers are illustrative until the pilot measures real supply and what restaurants and students accept.</aside>
+Two costs come later: Stripe payouts to restaurants, about five dollars per restaurant a month once payouts are live, and liability insurance, which we're getting quoted.
+
+As volume grows we add wallet credits, F4L+ for buyers, Restaurant Pro and paid boosts. These numbers are illustrative until the pilot measures real supply.</aside>
 </section>
 
 <section class="slide" id="s08" data-plate="40 1000 560 .15">
@@ -1230,21 +1247,18 @@ To be plain, these are estimates until the pilot measures how many surplus items
 
   <table class="matrix">
     <thead>
-      <tr><td></td><th scope="col">Focus</th><th scope="col">What you get</th><th scope="col">How price is set</th></tr>
+      <tr><td></td><th scope="col">Focus</th><th scope="col">What you get</th><th scope="col">How price is set</th><th scope="col">How they earn</th></tr>
     </thead>
     <tbody>
       <tr class="f4l" data-beat="1">
         <th scope="row"><img src="assets/f4l-icon.svg" alt=""><b>Full4Less</b></th>
-        <td>Restaurant meals and cancelled orders</td>
+        <td>Restaurant surplus and cancelled orders</td>
         <td>The exact meal, photographed</td>
         <td class="live">Live bidding or Buy Now</td>
+        <td>Commission plus a small buyer fee</td>
       </tr>
-      <tr data-beat="1" style="--i:1"><th scope="row">Too Good To Go</th><td>Discounted surplus food</td><td>Surprise Bag</td><td>Fixed price</td></tr>
-      <tr data-beat="1" style="--i:2"><th scope="row">Flashfood</th><td>Grocery store surplus</td><td>The exact item</td><td>Up to 50% off</td></tr>
-      <tr data-beat="1" style="--i:4"><th scope="row">Olio</th><td>Neighbours sharing surplus</td><td>Listed items</td><td>Free</td></tr>
-      <tr data-beat="1" style="--i:5"><th scope="row">FoodHero</th><td>Grocery surplus, mainly Canada/Quebec</td><td>Specific items</td><td>25% to 60% off</td></tr>
-      <tr data-beat="1" style="--i:6"><th scope="row">Phenix</th><td>Regional surplus, Europe</td><td>Filtered baskets</td><td>Surprise-bag model</td></tr>
-      <tr data-beat="1" style="--i:7"><th scope="row">Goodie Bag</th><td>US restaurant surplus</td><td>Restaurant and bakery leftovers</td><td>Up to 70% off</td></tr>
+      <tr data-beat="1" style="--i:1"><th scope="row">Too Good To Go</th><td>Discounted surplus food</td><td>Surprise Bag</td><td>Fixed price</td><td>Per-bag fee plus an annual fee from stores</td></tr>
+      <tr data-beat="1" style="--i:2"><th scope="row">Flashfood</th><td>Grocery store surplus</td><td>The exact item</td><td>Up to 50% off</td><td>Revenue share with grocers</td></tr>
     </tbody>
   </table>
 
@@ -1254,9 +1268,9 @@ To be plain, these are estimates until the pilot measures how many surplus items
     <div class="card partner" data-beat="3" style="--i:4"><p>Food rescue is a partner, not a rival: food that should be donated stays donated.</p></div>
   </div>
 
-  <aside class="notes">We're not the first people to go after food waste, so here's the field. Flashfood, FoodHero and Olio focus on groceries or neighbours sharing. Too Good To Go and Phenix sell surprise-style bags and baskets. Goodie Bag is closest on restaurant food, at a set discount.
+  <aside class="notes">We're not the first people to go after food waste, so here are the two names you'll know. Too Good To Go sells surprise bags at a fixed price and charges stores a per-bag fee plus an annual fee. Flashfood sells grocery surplus at up to 50% off and takes a share of the grocer's sales.
 
-Here's what's different about us. We're built for the cancelled order, in the moment: you see the exact meal, and demand sets the price live.
+Here's what's different about us. We're built for restaurant surplus and the cancelled order, in the moment: you see the exact meal, and demand sets the price live.
 
 Our moat is local density, restaurants and students on one platform, plus data on what sells, and when.
 
